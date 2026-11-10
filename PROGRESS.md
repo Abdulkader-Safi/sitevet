@@ -11,12 +11,12 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
-| M5 run history | Done on branch `m5-run-history`, PR #1 green. Waiting for Safi: changes panel review, merge, then release 0.2.0 |
+| M5 run history | Done. PR #1 merged, 0.2.0 released 2026-11-10 (crates.io and GitHub). Changes panel waits for Safi's look |
 | M6 to M14      | Not started                              |
 
 ## M5: run history
 
-On branch `m5-run-history`, PR #1. Every CLI audit is saved to a local SQLite history, runs can be listed, shown again, compared and pruned, and `--baseline` adds a changes panel to both reports.
+Merged in PR #1 and released as 0.2.0 on 2026-11-10. Every CLI audit is saved to a local SQLite history, runs can be listed, shown again, compared and pruned, and `--baseline` adds a changes panel to both reports.
 
 ### Acceptance boxes
 
