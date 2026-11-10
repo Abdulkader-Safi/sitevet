@@ -11,7 +11,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
-| M5 run history | In progress on branch `m5-run-history` |
+| M5 run history | Done on branch `m5-run-history`, PR #1 green. Waiting for Safi: changes panel review, merge, then release 0.2.0 |
 | M6 to M14      | Not started                              |
 
 ## M5: run history
@@ -34,6 +34,7 @@ On branch `m5-run-history`, PR #1. Every CLI audit is saved to a local SQLite hi
 - Off a terminal, `history delete` and `prune` refuse without `--yes` rather than delete unasked.
 - `[cli]` in `sitevet.toml` now also takes `baseline` and `save`.
 - The fixture server can switch a site's routes between two runs, for the diff test.
+- `cargo deny` allows MPL-2.0 for `option-ext`, which `directories` pulls in, as it already did for scraper's CSS crates.
 
 ## M4: rendered stage
 
