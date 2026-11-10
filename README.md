@@ -20,7 +20,7 @@ The 94 rules from the TypeScript package, covering core SEO, content, links, ima
 
 On top of that, v1 plans to ship:
 
-- Text statistics, readability scores and keyword tables for English pages.
+- Text statistics, readability scores and keyword tables for pages in any language.
 - Answer engine checks: short answers near the top, Q&A structure, AI crawler access, `llms.txt`.
 - Site-wide findings: duplicate titles and descriptions, near-duplicate pages, orphan pages, click depth, an internal link graph.
 - Trust signals and local SEO, such as author bylines, refund pages, and NAP consistency with LocalBusiness schema.
