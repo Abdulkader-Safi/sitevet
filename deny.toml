@@ -6,6 +6,12 @@ all-features = true
 
 [advisories]
 version = 2
+ignore = [
+    # basic-toml is unmaintained. askama_derive (the decided template engine, stage 4) uses it
+    # at compile time to read askama's own config; no page data ever reaches it. Revisit when
+    # askama replaces it.
+    { id = "RUSTSEC-2026-0374", reason = "build-time only, inside askama_derive" },
+]
 
 [licenses]
 version = 2

@@ -102,14 +102,14 @@ async fn per_host_delay_spaces_requests() {
     let hits = fx.hits();
     assert!(hits.len() >= 6, "robots, sitemap and 4 pages: {}", hits.len());
     // The server stamps arrival, which trails the client's start by a few ms, more when a request
-    // opens a new connection or the OS timer is coarse (Windows). So each gap gets 50 ms of slack,
-    // and the whole run, where that jitter cannot add up, must span the full delay.
+    // opens a new connection or the OS timer is coarse (the first request on a Windows runner has
+    // arrived 55 ms late). So each gap, and the whole run, get 100 ms of slack.
     for pair in hits.windows(2) {
         let gap = pair[1].at.duration_since(pair[0].at);
-        assert!(gap >= Duration::from_millis(450), "{} then {}: {gap:?}", pair[0].path, pair[1].path);
+        assert!(gap >= Duration::from_millis(400), "{} then {}: {gap:?}", pair[0].path, pair[1].path);
     }
     let span = hits[hits.len() - 1].at.duration_since(hits[0].at);
-    assert!(span >= Duration::from_millis(500 * (hits.len() as u64 - 1) - 50), "{} requests in {span:?}", hits.len());
+    assert!(span >= Duration::from_millis(500 * (hits.len() as u64 - 1) - 100), "{} requests in {span:?}", hits.len());
 }
 
 /// FR-CRAWL-07: the default user agent names sitevet, its version and the repo.
