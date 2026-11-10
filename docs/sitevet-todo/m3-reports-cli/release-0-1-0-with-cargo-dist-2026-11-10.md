@@ -1,11 +1,11 @@
 ---
 id: "release-0-1-0-with-cargo-dist-2026-11-10"
-status: "todo"
+status: "review"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T08:20:43.000Z"
+modified: "2026-11-10T14:25:41.000Z"
 labels: ["m3", "needs-review"]
 order: 9
 ---
@@ -25,3 +25,12 @@ cargo-dist config, publish both crates, GitHub Release with binaries for 5 targe
 > Needs a visual check by Safi. Move to `review` when done, not `done`.
 
 Spec: `docs/spec/06-build-spec.md`, section 8.
+
+## Result
+
+Prepared, not published. `dist-workspace.toml` and `.github/workflows/release.yml` (cargo-dist 0.34): binaries for aarch64 and x86_64 macOS, aarch64 and x86_64 Linux (musl, static), x86_64 Windows, with shell and PowerShell installers. `dist plan` lists all five. The workflow runs only when a version tag is pushed.
+
+Both crates have crates.io metadata and pass `cargo package`. A CI job (`lean-library`) fails if the library's dependency tree gains clap or rusqlite.
+
+> [!warning]
+> Publishing needs Safi's go: it cannot be undone. Steps: bump both crates to 0.1.0, `cargo login`, `cargo publish -p sitevet`, `cargo publish -p sitevet-cli`, then push the `v0.1.0` tag. After that, check `cargo install sitevet-cli` and the shell installer on a clean macOS and Ubuntu machine to tick FR-DIST-01 and FR-DIST-02.
