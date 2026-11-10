@@ -27,13 +27,14 @@ allow = [
     "CDLA-Permissive-2.0",
 ]
 # MPL-2.0 is file-level copyleft: fine to link unmodified into an MIT binary. Allowed only for
-# the crates that need it (scraper's CSS stack). axe-core, the other MPL-2.0 piece, is a bundled
+# the crates that need it (scraper's CSS stack, and option-ext under directories). axe-core, the other MPL-2.0 piece, is a bundled
 # file, not a crate, and is listed in THIRD_PARTY.md.
 exceptions = [
     { allow = ["MPL-2.0"], crate = "cssparser" },
     { allow = ["MPL-2.0"], crate = "cssparser-macros" },
     { allow = ["MPL-2.0"], crate = "dtoa-short" },
     { allow = ["MPL-2.0"], crate = "selectors" },
+    { allow = ["MPL-2.0"], crate = "option-ext" },
 ]
 
 [bans]
