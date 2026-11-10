@@ -12,7 +12,7 @@ It ships two ways from one codebase:
 
 ## Where it comes from
 
-sitevet is a Rust rebuild of [Safi Studio Scanner](https://github.com/Abdulkader-Safi/Safi-Studio-Scanner), a TypeScript package that runs 94 rules across 15 categories. That package stays maintained in its own repo. sitevet starts from the same rule catalog and rule IDs, then adds most of that project's roadmap in its first release.
+sitevet is a Rust rebuild of an earlier TypeScript audit package by the same author, which runs 94 rules across 15 categories. That package stays maintained in its own repo. sitevet starts from the same rule catalog and rule IDs, then adds most of that project's roadmap in its first release.
 
 ## What v1 checks
 
@@ -49,4 +49,4 @@ Settings can live in an optional `sitevet.toml`. Its keys match the library opti
 
 ## License
 
-[MIT](./LICENSE). Copyright Abdulkader Safi ([safi-studio.com](https://safi-studio.com)).
+[MIT](./LICENSE). Copyright [Abdulkader Safi](https://abdulkadersafi.com).

@@ -12,7 +12,7 @@ That mission shapes three downstream decisions:
 2. Rules are data plus a function. Adding one is a single file and a single registry line, so contributors can add rules without learning the engine.
 3. Free and open source, no hosted tier. Apps built on sitevet (including Safi's own) are where any business value sits.
 
-sitevet is a separate project from the TypeScript package [Safi Studio Scanner](https://github.com/Abdulkader-Safi/Safi-Studio-Scanner). Both stay maintained in their own repos. sitevet reuses its rule catalog, report concepts and roadmap as the feature baseline, and never edits that repo.
+sitevet is a separate project from Safi's earlier TypeScript audit package (called "the TS package" in this spec, local path in `CLAUDE.md`). Both stay maintained in their own repos. sitevet reuses its rule catalog, report concepts and roadmap as the feature baseline, and never edits that repo.
 
 ## One-liner
 
@@ -65,7 +65,7 @@ Technical SEO and website quality auditing, developer tooling segment. It compet
 
 ## Business model and licence
 
-Free and open source. No paid tier, no accounts, no telemetry. Value for Safi comes from the apps and client work built on top of it, plus visibility for Safi Studio.
+Free and open source. No paid tier, no accounts, no telemetry. Value for Safi comes from the apps and client work built on top of it.
 
 Licence: MIT, matching the TypeScript package. Copyright Abdulkader Safi.
 
@@ -83,7 +83,7 @@ Later: Docker image for CI users without Rust (not in v1, the static binary cove
 
 One year after v1 (around November 2027):
 
-- Safi's GPUI desktop audit app ships on sitevet, and he uses the CLI for quick audits and at least one CI check on a Safi Studio site.
+- Safi's GPUI desktop audit app ships on sitevet, and he uses the CLI for quick audits and at least one CI check on a site he maintains.
 - Community: 500 GitHub stars, 5,000 crates.io downloads, at least 5 outside contributors who merged a rule.
 - Speed: a 50-page static audit finishes in under 30 seconds on an M1 with 16 GB over a normal connection, versus about the same in the TS package for 20 pages.
 - Coverage: 94 parity rules plus the roadmap phases 2 to 9 shipped, every rule with a fixture test.
@@ -92,8 +92,8 @@ One year after v1 (around November 2027):
 
 sitevet has no GUI. Its visible surfaces are the CLI output and the HTML report.
 
-- **TS package HTML report** (`Safi-Studio-Scanner/src/report.ts`, run `npm run example` there): keep the self-contained single file, overall score badge, per-category sections, colour-coded findings, metric tables with "showing N of M". Keep the Safi Studio brand styling.
-- **TS docs site** ([safi-studio-scanner.abdulkadersafi.com](https://safi-studio-scanner.abdulkadersafi.com/roadmap/index.html)): keep the roadmap phase structure and the measurement catalog layout for sitevet's docs.
+- **TS package HTML report** (`src/report.ts` in the TS package, run `npm run example` there): keep the self-contained single file, overall score badge, per-category sections, colour-coded findings, metric tables with "showing N of M". sitevet gets its own neutral visual identity, with no company branding.
+- **TS docs site** (the TS package's rspress docs, `docs/` in that repo): keep the roadmap phase structure and the measurement catalog layout for sitevet's docs.
 - **TS streaming example** (`examples/html-report.mjs`): keep the `1/20  https://...  95/100` per-page progress line as the CLI's default progress output.
 - **cargo / ripgrep CLI style:** coloured status on stderr, report on stdout or `--out`, exit codes that CI can read.
 

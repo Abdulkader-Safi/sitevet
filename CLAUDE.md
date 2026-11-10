@@ -13,7 +13,7 @@ This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a l
 
 ## Reference project (read only)
 
-The TypeScript version lives at `../Safi-Studio-Scanner` (npm `safi-studio-scanner`, v1.0.2). It is the feature baseline: 94 rules in 15 categories, the crawl, findings and metrics, streaming events, the Playwright/axe and PageSpeed providers, and the 10-phase backlog in its `features.md`.
+The TypeScript version lives at the sibling folder `../Safi-Studio-Scanner` (v1.0.2). It is the feature baseline: 94 rules in 15 categories, the crawl, findings and metrics, streaming events, the Playwright/axe and PageSpeed providers, and the 10-phase backlog in its `features.md`.
 
 Never modify anything in that repo. Safi is still actively working on it. Read it to port behaviour, rule logic and test fixtures (`test/fixtures/*.html`).
 
@@ -55,6 +55,6 @@ Commit after each step: each signed-off spec stage, each task card moved to `don
 
 ## Writing
 
-Keep `README.md` current as features land: it says what works today, and marks anything planned as planned. The GPUI desktop app is a separate, standalone repo: don't mention it in this repo's README or code.
+Keep `README.md` current as features land: it says what works today, and marks anything planned as planned. The GPUI desktop app is a separate, standalone repo: don't mention it in this repo's README or code. Don't mention Safi Studio (the company, its site or its brand) anywhere in this repo: it is now a game development company. The only exception is the local folder path above, which is needed to find the reference code.
 
 Use the `ai-writing-rules:anti-ai-writing` skill for every doc, the README, spec files and user-facing strings. Short version: no em dashes, straight quotes, sentence case headings, no filler vocabulary, specific over generic.
