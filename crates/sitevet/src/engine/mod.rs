@@ -47,6 +47,21 @@ pub async fn audit(url: &str, options: Options) -> Result<AuditReport> {
     pipeline::run(url.to_string(), options, Events(None), CancellationToken::new()).await
 }
 
+/// Audits and renders the self-contained HTML report.
+pub async fn audit_to_html(url: &str, options: Options) -> Result<String> {
+    Ok(crate::render(&audit(url, options).await?, crate::Format::Html))
+}
+
+/// Audits and renders the Markdown report.
+pub async fn audit_to_markdown(url: &str, options: Options) -> Result<String> {
+    Ok(crate::render(&audit(url, options).await?, crate::Format::Markdown))
+}
+
+/// Audits and returns only the overall score, 0 to 100.
+pub async fn audit_score(url: &str, options: Options) -> Result<u8> {
+    Ok(audit(url, options).await?.score)
+}
+
 /// Starts an audit and streams its events. Needs a tokio context. Dropping the stream cancels.
 pub fn audit_stream(url: &str, options: Options) -> AuditStream {
     let (tx, rx) = async_channel::bounded(EVENT_CAPACITY);
