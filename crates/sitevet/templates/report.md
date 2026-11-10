@@ -10,7 +10,7 @@ The start URL redirected to {{ v.final_url }}.
 
 ## Changes since {{ c.baseline }}
 
-Score change: **{{ c.score_change }}**. {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.
+Score change: **{{ c.score_change }}**. {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.{% if c.not_compared > 0 %} {{ c.not_compared }} {% if c.not_compared == 1 %}issue{% else %}issues{% endif %} not compared: {% if c.not_compared == 1 %}its check{% else %}their checks{% endif %} ran in only one of the two runs (for example one run with `--browser` and one without), and the score change includes that.{% endif %}
 {% if !c.categories.is_empty() %}
 | Category | Before | After | Change |
 | --- | --- | --- | --- |

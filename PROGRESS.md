@@ -30,6 +30,7 @@ Merged in PR #1 and released as 0.2.0 on 2026-11-10. Every CLI audit is saved to
 
 - MSRV raised from 1.88 to 1.89: rusqlite 0.41, the stack's version, needs it. The spec caps the MSRV at 1.90.
 - The `started_at` column holds the report's `generated_at` (when the audit finished). The report records no start time.
+- A diff compares a finding only when its rule has a result on that page in both runs. Otherwise the check ran on one side only (a `--browser` run against one without) and the finding is counted as "not compared" instead of fixed or new. Found on Safi's first 0.2.0 baseline run, fixed after the release.
 - "Failing" in a diff means fail or warn. A finding whose evidence changed gets a new key, so it shows as one fixed and one new.
 - Off a terminal, `history delete` and `prune` refuse without `--yes` rather than delete unasked.
 - `[cli]` in `sitevet.toml` now also takes `baseline` and `save`.

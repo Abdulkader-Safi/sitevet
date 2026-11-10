@@ -158,6 +158,9 @@ fn summary(report: &AuditReport, out: Option<&std::path::Path>, run_id: Option<i
         };
         let change = if d.score_change > 0 { format!("+{}", d.score_change) } else { d.score_change.to_string() };
         eprintln!("changes since {base}: score {change}, {} fixed, {} new issues", d.fixed.len(), d.new_failures.len());
+        if d.not_compared > 0 {
+            eprintln!("{} issues not compared: their checks ran in only one of the two runs", d.not_compared);
+        }
     }
     if let Some(path) = out {
         eprintln!("report written to {}", path.display());
