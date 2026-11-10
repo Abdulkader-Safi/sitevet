@@ -7,6 +7,7 @@ mod psi;
 
 use std::collections::HashMap;
 
+use crate::engine::{AuditEvent, Events};
 use crate::rules::RenderedData;
 use crate::{Options, Result};
 
@@ -47,11 +48,11 @@ impl Provider {
     }
 
     /// Renders the pages (PSI: only the first `psi_max_pages`). Keys are the page URLs given.
-    pub(crate) async fn render(&mut self, urls: &[String]) -> Rendered {
+    pub(crate) async fn render(&mut self, urls: &[String], events: &Events) -> Rendered {
         match self {
             #[cfg(feature = "browser")]
-            Provider::Browser(b) => b.render(urls).await,
-            Provider::Psi(p) => p.render(urls).await,
+            Provider::Browser(b) => b.render(urls, events).await,
+            Provider::Psi(p) => p.render(urls, events).await,
         }
     }
 
@@ -73,4 +74,23 @@ impl Provider {
             Provider::Psi(_) => {}
         }
     }
+}
+
+/// Collects finished renders, sending a `PageRendered` for each. `done` carries the count
+/// across calls (the browser renders again after a restart).
+async fn collect_reporting(
+    jobs: impl futures::Stream<Item = (String, RenderedData)>,
+    done: &mut u32,
+    total: u32,
+    events: &Events,
+) -> Vec<(String, RenderedData)> {
+    use futures::StreamExt;
+    let mut jobs = std::pin::pin!(jobs);
+    let mut out = Vec::new();
+    while let Some((url, data)) = jobs.next().await {
+        *done += 1;
+        events.send(AuditEvent::PageRendered { url: url.clone(), ok: data.ok, index: *done, pages: total }).await;
+        out.push((url, data));
+    }
+    out
 }

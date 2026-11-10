@@ -52,14 +52,24 @@ async fn psi_fills_the_rendered_rules_for_the_first_five_pages() {
     options.psi_key = Some("test-key".into());
     let mut stream = audit_stream(&site.url("/"), options);
     let mut render_event = None;
+    let mut progress = Vec::new();
     while let Some(e) = stream.next().await {
-        if let AuditEvent::RenderComplete { provider, rendered, pages, .. } = e {
-            render_event = Some((provider, rendered, pages));
+        match e {
+            AuditEvent::PageRendered { index, pages, ok, .. } => {
+                assert!(render_event.is_none(), "PageRendered comes before RenderComplete");
+                assert!(ok);
+                progress.push((index, pages));
+            }
+            AuditEvent::RenderComplete { provider, rendered, pages, .. } => {
+                render_event = Some((provider, rendered, pages))
+            }
+            _ => {}
         }
     }
     let report = stream.final_report().await.unwrap();
 
     assert_eq!(render_event, Some(("psi".to_string(), 5, 20)));
+    assert_eq!(progress, (1..=5).map(|i| (i, 5)).collect::<Vec<_>>());
     // 5 pages of 20, plus one retry after the 429.
     assert_eq!(psi.received_requests().await.unwrap().len(), 6);
     assert_eq!(report.pages.len(), 20);

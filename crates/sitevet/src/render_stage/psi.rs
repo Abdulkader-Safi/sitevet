@@ -7,7 +7,8 @@ use std::time::Duration;
 use futures::StreamExt;
 use serde_json::Value;
 
-use super::Rendered;
+use super::{Rendered, collect_reporting};
+use crate::engine::Events;
 use crate::rules::{AxePass, AxeViolation, PerfMetrics, RenderedData};
 
 const ENDPOINT: &str = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
@@ -32,10 +33,12 @@ impl Psi {
         Self { key, max_pages, endpoint, client }
     }
 
-    pub(crate) async fn render(&self, urls: &[String]) -> Rendered {
+    pub(crate) async fn render(&self, urls: &[String], events: &Events) -> Rendered {
         // Futures built up front: a closure inside the stream trips a compiler limit on Send.
         let jobs: Vec<_> = urls.iter().take(self.max_pages).map(|url| self.analyze(url.clone())).collect();
-        let pages = futures::stream::iter(jobs).buffer_unordered(IN_FLIGHT).collect::<HashMap<_, _>>().await;
+        let total = jobs.len() as u32;
+        let stream = futures::stream::iter(jobs).buffer_unordered(IN_FLIGHT);
+        let pages = collect_reporting(stream, &mut 0, total, events).await.into_iter().collect::<HashMap<_, _>>();
         Rendered { pages, failed: None }
     }
 

@@ -16,7 +16,8 @@ use chromiumoxide::page::Page;
 use futures::StreamExt;
 use serde_json::Value;
 
-use super::Rendered;
+use super::{Rendered, collect_reporting};
+use crate::engine::Events;
 use crate::rules::{AxePass, AxeViolation, PerfMetrics, RenderedData};
 use crate::{Error, Options, Result};
 
@@ -123,8 +124,9 @@ impl Renderer {
         Ok(())
     }
 
-    pub(crate) async fn render(&mut self, urls: &[String]) -> Rendered {
+    pub(crate) async fn render(&mut self, urls: &[String], events: &Events) -> Rendered {
         let mut pages = HashMap::new();
+        let mut count = 0;
         let mut failed = None;
         let mut queue: Vec<&String> = urls.iter().collect();
         while !queue.is_empty() {
@@ -132,7 +134,13 @@ impl Renderer {
             let (browser, ua, guard) = (&running.browser, self.user_agent.as_str(), self.block_private);
             // Futures built up front: a closure inside the stream trips a compiler limit on Send.
             let jobs: Vec<_> = queue.iter().map(|url| render_owned(browser, (*url).clone(), ua, guard)).collect();
-            let batch: Vec<(String, RenderedData)> = futures::stream::iter(jobs).buffer_unordered(TABS).collect().await;
+            let batch = collect_reporting(
+                futures::stream::iter(jobs).buffer_unordered(TABS),
+                &mut count,
+                urls.len() as u32,
+                events,
+            )
+            .await;
             let alive = running.browser.version().await.is_ok();
             if alive {
                 pages.extend(batch);
@@ -142,6 +150,8 @@ impl Renderer {
             let done: Vec<(String, RenderedData)> = batch.into_iter().filter(|(_, d)| d.ok).collect();
             queue.retain(|u| !done.iter().any(|(d, _)| d == *u));
             pages.extend(done);
+            // The retried pages count again from where the kept ones end.
+            count = pages.len() as u32;
             self.running = None;
             if self.restarted {
                 failed = Some("the browser crashed twice".to_string());
@@ -385,6 +395,8 @@ mod tests {
     use std::sync::Arc;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
+    use crate::engine::Events;
+
     use super::Renderer;
 
     /// Counts connections to a local port.
@@ -415,14 +427,14 @@ mod tests {
         options.browser = true;
 
         let mut open = Renderer::launch(&options, false).await.unwrap();
-        let out = open.render(std::slice::from_ref(&page)).await;
+        let out = open.render(std::slice::from_ref(&page), &Events(None)).await;
         open.close().await;
         assert!(out.pages[&page].ok);
         assert!(hits.load(Ordering::SeqCst) > 0, "without the guard Chrome reaches the listener");
 
         hits.store(0, Ordering::SeqCst);
         let mut guarded = Renderer::launch(&options, true).await.unwrap();
-        let out = guarded.render(std::slice::from_ref(&page)).await;
+        let out = guarded.render(std::slice::from_ref(&page), &Events(None)).await;
         guarded.close().await;
         assert!(out.pages[&page].ok, "{:?}", out.pages[&page].error);
         assert_eq!(hits.load(Ordering::SeqCst), 0, "with the guard nothing reaches the private address");
