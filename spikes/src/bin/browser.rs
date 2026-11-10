@@ -37,12 +37,14 @@ addEventListener('load', function () { setTimeout(function () {
 </body></html>"#;
 
 const VITALS_JS: &str = r#"new Promise(function (resolve) {
-  var lcp = null, cls = 0;
-  new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { lcp = e.startTime; }); })
+  // Wait for values instead of sleeping: slow CI VMs paint late. 5 s cap.
+  var lcp = null, cls = 0, t0 = performance.now(), done = false;
+  function finish() { if (!done) { done = true; resolve({ lcp: lcp, cls: cls, waited_ms: Math.round(performance.now() - t0), slot: document.getElementById('slot').offsetHeight, vis: document.visibilityState }); } }
+  new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { lcp = e.startTime; }); if (lcp !== null && cls > 0) finish(); })
     .observe({ type: 'largest-contentful-paint', buffered: true });
-  new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { if (!e.hadRecentInput) cls += e.value; }); })
+  new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { if (!e.hadRecentInput) cls += e.value; }); if (lcp !== null && cls > 0) finish(); })
     .observe({ type: 'layout-shift', buffered: true });
-  setTimeout(function () { resolve({ lcp: lcp, cls: cls, vis: document.visibilityState, slot: document.getElementById('slot').offsetHeight }); }, 500);
+  setTimeout(finish, 5000);
 })"#;
 
 const AXE_RUN_JS: &str = r#"axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'] } })
@@ -114,8 +116,7 @@ async fn main() {
     let page = browser.new_page("about:blank").await.expect("new_page");
     page.bring_to_front().await.ok();
     page.goto(server.url("/")).await.expect("goto");
-    tokio::time::sleep(Duration::from_millis(1200)).await;
-
+    
     // Core Web Vitals through PerformanceObserver.
     match eval(&page, VITALS_JS, true).await {
         Ok(v) => {
