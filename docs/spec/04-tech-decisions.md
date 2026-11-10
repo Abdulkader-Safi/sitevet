@@ -1,6 +1,6 @@
 # Tech decisions
 
-Status: draft
+Status: signed off 2026-11-10
 
 For each decision: what was chosen, what else was considered, and why, traced to a requirement (Stage 3) or the mission and users (Stages 1 and 2). Versions are the latest stable on crates.io as of 2026-11-10. Pin minor versions in `Cargo.toml` and let Dependabot raise them.
 
@@ -24,7 +24,7 @@ For each decision: what was chosen, what else was considered, and why, traced to
 - **Choice:** tokio 1.54 inside the library. Three public entry points:
   1. `audit(url, opts).await` and `audit_stream(url, opts)`, which need a tokio context (FR-API-01, FR-API-02).
   2. `spawn(url, opts) -> AuditHandle`, which runs the audit on a multi-thread tokio runtime sitevet creates lazily and owns (2 worker threads by default, set by `Options::runtime_threads`). The handle exposes events through `async-channel` 2.5 (runtime-agnostic, works under GPUI's executor or `futures::executor`), a `cancel()` method, and an awaitable final report (FR-API-06).
-  Cancellation uses `tokio_util::sync::CancellationToken` (tokio-util 0.7.20), passed to every fetch and browser task, and dropping the handle cancels too (FR-API-03).
+     Cancellation uses `tokio_util::sync::CancellationToken` (tokio-util 0.7.20), passed to every fetch and browser task, and dropping the handle cancels too (FR-API-03).
 - **Considered:** tokio-only API with the app using Zed's `gpui_tokio` (rejected by Safi: pushes runtime plumbing into every app). Runtime-agnostic library on `smol` (rejected: reqwest and chromiumoxide need tokio).
 - **Why:** FR-API-03, FR-API-06, stage 1 first consumer.
 - **Landmines:** Zed's `gpui_tokio` creates a 2-thread runtime and spawns tokio tasks awaited through GPUI's background executor ([Zed source](https://git.secluded.site/zed/blob/main/crates/gpui_tokio/src/gpui_tokio.rs)). Zed hit a panic on exit and fixed it by calling `shutdown_background()` on the owned runtime in `Drop` ([commit 101083e](https://git.secluded.site/zed/commit/101083e7f9c92c52464551d3f888dfa5894b44e8)). sitevet's owned runtime must do the same. Never call `tokio::time::sleep` from code polled by a non-tokio executor: it panics outside a runtime. Community bridge for reference: [gpui-tokio-bridge 0.1.0](https://docs.rs/gpui-tokio-bridge).
@@ -161,15 +161,15 @@ $0 per month. GitHub Actions is free for public repos, crates.io is free, PSI ke
 
 sitevet is MIT. Dependencies checked for MIT compatibility:
 
-| Dependency | Licence |
-|---|---|
-| tokio, reqwest, scraper, clap, serde, url, regex, aho-corasick, quick-xml, askama, schemars, thiserror, tracing, insta, wiremock | MIT or MIT/Apache-2.0 |
-| rusqlite (bundled SQLite) | MIT, SQLite is public domain |
-| chromiumoxide | MIT/Apache-2.0 |
-| whatlang | MIT |
-| stop-words, rust-stemmers, unicode-segmentation, imagesize, directories | MIT or MIT/Apache-2.0 |
-| texting_robots | MIT/Apache-2.0 |
-| axe-core (bundled JS) | MPL-2.0, shipped as an unmodified separate file with its notices |
+| Dependency                                                                                                                       | Licence                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| tokio, reqwest, scraper, clap, serde, url, regex, aho-corasick, quick-xml, askama, schemars, thiserror, tracing, insta, wiremock | MIT or MIT/Apache-2.0                                            |
+| rusqlite (bundled SQLite)                                                                                                        | MIT, SQLite is public domain                                     |
+| chromiumoxide                                                                                                                    | MIT/Apache-2.0                                                   |
+| whatlang                                                                                                                         | MIT                                                              |
+| stop-words, rust-stemmers, unicode-segmentation, imagesize, directories                                                          | MIT or MIT/Apache-2.0                                            |
+| texting_robots                                                                                                                   | MIT/Apache-2.0                                                   |
+| axe-core (bundled JS)                                                                                                            | MPL-2.0, shipped as an unmodified separate file with its notices |
 
 Verify at build time with `cargo deny check licenses` in CI, allowing MIT, Apache-2.0, BSD, ISC, Zlib, Unicode-3.0 and MPL-2.0 (axe only).
 
@@ -186,11 +186,12 @@ Verify at build time with `cargo deny check licenses` in CI, allowing MIT, Apach
 
 ### Open questions
 
-1. Readability formulas outside English: FR-TEXT-05 says "a published formula where one exists". Published adaptations exist for German (Amstad), Spanish (Fernandez Huerta), French (Kandel and Moles), Italian (Flesch-Vacca) and Dutch (Douma), all needing a syllable counter per language. Ship those five in v1, or English only with the neutral fallback for everything else? : recommend English only in v1, the five adaptations as a v1.x add, because each needs its own syllable counter and test corpus.
-2. Pages in scripts without word spaces (Chinese, Japanese, Thai, Khmer): word-based metrics marked "not available", character counts only, in v1? : recommend yes. Dictionary segmentation (jieba and similar) adds megabytes per language.
-3. MSRV ceiling of 1.90: OK? : recommend yes.
+None.
 
 ### Assumptions confirmed
 
 1. **Crate layout : RESOLVED.** Workspace with `sitevet` (library) and `sitevet-cli` (binary `sitevet`). CLI installs with `cargo install sitevet-cli`.
 2. **Runtime : RESOLVED.** Async tokio API plus `spawn()` on an owned runtime with runtime-agnostic events and cancel, for GPUI and other non-tokio apps.
+3. **Readability languages : RESOLVED.** English formulas only in v1 (Flesch reading ease, Flesch-Kincaid, Gunning Fog). Every other language gets the neutral fallback. German, Spanish, French, Italian and Dutch adaptations are a v1.x add. FR-TEXT-05 in stage 3 updated.
+4. **Scripts without word spaces : RESOLVED.** Chinese, Japanese, Thai and similar get character counts, with word-based metrics marked "not available for this language".
+5. **MSRV : RESOLVED.** Pinned in M0, no newer than Rust 1.90.

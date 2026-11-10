@@ -2,7 +2,7 @@
 
 Status: signed off 2026-11-10
 
-> Changes: 2026-11-10, after sign-off, from stage 4 decisions. FR-DIST-01: the CLI installs as `cargo install sitevet-cli` (workspace split, library crate stays `sitevet`). FR-API-06: names the `spawn` entry point for non-tokio apps.
+> Changes: 2026-11-10, after sign-off, from stage 4 decisions. FR-DIST-01: the CLI installs as `cargo install sitevet-cli` (workspace split, library crate stays `sitevet`). FR-API-06: names the `spawn` entry point for non-tokio apps. FR-TEXT-05: readability formulas are English only in v1, other languages use the neutral fallback.
 
 Requirements say what the product must do, not how. Tech choices are in Stage 4. Each traces to the product (Stage 1) and the journeys or core loop (Stage 2).
 
@@ -93,8 +93,8 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
   _Acceptance:_ English and Arabic fixtures produce correct word counts and stop-word percentages against hand-counted values.
 - **FR-TEXT-04 [Must]** Text statistics: total words, unique words and percent, stop words and percent, water percent, average sentence length, characters without spaces.
   _Acceptance:_ fixture values match hand-computed values within 1%.
-- **FR-TEXT-05 [Must]** Readability: Flesch reading ease with a label, Flesch-Kincaid grade and Gunning Fog for English. For other languages, use a published formula where one exists for that language, otherwise report average sentence and word length and mark the formula "not available for this language".
-  _Acceptance:_ the English fixture matches reference values. An Arabic fixture shows the "not available" state, never an English score.
+- **FR-TEXT-05 [Must]** Readability for English pages: Flesch reading ease with a label, Flesch-Kincaid grade and Gunning Fog. For every other language, report average sentence length and average word length, and mark the formulas "not available for this language". For scripts without word spaces (Chinese, Japanese, Thai and similar), report character counts and mark word-based metrics not available.
+  _Acceptance:_ the English fixture matches reference values. Arabic and Chinese fixtures show the "not available" state, never an English score.
 - **FR-TEXT-06 [Must]** Top phrases as 1, 2 and 3-word n-grams with counts and percentages, plus a stop word table.
   _Acceptance:_ a fixture with a known repeated phrase lists it first among 2-word phrases.
 - **FR-TEXT-07 [Must]** Keyword relevance matrix: each of the top 10 keywords present or absent in title, meta description and H1. Plus highlight spans for those keywords in every heading.
