@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The library (crawl, 94 rules, collectors, scoring, JSON/Markdown/HTML reports) and the CLI (`audit`, `rules`, `init`) exist; history (M5) and the browser stage (M4) do not yet.
+This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The library (crawl, 94 rules, collectors, scoring, JSON/Markdown/HTML reports) and the CLI (`audit`, `rules`, `init`) exist; the browser stage (M4) and run history (M5) are built; 0.1.0 is on crates.io.
 
 - The spec lives in `docs/spec/`, written one stage at a time with the `project-spec` skill: `01-product.md` through `06-build-spec.md`. Only files marked `Status: signed off` are decided. Treat drafts as open.
 - Once `06-build-spec.md` is signed off, build from it alone, milestone by milestone, starting with M0. Follow its section 13 (keep `PROGRESS.md` at the repo root, commit per milestone, never add features outside the spec).
@@ -28,7 +28,7 @@ Never modify anything in that repo. Safi is still actively working on it. Read i
 
 ## Commands
 
-Cargo workspace: `crates/sitevet` (library) and `crates/sitevet-cli` (binary `sitevet`). MSRV 1.88.
+Cargo workspace: `crates/sitevet` (library) and `crates/sitevet-cli` (binary `sitevet`). MSRV 1.89. Library features `browser` and `history` are off by default; the CLI turns both on.
 
 ```bash
 cargo build --workspace
@@ -46,7 +46,7 @@ INSTA_UPDATE=always cargo test                          # accept changed insta s
 dist plan                                               # cargo-dist release plan; release.yml runs on a version tag
 ```
 
-Integration tests live in `crates/sitevet/tests/`. `tests/support/mod.rs` is the wiremock fixture server: it serves `tests/fixtures/sites/<name>/` (with `site.toml` overrides and `{{origin}}` replaced by the server URL) or pages built in the test, logs every request, and has a connection-counting proxy for cancel tests.
+CLI tests set `SITEVET_HOME` to a temp folder so they never touch the real history. Integration tests live in `crates/sitevet/tests/`. `tests/support/mod.rs` is the wiremock fixture server: it serves `tests/fixtures/sites/<name>/` (with `site.toml` overrides and `{{origin}}` replaced by the server URL) or pages built in the test, logs every request, and has a connection-counting proxy for cancel tests.
 
 ## Task board (md-kanban)
 

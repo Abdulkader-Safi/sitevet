@@ -14,6 +14,27 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M5 run history | In progress on branch `m5-run-history` |
 | M6 to M14      | Not started                              |
 
+## M5: run history
+
+On branch `m5-run-history`, PR #1. Every CLI audit is saved to a local SQLite history, runs can be listed, shown again, compared and pruned, and `--baseline` adds a changes panel to both reports.
+
+### Acceptance boxes
+
+- [x] FR-HIST-01: two runs make two rows, a `--no-save` run none.
+- [x] FR-HIST-02: `sitevet history` lists the fixture runs newest first.
+- [x] FR-HIST-03: `sitevet show 1 --format json` is byte for byte what the audit printed.
+- [x] FR-HIST-04: fixing one fixture rule between runs shows it under fixed, with the category score change.
+- [x] FR-HIST-05: `prune --keep 2` leaves the newest 2, and deleting asks first or needs `--yes`.
+
+### Decisions made in M5
+
+- MSRV raised from 1.88 to 1.89: rusqlite 0.41, the stack's version, needs it. The spec caps the MSRV at 1.90.
+- The `started_at` column holds the report's `generated_at` (when the audit finished). The report records no start time.
+- "Failing" in a diff means fail or warn. A finding whose evidence changed gets a new key, so it shows as one fixed and one new.
+- Off a terminal, `history delete` and `prune` refuse without `--yes` rather than delete unasked.
+- `[cli]` in `sitevet.toml` now also takes `baseline` and `save`.
+- The fixture server can switch a site's routes between two runs, for the diff test.
+
 ## M4: rendered stage
 
 The `browser` feature (off in the library by default, on in the CLI) renders every page in the installed Chrome or Chromium and runs axe-core 4.14.0 and Core Web Vitals. Without a browser, a PageSpeed Insights key does the same for the first `psi_max_pages` pages. With neither, the 7 rendered-stage rules are listed as skipped. All 94 rules can now run.
