@@ -50,116 +50,116 @@ Conventions:
 
 ### Options
 
-| Field | Type | Notes |
-|-------|------|-------|
-| only | Vec<String> | categories to include, empty = all |
-| skip | Vec<String> | categories to skip |
-| max_pages | u32 | default 100, max 10,000 |
-| max_depth | u32 | default 5 |
-| concurrency | u32 | per host, default 5 |
-| delay_ms | u64 | per-host delay, default 0 |
-| timeout_ms | u64 | per request, default 15,000 |
-| user_agent | Option<String> | default `sitevet/<ver> (+https://github.com/Abdulkader-Safi/sitevet)` |
-| ignore_robots | bool | default false |
-| crawl_sitemap | bool | default true |
-| allow_private_network | bool | default: true when the start URL is private or localhost, else false (see Security) |
-| browser | bool | needs `browser` feature, default false |
-| chrome_path | Option<PathBuf> | default auto-detect, env `SITEVET_CHROME` |
-| render_crawl | bool | default false |
-| psi_key | Option<String> | env `SITEVET_PSI_KEY`, never serialised into reports or history |
-| psi_max_pages | u32 | default 5 |
-| media | bool | default false |
-| media_max_requests | u32 | default 200 |
-| screenshots | bool | default false, needs browser |
-| screenshot_dir | Option<PathBuf> | default next to `--out`, or the current folder |
-| click_depth_warn | u32 | default 3 |
-| slow_resource_ms | u64 | default 300 |
-| runtime_threads | usize | `spawn` only, default 2 |
-| rules | Option<Vec<Arc<dyn Rule>>> | library only, replaces the registry; skipped by serde |
-| collectors | Option<Vec<Arc<dyn Collector>>> | library only; skipped by serde |
+| Field                 | Type                            | Notes                                                                               |
+| --------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
+| only                  | Vec<String>                     | categories to include, empty = all                                                  |
+| skip                  | Vec<String>                     | categories to skip                                                                  |
+| max_pages             | u32                             | default 100, max 10,000                                                             |
+| max_depth             | u32                             | default 5                                                                           |
+| concurrency           | u32                             | per host, default 5                                                                 |
+| delay_ms              | u64                             | per-host delay, default 0                                                           |
+| timeout_ms            | u64                             | per request, default 15,000                                                         |
+| user_agent            | Option<String>                  | default `sitevet/<ver> (+https://github.com/Abdulkader-Safi/sitevet)`               |
+| ignore_robots         | bool                            | default false                                                                       |
+| crawl_sitemap         | bool                            | default true                                                                        |
+| allow_private_network | bool                            | default: true when the start URL is private or localhost, else false (see Security) |
+| browser               | bool                            | needs `browser` feature, default false                                              |
+| chrome_path           | Option<PathBuf>                 | default auto-detect, env `SITEVET_CHROME`                                           |
+| render_crawl          | bool                            | default false                                                                       |
+| psi_key               | Option<String>                  | env `SITEVET_PSI_KEY`, never serialised into reports or history                     |
+| psi_max_pages         | u32                             | default 5                                                                           |
+| media                 | bool                            | default false                                                                       |
+| media_max_requests    | u32                             | default 200                                                                         |
+| screenshots           | bool                            | default false, needs browser                                                        |
+| screenshot_dir        | Option<PathBuf>                 | default next to `--out`, or the current folder                                      |
+| click_depth_warn      | u32                             | default 3                                                                           |
+| slow_resource_ms      | u64                             | default 300                                                                         |
+| runtime_threads       | usize                           | `spawn` only, default 2                                                             |
+| rules                 | Option<Vec<Arc<dyn Rule>>>      | library only, replaces the registry; skipped by serde                               |
+| collectors            | Option<Vec<Arc<dyn Collector>>> | library only; skipped by serde                                                      |
 
 `sitevet.toml` keys are the serde names of these fields, except the two library-only ones. CLI-only settings (`format`, `out`, `fail_under`, `fail_on`, `baseline`, `save`) live in a `[cli]` table in the same file.
 
 ### AuditReport
 
-| Field | Type | Notes |
-|-------|------|-------|
-| schema_version | u32 | 1 for v1.0 |
-| sitevet_version | String | crate version |
-| start_url | String | as given |
-| final_url | String | after redirects |
-| generated_at | String | RFC 3339 |
-| duration_ms | u64 | |
-| options | OptionsSummary | the options used, with `psi_key` removed |
-| score | u8 | overall, 0 to 100 (FR-SCORE-01) |
-| categories | Vec<CategoryScore> | sorted by category |
-| pages | Vec<PageResult> | crawl order |
-| site | SiteResult | site-wide findings and metrics (phase 4) |
-| blocked | Vec<BlockedUrl> | URLs skipped by robots.txt, with the matching rule |
-| skipped_rules | Vec<SkippedRule> | rule ID and reason, e.g. "needs browser or psi_key" |
-| changes | Option<ReportDiff> | only when a baseline was given (FR-HIST-04) |
+| Field           | Type               | Notes                                               |
+| --------------- | ------------------ | --------------------------------------------------- |
+| schema_version  | u32                | 1 for v1.0                                          |
+| sitevet_version | String             | crate version                                       |
+| start_url       | String             | as given                                            |
+| final_url       | String             | after redirects                                     |
+| generated_at    | String             | RFC 3339                                            |
+| duration_ms     | u64                |                                                     |
+| options         | OptionsSummary     | the options used, with `psi_key` removed            |
+| score           | u8                 | overall, 0 to 100 (FR-SCORE-01)                     |
+| categories      | Vec<CategoryScore> | sorted by category                                  |
+| pages           | Vec<PageResult>    | crawl order                                         |
+| site            | SiteResult         | site-wide findings and metrics (phase 4)            |
+| blocked         | Vec<BlockedUrl>    | URLs skipped by robots.txt, with the matching rule  |
+| skipped_rules   | Vec<SkippedRule>   | rule ID and reason, e.g. "needs browser or psi_key" |
+| changes         | Option<ReportDiff> | only when a baseline was given (FR-HIST-04)         |
 
 ### CategoryScore
 
-| Field | Type | Notes |
-|-------|------|-------|
-| category | String | |
-| score | u8 | `score_findings` over all findings in the category |
-| pass, fail, warn | u32 | counts |
+| Field            | Type   | Notes                                              |
+| ---------------- | ------ | -------------------------------------------------- |
+| category         | String |                                                    |
+| score            | u8     | `score_findings` over all findings in the category |
+| pass, fail, warn | u32    | counts                                             |
 
 ### PageResult
 
-| Field | Type | Notes |
-|-------|------|-------|
-| url | String | normalised |
-| final_url | String | |
-| status | u16 | 0 when the fetch failed |
-| error | Option<String> | fetch error, if any |
-| depth | u32 | click depth from start |
-| redirect_chain | Vec<String> | each hop |
-| response_ms | u64 | |
-| html_bytes | u64 | |
-| truncated | bool | true when HTML exceeded 10 MB (NFR-05) |
-| language | LanguageInfo | declared, detected, confidence (FR-TEXT-01) |
-| score | u8 | `score_findings` over this page |
-| findings | Vec<Finding> | |
-| metrics | Vec<Metric> | |
-| screenshots | Vec<Screenshot> | empty unless enabled |
+| Field          | Type            | Notes                                       |
+| -------------- | --------------- | ------------------------------------------- |
+| url            | String          | normalised                                  |
+| final_url      | String          |                                             |
+| status         | u16             | 0 when the fetch failed                     |
+| error          | Option<String>  | fetch error, if any                         |
+| depth          | u32             | click depth from start                      |
+| redirect_chain | Vec<String>     | each hop                                    |
+| response_ms    | u64             |                                             |
+| html_bytes     | u64             |                                             |
+| truncated      | bool            | true when HTML exceeded 10 MB (NFR-05)      |
+| language       | LanguageInfo    | declared, detected, confidence (FR-TEXT-01) |
+| score          | u8              | `score_findings` over this page             |
+| findings       | Vec<Finding>    |                                             |
+| metrics        | Vec<Metric>     |                                             |
+| screenshots    | Vec<Screenshot> | empty unless enabled                        |
 
 ### Finding
 
-| Field | Type | Notes |
-|-------|------|-------|
-| rule_id | String | `core-seo/title-present`, or an override such as `accessibility/label` |
-| category | String | |
-| title | String | |
-| status | Status | pass, fail, warn, info |
-| severity | Severity | error, warning, info |
-| message | String | English |
-| details | Option<String> | |
-| evidence | Option<String> | offending markup, header or value, capped at 2,000 chars |
-| fix | Option<String> | |
-| key | String | stable identity for diffs: hash of rule_id + page URL + evidence. Not shown to people |
+| Field    | Type           | Notes                                                                                 |
+| -------- | -------------- | ------------------------------------------------------------------------------------- |
+| rule_id  | String         | `core-seo/title-present`, or an override such as `accessibility/label`                |
+| category | String         |                                                                                       |
+| title    | String         |                                                                                       |
+| status   | Status         | pass, fail, warn, info                                                                |
+| severity | Severity       | error, warning, info                                                                  |
+| message  | String         | English                                                                               |
+| details  | Option<String> |                                                                                       |
+| evidence | Option<String> | offending markup, header or value, capped at 2,000 chars                              |
+| fix      | Option<String> |                                                                                       |
+| key      | String         | stable identity for diffs: hash of rule_id + page URL + evidence. Not shown to people |
 
 ### Metric
 
-| Field | Type | Notes |
-|-------|------|-------|
-| id | String | `content/word-count` |
-| category | String | |
-| label | String | |
-| status | Option<ValueStatus> | ok, warn, bad, missing. Never scored |
-| note | Option<String> | |
-| body | MetricBody | `Value { value: MetricCell or null, unit: Option<String> }` or `Table { columns, rows, total }` |
+| Field    | Type                | Notes                                                                                           |
+| -------- | ------------------- | ----------------------------------------------------------------------------------------------- |
+| id       | String              | `content/word-count`                                                                            |
+| category | String              |                                                                                                 |
+| label    | String              |                                                                                                 |
+| status   | Option<ValueStatus> | ok, warn, bad, missing. Never scored                                                            |
+| note     | Option<String>      |                                                                                                 |
+| body     | MetricBody          | `Value { value: MetricCell or null, unit: Option<String> }` or `Table { columns, rows, total }` |
 
 `MetricCell` is a string or a number. Tables keep at most 100 rows (`ROW_CAP`, same as the TS package if it differs, the TS value wins), with `total` before the cap (FR-MET-02).
 
 ### SiteResult
 
-| Field | Type | Notes |
-|-------|------|-------|
+| Field    | Type             | Notes                                                                                          |
+| -------- | ---------------- | ---------------------------------------------------------------------------------------------- |
 | findings | Vec<SiteFinding> | a Finding plus `urls: Vec<String>` it affects (duplicate group, orphans, redirect map entries) |
-| metrics | Vec<Metric> | link graph table, click depth table, sitemap reconciliation, duplicate groups |
+| metrics  | Vec<Metric>      | link graph table, click depth table, sitemap reconciliation, duplicate groups                  |
 
 ### PageData (internal, not in the report)
 
@@ -167,15 +167,15 @@ The extraction struct every post-DOM stage reads. Fields: url, final URL, status
 
 ### AuditEvent
 
-| Variant | Fields |
-|---------|--------|
-| AuditStart | url, max_pages |
-| PageFetched | url, status, depth, index (1-based), ms |
-| CrawlComplete | pages, checks_total, ms |
-| RenderComplete | provider (browser or psi), rendered, pages, ms |
-| CheckComplete | url, rule_id, status, checks_done, checks_total |
-| PageComplete | url, index, pages_total, score, findings, metrics, ms |
-| AuditComplete | score, pages, checks, ms, report (boxed) |
+| Variant        | Fields                                                |
+| -------------- | ----------------------------------------------------- |
+| AuditStart     | url, max_pages                                        |
+| PageFetched    | url, status, depth, index (1-based), ms               |
+| CrawlComplete  | pages, checks_total, ms                               |
+| RenderComplete | provider (browser or psi), rendered, pages, ms        |
+| CheckComplete  | url, rule_id, status, checks_done, checks_total       |
+| PageComplete   | url, index, pages_total, score, findings, metrics, ms |
+| AuditComplete  | score, pages, checks, ms, report (boxed)              |
 
 Same names and fields as the TS events, in snake_case. All variants are `Send + Clone + Serialize` (FR-EVENT-02).
 
@@ -183,32 +183,32 @@ Same names and fields as the TS events, in snake_case. All variants are `Send + 
 
 Table `runs`:
 
-| Field | Type | Notes |
-|-------|------|-------|
-| id | INTEGER | primary key, autoincrement |
-| start_url | TEXT | indexed |
-| origin | TEXT | indexed, for `history <url>` filtering by site |
-| started_at | TEXT | RFC 3339, indexed |
-| duration_ms | INTEGER | |
-| pages | INTEGER | |
-| score | INTEGER | |
-| sitevet_version | TEXT | |
-| schema_version | INTEGER | report schema at save time |
-| options_json | TEXT | options summary without secrets |
-| report_zst | BLOB | zstd-compressed report JSON |
+| Field           | Type    | Notes                                          |
+| --------------- | ------- | ---------------------------------------------- |
+| id              | INTEGER | primary key, autoincrement                     |
+| start_url       | TEXT    | indexed                                        |
+| origin          | TEXT    | indexed, for `history <url>` filtering by site |
+| started_at      | TEXT    | RFC 3339, indexed                              |
+| duration_ms     | INTEGER |                                                |
+| pages           | INTEGER |                                                |
+| score           | INTEGER |                                                |
+| sitevet_version | TEXT    |                                                |
+| schema_version  | INTEGER | report schema at save time                     |
+| options_json    | TEXT    | options summary without secrets                |
+| report_zst      | BLOB    | zstd-compressed report JSON                    |
 
 Schema version in `PRAGMA user_version`. Database file `history.db` under the data folder.
 
 ### ReportDiff
 
-| Field | Type | Notes |
-|-------|------|-------|
-| baseline | BaselineRef | run ID or file path, and its date |
-| score_change | i16 | overall |
-| categories | Vec<CategoryChange> | category, before, after |
-| new_failures | Vec<FindingRef> | keys failing now that passed or did not exist before |
-| fixed | Vec<FindingRef> | keys failing before that pass or are gone now |
-| pages_added, pages_removed | Vec<String> | |
+| Field                      | Type                | Notes                                                |
+| -------------------------- | ------------------- | ---------------------------------------------------- |
+| baseline                   | BaselineRef         | run ID or file path, and its date                    |
+| score_change               | i16                 | overall                                              |
+| categories                 | Vec<CategoryChange> | category, before, after                              |
+| new_failures               | Vec<FindingRef>     | keys failing now that passed or did not exist before |
+| fixed                      | Vec<FindingRef>     | keys failing before that pass or are gone now        |
+| pages_added, pages_removed | Vec<String>         |                                                      |
 
 ### Bundled data
 
