@@ -40,6 +40,17 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace
 
+  lean-library:
+    # FR-DIST-01: an app that depends on the library pulls in neither the CLI nor history crates.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: |
+          if cargo tree -p sitevet -e normal --prefix none | grep -E '^(clap|rusqlite) '; then
+            echo "the library depends on clap or rusqlite"; exit 1
+          fi
+
   msrv:
     runs-on: ubuntu-latest
     steps:

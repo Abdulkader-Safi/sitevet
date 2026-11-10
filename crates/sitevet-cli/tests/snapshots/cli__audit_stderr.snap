@@ -1,0 +1,31 @@
+---
+source: crates/sitevet-cli/tests/cli.rs
+expression: text
+---
+sitevet <version>  http://fixture.test
+up to 100 pages, depth 5
+crawling...
+crawled 5 pages, running 435 checks
+1/5  http://fixture.test/  77/100  WARN
+2/5  http://fixture.test/about.html  73/100  WARN
+3/5  http://fixture.test/orphan.html  73/100  WARN
+4/5  http://fixture.test/contact.html  64/100  WARN
+5/5  http://fixture.test/missing.html  66/100  WARN
+
+Score  0/100  FAIL
+  analytics              63  WARN  0 fail, 5 warn
+  content                91  PASS  0 fail, 6 warn
+  core-seo               52  WARN  11 fail, 26 warn
+  crawlability           88  WARN  0 fail, 5 warn
+  eeat                   38  FAIL  0 fail, 5 warn
+  images                100  PASS  0 fail, 0 warn
+  internationalization  100  PASS  0 fail, 0 warn
+  legal                  32  FAIL  0 fail, 5 warn
+  links                  90  PASS  1 fail, 0 warn
+  performance            69  WARN  0 fail, 10 warn
+  security               47  FAIL  5 fail, 25 warn
+  social-media           38  FAIL  0 fail, 10 warn
+  structured-data        80  WARN  0 fail, 10 warn
+  url-structure         100  PASS  0 fail, 0 warn
+5 pages audited
+1 URL blocked by robots.txt

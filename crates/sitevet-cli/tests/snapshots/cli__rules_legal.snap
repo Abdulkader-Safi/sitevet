@@ -1,0 +1,10 @@
+---
+source: crates/sitevet-cli/tests/cli.rs
+expression: "String::from_utf8_lossy(&table.stdout)"
+---
+ID                    CATEGORY  SEVERITY  BROWSER
+legal/privacy-policy  legal  warning  no
+legal/terms           legal  info     no
+legal/cookie-consent  legal  info     no
+legal/contact         legal  info     no
+4 rules
