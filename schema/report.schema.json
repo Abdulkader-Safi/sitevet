@@ -1,0 +1,604 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AuditReport",
+  "description": "The result of one audit.",
+  "type": "object",
+  "properties": {
+    "blocked": {
+      "description": "URLs skipped because robots.txt disallows them.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BlockedUrl"
+      }
+    },
+    "categories": {
+      "description": "Sorted by category.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CategoryScore"
+      }
+    },
+    "duration_ms": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "final_url": {
+      "type": "string"
+    },
+    "generated_at": {
+      "description": "RFC 3339, UTC.",
+      "type": "string"
+    },
+    "options": {
+      "description": "The options used. `psi_key` is never written.",
+      "$ref": "#/$defs/Options"
+    },
+    "pages": {
+      "description": "In crawl order.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PageResult"
+      }
+    },
+    "schema_version": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0
+    },
+    "score": {
+      "description": "Overall score, 0 to 100.",
+      "type": "integer",
+      "format": "uint8",
+      "maximum": 255,
+      "minimum": 0
+    },
+    "sitevet_version": {
+      "type": "string"
+    },
+    "start_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "sitevet_version",
+    "start_url",
+    "final_url",
+    "generated_at",
+    "duration_ms",
+    "options",
+    "score",
+    "categories",
+    "pages",
+    "blocked"
+  ],
+  "$defs": {
+    "BlockedUrl": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "description": "The robots.txt `Disallow` line that matched, when one can be pinned down.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "rule"
+      ]
+    },
+    "CategoryScore": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "fail": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "pass": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "score": {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        "warn": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "category",
+        "score",
+        "pass",
+        "fail",
+        "warn"
+      ]
+    },
+    "Finding": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "details": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "description": "Offending markup, header or value, at most 2,000 characters.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fix": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "key": {
+          "description": "Stable identity for diffs: a hash of rule ID, page URL and evidence.",
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "category",
+        "title",
+        "status",
+        "severity",
+        "message",
+        "details",
+        "evidence",
+        "fix",
+        "key"
+      ]
+    },
+    "Metric": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/MetricBody"
+        },
+        "category": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "label",
+        "status",
+        "note",
+        "body"
+      ]
+    },
+    "MetricBody": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "value"
+            },
+            "unit": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/MetricCell"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "value",
+            "unit"
+          ]
+        },
+        {
+          "description": "`rows` holds at most [`crate::ROW_CAP`] rows. `total` is the count before the cap.",
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "table"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/MetricCell"
+                }
+              }
+            },
+            "total": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "kind",
+            "columns",
+            "rows",
+            "total"
+          ]
+        }
+      ]
+    },
+    "MetricCell": {
+      "anyOf": [
+        {
+          "type": "number",
+          "format": "double"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "Options": {
+      "description": "Every audit setting. `sitevet.toml` keys and CLI flags map one to one onto these fields.\n\nThe struct is `#[non_exhaustive]`, so build it from [`Options::default`] and set fields:\n\n```\nlet mut options = sitevet::Options::default();\noptions.max_pages = 20;\nassert!(options.validate().is_ok());\n```",
+      "type": "object",
+      "properties": {
+        "allow_private_network": {
+          "description": "Allow private, loopback and link-local addresses. Unset means allowed only when the\nstart URL is itself private.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "browser": {
+          "description": "Rendered checks in a local Chrome. Needs the `browser` feature. Default false.",
+          "type": "boolean",
+          "default": false
+        },
+        "chrome_path": {
+          "description": "Default: auto-detect, or `SITEVET_CHROME`.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "click_depth_warn": {
+          "description": "Default 3.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 3,
+          "minimum": 0
+        },
+        "concurrency": {
+          "description": "Requests in flight per host. Default 5.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 5,
+          "minimum": 0
+        },
+        "crawl_sitemap": {
+          "description": "Seed the crawl from the sitemap too. Default true.",
+          "type": "boolean",
+          "default": true
+        },
+        "delay_ms": {
+          "description": "Gap between request starts to one host. Default 0.",
+          "type": "integer",
+          "format": "uint64",
+          "default": 0,
+          "minimum": 0
+        },
+        "ignore_robots": {
+          "description": "Default false: robots.txt is obeyed.",
+          "type": "boolean",
+          "default": false
+        },
+        "max_depth": {
+          "description": "Click depth from the start page. Default 5.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 5,
+          "minimum": 0
+        },
+        "max_pages": {
+          "description": "Default 100, at most 10,000.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 100,
+          "minimum": 0
+        },
+        "media": {
+          "description": "Image size probes. Needs the `media` feature. Default false.",
+          "type": "boolean",
+          "default": false
+        },
+        "media_max_requests": {
+          "description": "Default 200.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 200,
+          "minimum": 0
+        },
+        "only": {
+          "description": "Categories to run. Empty means all.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "psi_max_pages": {
+          "description": "Default 5.",
+          "type": "integer",
+          "format": "uint32",
+          "default": 5,
+          "minimum": 0
+        },
+        "render_crawl": {
+          "description": "Find links after JavaScript runs. Needs `browser`. Default false.",
+          "type": "boolean",
+          "default": false
+        },
+        "runtime_threads": {
+          "description": "Worker threads of the runtime [`crate::spawn`] creates. Default 2.",
+          "type": "integer",
+          "format": "uint",
+          "default": 2,
+          "minimum": 0
+        },
+        "screenshot_dir": {
+          "description": "Default: next to the report, or the current folder.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "screenshots": {
+          "description": "Needs `browser`. Default false.",
+          "type": "boolean",
+          "default": false
+        },
+        "skip": {
+          "description": "Categories to leave out.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "slow_resource_ms": {
+          "description": "Default 300.",
+          "type": "integer",
+          "format": "uint64",
+          "default": 300,
+          "minimum": 0
+        },
+        "timeout_ms": {
+          "description": "Per request. Default 15,000.",
+          "type": "integer",
+          "format": "uint64",
+          "default": 15000,
+          "minimum": 0
+        },
+        "user_agent": {
+          "description": "Default `sitevet/<version> (+https://github.com/Abdulkader-Safi/sitevet)`.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "only",
+        "skip",
+        "max_pages",
+        "max_depth",
+        "concurrency",
+        "delay_ms",
+        "timeout_ms",
+        "user_agent",
+        "ignore_robots",
+        "crawl_sitemap",
+        "allow_private_network",
+        "browser",
+        "chrome_path",
+        "render_crawl",
+        "psi_max_pages",
+        "media",
+        "media_max_requests",
+        "screenshots",
+        "screenshot_dir",
+        "click_depth_warn",
+        "slow_resource_ms",
+        "runtime_threads"
+      ]
+    },
+    "PageResult": {
+      "type": "object",
+      "properties": {
+        "depth": {
+          "description": "Click depth from the start page. Pages seeded from the sitemap count as depth 1.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "final_url": {
+          "type": "string"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Finding"
+          }
+        },
+        "html_bytes": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          }
+        },
+        "redirect_chain": {
+          "description": "Each URL that answered with a redirect, in order.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "response_ms": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "score": {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        "status": {
+          "description": "0 when the fetch failed.",
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "truncated": {
+          "description": "True when the HTML went over 10 MB and was cut.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Normalised, without the fragment.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "final_url",
+        "status",
+        "error",
+        "depth",
+        "redirect_chain",
+        "response_ms",
+        "html_bytes",
+        "truncated",
+        "score",
+        "findings",
+        "metrics"
+      ]
+    },
+    "Severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "Status": {
+      "description": "A finding's verdict.",
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "warn",
+        "info"
+      ]
+    },
+    "ValueStatus": {
+      "description": "A metric's own status. Metrics never touch the score.",
+      "type": "string",
+      "enum": [
+        "ok",
+        "warn",
+        "bad",
+        "missing"
+      ]
+    }
+  }
+}

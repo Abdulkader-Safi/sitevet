@@ -7,6 +7,9 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
+readme = "../../README.md"
+keywords = ["seo", "audit", "accessibility", "crawler", "website"]
+categories = ["web-programming", "development-tools"]
 
 [features]
 default = []
@@ -16,6 +19,8 @@ history = []
 media = []
 
 [dependencies]
+askama.workspace = true
+schemars.workspace = true
 async-channel.workspace = true
 futures.workspace = true
 quick-xml.workspace = true
@@ -34,6 +39,8 @@ unicode-segmentation.workspace = true
 url.workspace = true
 
 [dev-dependencies]
+insta.workspace = true
+jsonschema.workspace = true
 tokio = { workspace = true, features = ["io-util"] }
 wiremock.workspace = true
 

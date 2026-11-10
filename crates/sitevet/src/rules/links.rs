@@ -33,7 +33,13 @@ fn broken(cx: &RuleCx<'_>, keep: impl Fn(&Link) -> bool) -> (usize, Vec<(String,
     }
     let bad = targets
         .iter()
-        .filter_map(|u| cx.links.get(*u).map(|s| (u.to_string(), s.status)))
+        // A link robots.txt keeps us from requesting has no known status, so it is not broken.
+        .filter_map(|u| {
+            cx.links
+                .get(*u)
+                .filter(|s| s.error.as_deref() != Some(crate::crawl::ROBOTS_BLOCKED))
+                .map(|s| (u.to_string(), s.status))
+        })
         .filter(|(_, status)| *status >= 400 || *status == 0)
         .collect();
     (targets.len(), bad)

@@ -1,11 +1,16 @@
 //! The report types. JSON field names are snake_case, enums are lowercase strings.
 
+mod render;
+
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+
+pub use render::{Format, RenderOptions, render, render_with, report_schema};
 
 use crate::Options;
 
 /// A finding's verdict.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum Status {
@@ -15,7 +20,7 @@ pub enum Status {
     Info,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum Severity {
@@ -25,7 +30,7 @@ pub enum Severity {
 }
 
 /// A metric's own status. Metrics never touch the score.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum ValueStatus {
@@ -36,7 +41,7 @@ pub enum ValueStatus {
 }
 
 /// The result of one audit.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct AuditReport {
     pub schema_version: u32,
@@ -58,7 +63,7 @@ pub struct AuditReport {
     pub blocked: Vec<BlockedUrl>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct CategoryScore {
     pub category: String,
@@ -68,7 +73,7 @@ pub struct CategoryScore {
     pub warn: u32,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct PageResult {
     /// Normalised, without the fragment.
@@ -90,7 +95,7 @@ pub struct PageResult {
     pub metrics: Vec<Metric>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct Finding {
     pub rule_id: String,
@@ -107,7 +112,7 @@ pub struct Finding {
     pub key: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct Metric {
     pub id: String,
@@ -118,7 +123,7 @@ pub struct Metric {
     pub body: MetricBody,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum MetricBody {
@@ -134,14 +139,14 @@ pub enum MetricBody {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 pub enum MetricCell {
     Number(f64),
     Text(String),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[non_exhaustive]
 pub struct BlockedUrl {
     pub url: String,

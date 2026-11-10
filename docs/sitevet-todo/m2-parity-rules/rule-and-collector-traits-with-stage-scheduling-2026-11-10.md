@@ -5,7 +5,7 @@ priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T13:40:13.000Z"
+modified: "2026-11-10T14:16:46.000Z"
 labels: ["m2"]
 order: 1
 ---
@@ -16,7 +16,7 @@ order: 1
 
 ## Requirements
 
-- [ ] FR-RULE-02 [Must]: Every finding must carry rule ID, category, title, status (pass, fail, warn, info), severity (error, warning, info), message, and optional details, evidence (the offending markup, header or value) and fix text.
+- [x] FR-RULE-02 [Must]: Every finding must carry rule ID, category, title, status (pass, fail, warn, info), severity (error, warning, info), message, and optional details, evidence (the offending markup, header or value) and fix text.
   Acceptance: the JSON schema test validates every finding from the fixture suite.
 - [x] FR-RULE-03 [Must]: One rule may emit many findings, each with its own ID override and severity (as the accessibility rule does for each axe violation).
   Acceptance: a fixture with 3 axe violations yields 3 accessibility findings with distinct IDs.
@@ -35,3 +35,5 @@ FR-RULE-03: 3 axe violations give 3 findings with distinct IDs (`rules/accessibi
 
 > [!warning]
 > FR-RULE-02 needs the report JSON Schema, which M3 builds (FR-REPORT-01). Its box stays open until then. See PROGRESS.md.
+
+FR-RULE-02 ticked in M3: `tests/report.rs` validates every finding from four fixture audits against the generated schema.

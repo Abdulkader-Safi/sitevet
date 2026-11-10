@@ -19,7 +19,7 @@ pub const MAX_PAGES_CAP: u32 = 10_000;
 /// options.max_pages = 20;
 /// assert!(options.validate().is_ok());
 /// ```
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(default, deny_unknown_fields)]
 #[non_exhaustive]
 pub struct Options {
@@ -129,8 +129,38 @@ impl Options {
         };
         let mut table: toml::Table = text.parse().map_err(toml_err)?;
         table.remove("cli");
+        if let Some(key) = table.keys().find(|k| !Self::KEYS.contains(&k.as_str())) {
+            return Err(Error::InvalidOptions { field: key.clone(), reason: unknown_key_reason(key, Self::KEYS) });
+        }
         toml::Value::Table(table).try_into().map_err(toml_err)
     }
+
+    /// Every `sitevet.toml` key, in field order.
+    pub const KEYS: &'static [&'static str] = &[
+        "only",
+        "skip",
+        "max_pages",
+        "max_depth",
+        "concurrency",
+        "delay_ms",
+        "timeout_ms",
+        "user_agent",
+        "ignore_robots",
+        "crawl_sitemap",
+        "allow_private_network",
+        "browser",
+        "chrome_path",
+        "render_crawl",
+        "psi_key",
+        "psi_max_pages",
+        "media",
+        "media_max_requests",
+        "screenshots",
+        "screenshot_dir",
+        "click_depth_warn",
+        "slow_resource_ms",
+        "runtime_threads",
+    ];
 
     /// Checks limits and feature requirements.
     pub fn validate(&self) -> Result<()> {
@@ -166,6 +196,31 @@ impl Options {
             format!("sitevet/{} (+https://github.com/Abdulkader-Safi/sitevet)", env!("CARGO_PKG_VERSION"))
         })
     }
+}
+
+/// "unknown key, did you mean `x`?" with the closest valid key, when one is close.
+pub fn unknown_key_reason(key: &str, valid: &[&str]) -> String {
+    let closest = valid.iter().map(|v| (edit_distance(key, v), *v)).min();
+    match closest {
+        Some((d, v)) if d <= 3.max(key.len() / 3) => format!("unknown key, did you mean `{v}`?"),
+        _ => "unknown key".to_string(),
+    }
+}
+
+/// Levenshtein distance.
+fn edit_distance(a: &str, b: &str) -> usize {
+    let b: Vec<char> = b.chars().collect();
+    let mut row: Vec<usize> = (0..=b.len()).collect();
+    for (i, ca) in a.chars().enumerate() {
+        let mut prev = row[0];
+        row[0] = i + 1;
+        for (j, cb) in b.iter().enumerate() {
+            let cur = row[j + 1];
+            row[j + 1] = if ca == *cb { prev } else { 1 + prev.min(row[j]).min(row[j + 1]) };
+            prev = cur;
+        }
+    }
+    row[b.len()]
 }
 
 #[cfg(test)]
@@ -241,8 +296,26 @@ mod tests {
     }
 
     #[test]
-    fn unknown_toml_key_is_named() {
+    fn unknown_toml_key_is_named_with_the_closest_key() {
         let err = Options::from_toml_str("max_page = 3").unwrap_err().to_string();
-        assert!(err.contains("max_page"), "{err}");
+        assert_eq!(err, "invalid option `max_page`: unknown key, did you mean `max_pages`?");
+        let err = Options::from_toml_str("zzz = 3").unwrap_err().to_string();
+        assert_eq!(err, "invalid option `zzz`: unknown key");
+    }
+
+    #[test]
+    fn keys_cover_every_field() {
+        let mut o = Options::default();
+        o.user_agent = Some("x".into());
+        o.allow_private_network = Some(true);
+        o.chrome_path = Some("c".into());
+        o.screenshot_dir = Some("s".into());
+        let serde_json::Value::Object(map) = serde_json::to_value(&o).unwrap() else { panic!() };
+        let mut serialised: Vec<&str> = map.keys().map(String::as_str).collect();
+        serialised.push("psi_key"); // read, never written
+        serialised.sort();
+        let mut keys = Options::KEYS.to_vec();
+        keys.sort();
+        assert_eq!(serialised, keys);
     }
 }

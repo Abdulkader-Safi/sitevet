@@ -13,6 +13,9 @@ use super::fetch::{Body, Fetched, Fetcher};
 use super::normalize;
 use super::robots::RobotsGuard;
 
+/// The `error` of a link that robots.txt keeps sitevet from requesting. Its status is unknown.
+pub(crate) const ROBOTS_BLOCKED: &str = "blocked by robots.txt";
+
 /// The result of checking one URL.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -80,7 +83,7 @@ impl LinkChecker {
                             status: 0,
                             redirected: false,
                             chain: 0,
-                            error: Some("blocked by robots.txt".into()),
+                            error: Some(ROBOTS_BLOCKED.into()),
                         };
                     }
                     // HEAD first, GET when the server does not allow HEAD.

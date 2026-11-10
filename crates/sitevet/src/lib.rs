@@ -30,13 +30,17 @@ mod text;
 mod time;
 
 pub use crawl::{LinkStatus, LinkStatusMap, RobotsInfo, SiteData, SitemapInfo};
-pub use engine::{AuditEvent, AuditHandle, AuditStream, audit, audit_stream, spawn};
+pub use engine::{
+    AuditEvent, AuditHandle, AuditStream, audit, audit_score, audit_stream, audit_to_html, audit_to_markdown, spawn,
+};
 pub use error::{Error, Result};
 pub use extract::{Heading, Image, Link, MetaTag, PageData, Script};
 pub use options::Options;
+#[doc(hidden)] // shared with the CLI for its own config keys
+pub use options::unknown_key_reason;
 pub use report::{
-    AuditReport, BlockedUrl, CategoryScore, Finding, Metric, MetricBody, MetricCell, PageResult, Severity, Status,
-    ValueStatus,
+    AuditReport, BlockedUrl, CategoryScore, Finding, Format, Metric, MetricBody, MetricCell, PageResult, RenderOptions,
+    Severity, Status, ValueStatus, render, render_with, report_schema,
 };
 pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,

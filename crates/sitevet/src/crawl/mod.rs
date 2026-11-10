@@ -17,6 +17,7 @@ use url::Url;
 pub(crate) use fetch::Fetcher;
 use fetch::{Body, HTML_CAP, ROBOTS_CAP, SITEMAP_CAP};
 pub(crate) use links::LinkChecker;
+pub(crate) use links::ROBOTS_BLOCKED;
 pub use links::{LinkStatus, LinkStatusMap};
 pub(crate) use robots::RobotsGuard;
 pub use robots::RobotsInfo;

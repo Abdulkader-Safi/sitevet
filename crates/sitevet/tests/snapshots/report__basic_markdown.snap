@@ -1,0 +1,1297 @@
+---
+source: crates/sitevet/tests/report.rs
+expression: "stable(&render(&report, Format::Markdown), &origin)"
+---
+# Audit report for http://fixture.test/
+
+Overall score: **0/100** (Poor). 5 pages audited on 2026-01-01T00:00:00Z in 1.0 s.
+
+## Category scores
+
+| Category | Score | Fail | Warn | Pass |
+| --- | --- | --- | --- | --- |
+| Core SEO | 52 | 11 | 26 | 18 |
+| Content | 91 | 0 | 6 | 24 |
+| Links | 90 | 1 | 0 | 24 |
+| Images | 100 | 0 | 0 | 30 |
+| Structured data | 80 | 0 | 10 | 40 |
+| Security | 47 | 5 | 25 | 20 |
+| Crawlability | 88 | 0 | 5 | 25 |
+| URL structure | 100 | 0 | 0 | 40 |
+| Social media | 38 | 0 | 10 | 5 |
+| Internationalization | 100 | 0 | 0 | 5 |
+| Legal | 32 | 0 | 5 | 2 |
+| Analytics | 63 | 0 | 5 | 5 |
+| E-E-A-T | 38 | 0 | 5 | 1 |
+| Performance | 69 | 0 | 10 | 20 |
+
+## Pages
+
+### http://fixture.test/ (score 77/100)
+
+#### Core SEO
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | core-seo/viewport-present | Missing viewport meta |  |
+| WARN | core-seo/title-length | Title is short (4 chars) | Home |
+| WARN | core-seo/meta-description-length | Description short (21 chars) |  |
+| WARN | core-seo/h1-length | H1 is short (4 chars) | Home |
+| WARN | core-seo/canonical-present | No canonical link |  |
+| WARN | core-seo/open-graph-basics | Missing Open Graph tags: og:title, og:description, og:image |  |
+
+5 other checks passed.
+
+#### Content
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | content/word-count | Thin content (9 words) |  |
+
+5 other checks passed.
+
+#### Links
+
+All 5 checks passed.
+
+#### Images
+
+All 6 checks passed.
+
+#### Structured data
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
+| WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
+| INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+
+8 other checks passed.
+
+#### Security
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | security/https | Not served over HTTPS |  |
+| WARN | security/hsts | Missing Strict-Transport-Security |  |
+| WARN | security/csp | Missing Content-Security-Policy |  |
+| WARN | security/x-frame-options | No X-Frame-Options or frame-ancestors |  |
+| WARN | security/x-content-type-options | Missing X-Content-Type-Options: nosniff |  |
+| WARN | security/referrer-policy | Missing Referrer-Policy |  |
+| INFO | security/coop | No Cross-Origin-Opener-Policy header |  |
+| INFO | security/permissions-policy | No Permissions-Policy header |  |
+
+4 other checks passed.
+
+#### Crawlability
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | crawlability/canonical-valid | No canonical to validate |  |
+
+5 other checks passed.
+
+#### URL structure
+
+All 8 checks passed.
+
+#### Social media
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | social-media/twitter-card | No twitter:card meta |  |
+| WARN | social-media/og-image-absolute | No og:image to validate |  |
+| INFO | social-media/profile-links | No social profile links found |  |
+
+1 other check passed.
+
+#### Internationalization
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| INFO | internationalization/hreflang-present | No hreflang alternates (fine for a single-language site) |  |
+
+1 other check passed.
+
+#### Legal
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | legal/privacy-policy | No privacy policy link found |  |
+| INFO | legal/terms | No terms of service link found |  |
+| INFO | legal/cookie-consent | No cookie consent banner detected |  |
+
+1 other check passed.
+
+#### Analytics
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | analytics/tag-present | No analytics tag detected |  |
+
+1 other check passed.
+
+#### E-E-A-T
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | eeat/author | No author attribution found |  |
+| INFO | eeat/date | No published or updated date found |  |
+| INFO | eeat/outbound-citations | No outbound citations |  |
+
+1 other check passed.
+
+#### Performance
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | performance/text-compression | HTML response is not compressed |  |
+| WARN | performance/cache-control | No Cache-Control header |  |
+
+4 other checks passed.
+
+#### Measurements
+
+##### Core SEO
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Title length | 4 chars | warn | Recommended 30 to 60 |
+| Description length | 21 chars | warn | Recommended 70 to 160 |
+| H1 count | 1 | ok | Exactly one |
+| H1 length | 4 chars | warn | Recommended 10 to 70 |
+| Open Graph tags | 0 of 7 | missing | Missing og:title, og:description, og:image |
+
+**Open Graph**
+
+| Property | Content | State |
+| --- | --- | --- |
+| og:title | - | missing |
+| og:description | - | missing |
+| og:image | - | missing |
+| og:url | - | not set |
+| og:type | - | not set |
+| og:site\_name | - | not set |
+| og:locale | - | not set |
+
+##### Content
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Declared language | en | ok | The lang attribute on \<html\> |
+| Hidden elements | 0 | - | Inline display:none or the hidden attribute |
+| Inline style attributes | 0 | ok | Style belongs in a stylesheet |
+| Style blocks in body | 0 | ok | CSS after \<body\> opens can restyle painted content |
+| HTML comments | 0 | ok | Comments ship to every visitor |
+| Placeholder links | 0 | ok | href="\#" or empty |
+| Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+
+**Headings per level**
+
+| Level | Count |
+| --- | --- |
+| H1 | 1 |
+| H2 | 0 |
+| H3 | 0 |
+| H4 | 0 |
+| H5 | 0 |
+| H6 | 0 |
+
+**Heading outline**
+
+| Level | Heading | Contains |
+| --- | --- | --- |
+| H1 | Home | - |
+
+##### Links
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Links | 3 | - | 3 internal, 0 external |
+| Internal links | 3 | - |  |
+| External links | 0 | - |  |
+| Dofollow links | 3 | - |  |
+| Nofollow links | 0 | - |  |
+| Duplicated targets | 0 | ok | URLs linked more than once from this page |
+
+**Dofollow links**
+
+| URL | Anchor | Scope |
+| --- | --- | --- |
+| http://fixture.test/about.html | About | internal |
+| http://fixture.test/contact.html\#form | Contact | internal |
+| http://fixture.test/private/secret.html | Private | internal |
+
+##### Images
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Images | 0 | - |  |
+| With alt text | 0 | ok | 0 marked decorative, 0 with no alt attribute |
+| Missing alt | 0 | ok |  |
+| Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
+
+##### Crawlability
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTTP status | 200 | ok |  |
+| Response time | 1 ms | ok |  |
+| Robots meta | - | missing | Absent means index, follow |
+| X-Robots-Tag | - | missing | The header form of the same directive |
+| Canonical URL | - | missing |  |
+| Canonical matches this URL | - | missing |  |
+| robots.txt | 3 directives | ok | Declares 1 sitemap(s) |
+| Sitemap URLs | 3 | ok |  |
+
+##### Social media
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Twitter tags | 0 of 6 | missing | Falls back to Open Graph |
+
+**Twitter card**
+
+| Name | Content | State |
+| --- | --- | --- |
+| twitter:card | - | missing |
+| twitter:title | - | not set |
+| twitter:description | - | not set |
+| twitter:image | - | not set |
+| twitter:site | - | not set |
+| twitter:creator | - | not set |
+
+##### Internationalization
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| hreflang alternates | 0 | missing |  |
+
+##### E-E-A-T
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+
+##### Performance
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTML size | 0 KB | ok | Raw document, before assets |
+| Script tags | 0 | ok | 0 external, 0 inline |
+
+### http://fixture.test/about.html (score 73/100)
+
+#### Core SEO
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | core-seo/meta-description-present | Missing meta description |  |
+| FAIL | core-seo/viewport-present | Missing viewport meta |  |
+| WARN | core-seo/title-length | Title is short (5 chars) | About |
+| WARN | core-seo/meta-description-length | No description to measure |  |
+| WARN | core-seo/h1-length | H1 is short (5 chars) | About |
+| WARN | core-seo/canonical-present | No canonical link |  |
+| WARN | core-seo/open-graph-basics | Missing Open Graph tags: og:title, og:description, og:image |  |
+
+4 other checks passed.
+
+#### Content
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | content/word-count | Thin content (4 words) |  |
+
+5 other checks passed.
+
+#### Links
+
+All 5 checks passed.
+
+#### Images
+
+All 6 checks passed.
+
+#### Structured data
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
+| WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
+| INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+
+8 other checks passed.
+
+#### Security
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | security/https | Not served over HTTPS |  |
+| WARN | security/hsts | Missing Strict-Transport-Security |  |
+| WARN | security/csp | Missing Content-Security-Policy |  |
+| WARN | security/x-frame-options | No X-Frame-Options or frame-ancestors |  |
+| WARN | security/x-content-type-options | Missing X-Content-Type-Options: nosniff |  |
+| WARN | security/referrer-policy | Missing Referrer-Policy |  |
+| INFO | security/coop | No Cross-Origin-Opener-Policy header |  |
+| INFO | security/permissions-policy | No Permissions-Policy header |  |
+
+4 other checks passed.
+
+#### Crawlability
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | crawlability/canonical-valid | No canonical to validate |  |
+
+5 other checks passed.
+
+#### URL structure
+
+All 8 checks passed.
+
+#### Social media
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | social-media/twitter-card | No twitter:card meta |  |
+| WARN | social-media/og-image-absolute | No og:image to validate |  |
+| INFO | social-media/profile-links | No social profile links found |  |
+
+1 other check passed.
+
+#### Internationalization
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| INFO | internationalization/hreflang-present | No hreflang alternates (fine for a single-language site) |  |
+
+1 other check passed.
+
+#### Legal
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | legal/privacy-policy | No privacy policy link found |  |
+| INFO | legal/terms | No terms of service link found |  |
+| INFO | legal/cookie-consent | No cookie consent banner detected |  |
+
+1 other check passed.
+
+#### Analytics
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | analytics/tag-present | No analytics tag detected |  |
+
+1 other check passed.
+
+#### E-E-A-T
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | eeat/author | No author attribution found |  |
+| INFO | eeat/date | No published or updated date found |  |
+| INFO | eeat/outbound-citations | No outbound citations |  |
+| INFO | eeat/about-page | No about page link found |  |
+
+#### Performance
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | performance/text-compression | HTML response is not compressed |  |
+| WARN | performance/cache-control | No Cache-Control header |  |
+
+4 other checks passed.
+
+#### Measurements
+
+##### Core SEO
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Title length | 5 chars | warn | Recommended 30 to 60 |
+| Description length | - | missing | Recommended 70 to 160 |
+| H1 count | 1 | ok | Exactly one |
+| H1 length | 5 chars | warn | Recommended 10 to 70 |
+| Open Graph tags | 0 of 7 | missing | Missing og:title, og:description, og:image |
+
+**Open Graph**
+
+| Property | Content | State |
+| --- | --- | --- |
+| og:title | - | missing |
+| og:description | - | missing |
+| og:image | - | missing |
+| og:url | - | not set |
+| og:type | - | not set |
+| og:site\_name | - | not set |
+| og:locale | - | not set |
+
+##### Content
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Declared language | en | ok | The lang attribute on \<html\> |
+| Hidden elements | 0 | - | Inline display:none or the hidden attribute |
+| Inline style attributes | 0 | ok | Style belongs in a stylesheet |
+| Style blocks in body | 0 | ok | CSS after \<body\> opens can restyle painted content |
+| HTML comments | 0 | ok | Comments ship to every visitor |
+| Placeholder links | 0 | ok | href="\#" or empty |
+| Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+
+**Headings per level**
+
+| Level | Count |
+| --- | --- |
+| H1 | 1 |
+| H2 | 0 |
+| H3 | 0 |
+| H4 | 0 |
+| H5 | 0 |
+| H6 | 0 |
+
+**Heading outline**
+
+| Level | Heading | Contains |
+| --- | --- | --- |
+| H1 | About | - |
+
+##### Links
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Links | 2 | - | 2 internal, 0 external |
+| Internal links | 2 | - |  |
+| External links | 0 | - |  |
+| Dofollow links | 2 | - |  |
+| Nofollow links | 0 | - |  |
+| Duplicated targets | 0 | ok | URLs linked more than once from this page |
+
+**Dofollow links**
+
+| URL | Anchor | Scope |
+| --- | --- | --- |
+| http://fixture.test/ | Home | internal |
+| http://fixture.test/contact.html | Contact | internal |
+
+##### Images
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Images | 0 | - |  |
+| With alt text | 0 | ok | 0 marked decorative, 0 with no alt attribute |
+| Missing alt | 0 | ok |  |
+| Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
+
+##### Crawlability
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTTP status | 200 | ok |  |
+| Response time | 1 ms | ok |  |
+| Robots meta | - | missing | Absent means index, follow |
+| X-Robots-Tag | - | missing | The header form of the same directive |
+| Canonical URL | - | missing |  |
+| Canonical matches this URL | - | missing |  |
+| robots.txt | 3 directives | ok | Declares 1 sitemap(s) |
+| Sitemap URLs | 3 | ok |  |
+
+##### Social media
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Twitter tags | 0 of 6 | missing | Falls back to Open Graph |
+
+**Twitter card**
+
+| Name | Content | State |
+| --- | --- | --- |
+| twitter:card | - | missing |
+| twitter:title | - | not set |
+| twitter:description | - | not set |
+| twitter:image | - | not set |
+| twitter:site | - | not set |
+| twitter:creator | - | not set |
+
+##### Internationalization
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| hreflang alternates | 0 | missing |  |
+
+##### E-E-A-T
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+
+##### Performance
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTML size | 0 KB | ok | Raw document, before assets |
+| Script tags | 0 | ok | 0 external, 0 inline |
+
+### http://fixture.test/orphan.html (score 73/100)
+
+#### Core SEO
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | core-seo/meta-description-present | Missing meta description |  |
+| FAIL | core-seo/viewport-present | Missing viewport meta |  |
+| WARN | core-seo/title-length | Title is short (6 chars) | Orphan |
+| WARN | core-seo/meta-description-length | No description to measure |  |
+| WARN | core-seo/h1-length | H1 is short (6 chars) | Orphan |
+| WARN | core-seo/canonical-present | No canonical link |  |
+| WARN | core-seo/open-graph-basics | Missing Open Graph tags: og:title, og:description, og:image |  |
+
+4 other checks passed.
+
+#### Content
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | content/word-count | Thin content (6 words) |  |
+
+5 other checks passed.
+
+#### Links
+
+All 5 checks passed.
+
+#### Images
+
+All 6 checks passed.
+
+#### Structured data
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
+| WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
+| INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+
+8 other checks passed.
+
+#### Security
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | security/https | Not served over HTTPS |  |
+| WARN | security/hsts | Missing Strict-Transport-Security |  |
+| WARN | security/csp | Missing Content-Security-Policy |  |
+| WARN | security/x-frame-options | No X-Frame-Options or frame-ancestors |  |
+| WARN | security/x-content-type-options | Missing X-Content-Type-Options: nosniff |  |
+| WARN | security/referrer-policy | Missing Referrer-Policy |  |
+| INFO | security/coop | No Cross-Origin-Opener-Policy header |  |
+| INFO | security/permissions-policy | No Permissions-Policy header |  |
+
+4 other checks passed.
+
+#### Crawlability
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | crawlability/canonical-valid | No canonical to validate |  |
+
+5 other checks passed.
+
+#### URL structure
+
+All 8 checks passed.
+
+#### Social media
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | social-media/twitter-card | No twitter:card meta |  |
+| WARN | social-media/og-image-absolute | No og:image to validate |  |
+| INFO | social-media/profile-links | No social profile links found |  |
+
+1 other check passed.
+
+#### Internationalization
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| INFO | internationalization/hreflang-present | No hreflang alternates (fine for a single-language site) |  |
+
+1 other check passed.
+
+#### Legal
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | legal/privacy-policy | No privacy policy link found |  |
+| INFO | legal/terms | No terms of service link found |  |
+| INFO | legal/cookie-consent | No cookie consent banner detected |  |
+| INFO | legal/contact | No contact link found |  |
+
+#### Analytics
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | analytics/tag-present | No analytics tag detected |  |
+
+1 other check passed.
+
+#### E-E-A-T
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | eeat/author | No author attribution found |  |
+| INFO | eeat/date | No published or updated date found |  |
+| INFO | eeat/outbound-citations | No outbound citations |  |
+| INFO | eeat/about-page | No about page link found |  |
+
+#### Performance
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | performance/text-compression | HTML response is not compressed |  |
+| WARN | performance/cache-control | No Cache-Control header |  |
+
+4 other checks passed.
+
+#### Measurements
+
+##### Core SEO
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Title length | 6 chars | warn | Recommended 30 to 60 |
+| Description length | - | missing | Recommended 70 to 160 |
+| H1 count | 1 | ok | Exactly one |
+| H1 length | 6 chars | warn | Recommended 10 to 70 |
+| Open Graph tags | 0 of 7 | missing | Missing og:title, og:description, og:image |
+
+**Open Graph**
+
+| Property | Content | State |
+| --- | --- | --- |
+| og:title | - | missing |
+| og:description | - | missing |
+| og:image | - | missing |
+| og:url | - | not set |
+| og:type | - | not set |
+| og:site\_name | - | not set |
+| og:locale | - | not set |
+
+##### Content
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Declared language | en | ok | The lang attribute on \<html\> |
+| Hidden elements | 0 | - | Inline display:none or the hidden attribute |
+| Inline style attributes | 0 | ok | Style belongs in a stylesheet |
+| Style blocks in body | 0 | ok | CSS after \<body\> opens can restyle painted content |
+| HTML comments | 0 | ok | Comments ship to every visitor |
+| Placeholder links | 0 | ok | href="\#" or empty |
+| Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+
+**Headings per level**
+
+| Level | Count |
+| --- | --- |
+| H1 | 1 |
+| H2 | 0 |
+| H3 | 0 |
+| H4 | 0 |
+| H5 | 0 |
+| H6 | 0 |
+
+**Heading outline**
+
+| Level | Heading | Contains |
+| --- | --- | --- |
+| H1 | Orphan | - |
+
+##### Links
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Links | 0 | - | 0 internal, 0 external |
+| Internal links | 0 | - |  |
+| External links | 0 | - |  |
+| Dofollow links | 0 | - |  |
+| Nofollow links | 0 | - |  |
+| Duplicated targets | 0 | ok | URLs linked more than once from this page |
+
+##### Images
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Images | 0 | - |  |
+| With alt text | 0 | ok | 0 marked decorative, 0 with no alt attribute |
+| Missing alt | 0 | ok |  |
+| Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
+
+##### Crawlability
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTTP status | 200 | ok |  |
+| Response time | 1 ms | ok |  |
+| Robots meta | - | missing | Absent means index, follow |
+| X-Robots-Tag | - | missing | The header form of the same directive |
+| Canonical URL | - | missing |  |
+| Canonical matches this URL | - | missing |  |
+| robots.txt | 3 directives | ok | Declares 1 sitemap(s) |
+| Sitemap URLs | 3 | ok |  |
+
+##### Social media
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Twitter tags | 0 of 6 | missing | Falls back to Open Graph |
+
+**Twitter card**
+
+| Name | Content | State |
+| --- | --- | --- |
+| twitter:card | - | missing |
+| twitter:title | - | not set |
+| twitter:description | - | not set |
+| twitter:image | - | not set |
+| twitter:site | - | not set |
+| twitter:creator | - | not set |
+
+##### Internationalization
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| hreflang alternates | 0 | missing |  |
+
+##### E-E-A-T
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+
+##### Performance
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTML size | 0 KB | ok | Raw document, before assets |
+| Script tags | 0 | ok | 0 external, 0 inline |
+
+### http://fixture.test/contact.html (score 64/100)
+
+#### Core SEO
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | core-seo/title-present | Missing \<title\> |  |
+| FAIL | core-seo/meta-description-present | Missing meta description |  |
+| FAIL | core-seo/viewport-present | Missing viewport meta |  |
+| WARN | core-seo/title-length | No title to measure |  |
+| WARN | core-seo/meta-description-length | No description to measure |  |
+| WARN | core-seo/h1-length | H1 is short (7 chars) | Contact |
+| WARN | core-seo/canonical-present | No canonical link |  |
+| WARN | core-seo/open-graph-basics | Missing Open Graph tags: og:title, og:description, og:image |  |
+
+3 other checks passed.
+
+#### Content
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | content/word-count | Thin content (7 words) |  |
+
+5 other checks passed.
+
+#### Links
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | links/broken-internal | Broken internal link (404) | http://fixture.test/missing.html |
+
+4 other checks passed.
+
+#### Images
+
+All 6 checks passed.
+
+#### Structured data
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
+| WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
+| INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+
+8 other checks passed.
+
+#### Security
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | security/https | Not served over HTTPS |  |
+| WARN | security/hsts | Missing Strict-Transport-Security |  |
+| WARN | security/csp | Missing Content-Security-Policy |  |
+| WARN | security/x-frame-options | No X-Frame-Options or frame-ancestors |  |
+| WARN | security/x-content-type-options | Missing X-Content-Type-Options: nosniff |  |
+| WARN | security/referrer-policy | Missing Referrer-Policy |  |
+| INFO | security/coop | No Cross-Origin-Opener-Policy header |  |
+| INFO | security/permissions-policy | No Permissions-Policy header |  |
+
+4 other checks passed.
+
+#### Crawlability
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | crawlability/canonical-valid | No canonical to validate |  |
+
+5 other checks passed.
+
+#### URL structure
+
+All 8 checks passed.
+
+#### Social media
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | social-media/twitter-card | No twitter:card meta |  |
+| WARN | social-media/og-image-absolute | No og:image to validate |  |
+| INFO | social-media/profile-links | No social profile links found |  |
+
+1 other check passed.
+
+#### Internationalization
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| INFO | internationalization/hreflang-present | No hreflang alternates (fine for a single-language site) |  |
+
+1 other check passed.
+
+#### Legal
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | legal/privacy-policy | No privacy policy link found |  |
+| INFO | legal/terms | No terms of service link found |  |
+| INFO | legal/cookie-consent | No cookie consent banner detected |  |
+| INFO | legal/contact | No contact link found |  |
+
+#### Analytics
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | analytics/tag-present | No analytics tag detected |  |
+
+1 other check passed.
+
+#### E-E-A-T
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | eeat/author | No author attribution found |  |
+| INFO | eeat/date | No published or updated date found |  |
+| INFO | eeat/outbound-citations | No outbound citations |  |
+| INFO | eeat/about-page | No about page link found |  |
+
+#### Performance
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | performance/text-compression | HTML response is not compressed |  |
+| WARN | performance/cache-control | No Cache-Control header |  |
+
+4 other checks passed.
+
+#### Measurements
+
+##### Core SEO
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Title length | - | missing | Recommended 30 to 60 |
+| Description length | - | missing | Recommended 70 to 160 |
+| H1 count | 1 | ok | Exactly one |
+| H1 length | 7 chars | warn | Recommended 10 to 70 |
+| Open Graph tags | 0 of 7 | missing | Missing og:title, og:description, og:image |
+
+**Open Graph**
+
+| Property | Content | State |
+| --- | --- | --- |
+| og:title | - | missing |
+| og:description | - | missing |
+| og:image | - | missing |
+| og:url | - | not set |
+| og:type | - | not set |
+| og:site\_name | - | not set |
+| og:locale | - | not set |
+
+##### Content
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Declared language | en | ok | The lang attribute on \<html\> |
+| Hidden elements | 0 | - | Inline display:none or the hidden attribute |
+| Inline style attributes | 0 | ok | Style belongs in a stylesheet |
+| Style blocks in body | 0 | ok | CSS after \<body\> opens can restyle painted content |
+| HTML comments | 0 | ok | Comments ship to every visitor |
+| Placeholder links | 0 | ok | href="\#" or empty |
+| Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+
+**Headings per level**
+
+| Level | Count |
+| --- | --- |
+| H1 | 1 |
+| H2 | 0 |
+| H3 | 0 |
+| H4 | 0 |
+| H5 | 0 |
+| H6 | 0 |
+
+**Heading outline**
+
+| Level | Heading | Contains |
+| --- | --- | --- |
+| H1 | Contact | - |
+
+##### Links
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Links | 2 | - | 2 internal, 0 external |
+| Internal links | 2 | - |  |
+| External links | 0 | - |  |
+| Dofollow links | 2 | - |  |
+| Nofollow links | 0 | - |  |
+| Duplicated targets | 0 | ok | URLs linked more than once from this page |
+
+**Dofollow links**
+
+| URL | Anchor | Scope |
+| --- | --- | --- |
+| http://fixture.test/ | Home | internal |
+| http://fixture.test/missing.html | Old page | internal |
+
+##### Images
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Images | 0 | - |  |
+| With alt text | 0 | ok | 0 marked decorative, 0 with no alt attribute |
+| Missing alt | 0 | ok |  |
+| Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
+
+##### Crawlability
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTTP status | 200 | ok |  |
+| Response time | 1 ms | ok |  |
+| Robots meta | - | missing | Absent means index, follow |
+| X-Robots-Tag | - | missing | The header form of the same directive |
+| Canonical URL | - | missing |  |
+| Canonical matches this URL | - | missing |  |
+| robots.txt | 3 directives | ok | Declares 1 sitemap(s) |
+| Sitemap URLs | 3 | ok |  |
+
+##### Social media
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Twitter tags | 0 of 6 | missing | Falls back to Open Graph |
+
+**Twitter card**
+
+| Name | Content | State |
+| --- | --- | --- |
+| twitter:card | - | missing |
+| twitter:title | - | not set |
+| twitter:description | - | not set |
+| twitter:image | - | not set |
+| twitter:site | - | not set |
+| twitter:creator | - | not set |
+
+##### Internationalization
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| hreflang alternates | 0 | missing |  |
+
+##### E-E-A-T
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+
+##### Performance
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTML size | 0 KB | ok | Raw document, before assets |
+| Script tags | 0 | ok | 0 external, 0 inline |
+
+### http://fixture.test/missing.html (score 66/100)
+
+HTTP status 404.
+
+#### Core SEO
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | core-seo/title-present | Missing \<title\> |  |
+| FAIL | core-seo/meta-description-present | Missing meta description |  |
+| FAIL | core-seo/viewport-present | Missing viewport meta |  |
+| WARN | core-seo/title-length | No title to measure |  |
+| WARN | core-seo/meta-description-length | No description to measure |  |
+| WARN | core-seo/h1-length | H1 is short (9 chars) | Not found |
+| WARN | core-seo/canonical-present | No canonical link |  |
+| WARN | core-seo/charset-declared | No charset declared |  |
+| WARN | core-seo/open-graph-basics | Missing Open Graph tags: og:title, og:description, og:image |  |
+
+2 other checks passed.
+
+#### Content
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | content/word-count | Thin content (2 words) |  |
+| WARN | content/html-lang | Missing lang on \<html\> |  |
+
+4 other checks passed.
+
+#### Links
+
+All 5 checks passed.
+
+#### Images
+
+All 6 checks passed.
+
+#### Structured data
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
+| WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
+| INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+
+8 other checks passed.
+
+#### Security
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| FAIL | security/https | Not served over HTTPS |  |
+| WARN | security/hsts | Missing Strict-Transport-Security |  |
+| WARN | security/csp | Missing Content-Security-Policy |  |
+| WARN | security/x-frame-options | No X-Frame-Options or frame-ancestors |  |
+| WARN | security/x-content-type-options | Missing X-Content-Type-Options: nosniff |  |
+| WARN | security/referrer-policy | Missing Referrer-Policy |  |
+| INFO | security/coop | No Cross-Origin-Opener-Policy header |  |
+| INFO | security/permissions-policy | No Permissions-Policy header |  |
+
+4 other checks passed.
+
+#### Crawlability
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | crawlability/canonical-valid | No canonical to validate |  |
+
+5 other checks passed.
+
+#### URL structure
+
+All 8 checks passed.
+
+#### Social media
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | social-media/twitter-card | No twitter:card meta |  |
+| WARN | social-media/og-image-absolute | No og:image to validate |  |
+| INFO | social-media/profile-links | No social profile links found |  |
+
+1 other check passed.
+
+#### Internationalization
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| INFO | internationalization/hreflang-present | No hreflang alternates (fine for a single-language site) |  |
+
+1 other check passed.
+
+#### Legal
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | legal/privacy-policy | No privacy policy link found |  |
+| INFO | legal/terms | No terms of service link found |  |
+| INFO | legal/cookie-consent | No cookie consent banner detected |  |
+| INFO | legal/contact | No contact link found |  |
+
+#### Analytics
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | analytics/tag-present | No analytics tag detected |  |
+
+1 other check passed.
+
+#### E-E-A-T
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | eeat/author | No author attribution found |  |
+| INFO | eeat/date | No published or updated date found |  |
+| INFO | eeat/outbound-citations | No outbound citations |  |
+| INFO | eeat/about-page | No about page link found |  |
+
+#### Performance
+
+| Status | Rule | Message | Evidence |
+| --- | --- | --- | --- |
+| WARN | performance/text-compression | HTML response is not compressed |  |
+| WARN | performance/cache-control | No Cache-Control header |  |
+
+4 other checks passed.
+
+#### Measurements
+
+##### Core SEO
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Title length | - | missing | Recommended 30 to 60 |
+| Description length | - | missing | Recommended 70 to 160 |
+| H1 count | 1 | ok | Exactly one |
+| H1 length | 9 chars | warn | Recommended 10 to 70 |
+| Open Graph tags | 0 of 7 | missing | Missing og:title, og:description, og:image |
+
+**Open Graph**
+
+| Property | Content | State |
+| --- | --- | --- |
+| og:title | - | missing |
+| og:description | - | missing |
+| og:image | - | missing |
+| og:url | - | not set |
+| og:type | - | not set |
+| og:site\_name | - | not set |
+| og:locale | - | not set |
+
+##### Content
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Declared language | - | missing | The lang attribute on \<html\> |
+| Hidden elements | 0 | - | Inline display:none or the hidden attribute |
+| Inline style attributes | 0 | ok | Style belongs in a stylesheet |
+| Style blocks in body | 0 | ok | CSS after \<body\> opens can restyle painted content |
+| HTML comments | 0 | ok | Comments ship to every visitor |
+| Placeholder links | 0 | ok | href="\#" or empty |
+| Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+
+**Headings per level**
+
+| Level | Count |
+| --- | --- |
+| H1 | 1 |
+| H2 | 0 |
+| H3 | 0 |
+| H4 | 0 |
+| H5 | 0 |
+| H6 | 0 |
+
+**Heading outline**
+
+| Level | Heading | Contains |
+| --- | --- | --- |
+| H1 | Not found | - |
+
+##### Links
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Links | 0 | - | 0 internal, 0 external |
+| Internal links | 0 | - |  |
+| External links | 0 | - |  |
+| Dofollow links | 0 | - |  |
+| Nofollow links | 0 | - |  |
+| Duplicated targets | 0 | ok | URLs linked more than once from this page |
+
+##### Images
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Images | 0 | - |  |
+| With alt text | 0 | ok | 0 marked decorative, 0 with no alt attribute |
+| Missing alt | 0 | ok |  |
+| Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
+
+##### Crawlability
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTTP status | 404 | bad |  |
+| Response time | 1 ms | ok |  |
+| Robots meta | - | missing | Absent means index, follow |
+| X-Robots-Tag | - | missing | The header form of the same directive |
+| Canonical URL | - | missing |  |
+| Canonical matches this URL | - | missing |  |
+| robots.txt | 3 directives | ok | Declares 1 sitemap(s) |
+| Sitemap URLs | 3 | ok |  |
+
+##### Social media
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Twitter tags | 0 of 6 | missing | Falls back to Open Graph |
+
+**Twitter card**
+
+| Name | Content | State |
+| --- | --- | --- |
+| twitter:card | - | missing |
+| twitter:title | - | not set |
+| twitter:description | - | not set |
+| twitter:image | - | not set |
+| twitter:site | - | not set |
+| twitter:creator | - | not set |
+
+##### Internationalization
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| hreflang alternates | 0 | missing |  |
+
+##### E-E-A-T
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+
+##### Performance
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| HTML size | 0 KB | ok | Raw document, before assets |
+| Script tags | 0 | ok | 0 external, 0 inline |
+
+## Blocked by robots.txt
+
+| URL | Rule |
+| --- | --- |
+| http://fixture.test/private/secret.html | Disallow: /private |
+
+---
+
+sitevet 0.0.0, report schema 1.
