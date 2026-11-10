@@ -1,6 +1,6 @@
 //! Entry points and progress events.
 
-mod pipeline;
+pub(crate) mod pipeline;
 
 use std::pin::Pin;
 use std::sync::{Arc, Mutex, Weak};

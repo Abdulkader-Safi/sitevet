@@ -99,10 +99,18 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                 // The DOM is not Send: it is built, read and dropped inside this one blocking call.
                 let job = tokio::task::spawn_blocking(move || {
                     let mut page = page;
-                    let dom = Html::parse_document(&String::from_utf8_lossy(&body));
+                    let html = String::from_utf8_lossy(&body);
+                    let dom = Html::parse_document(&html);
                     extract::extract(&dom, &mut page, &origin);
                     let no_links = LinkStatusMap::new();
-                    let cx = RuleCx { page: &page, dom: Some(&dom), links: &no_links, site: &site };
+                    let cx = RuleCx {
+                        page: &page,
+                        dom: Some(&dom),
+                        html: Some(&html),
+                        rendered: None,
+                        links: &no_links,
+                        site: &site,
+                    };
                     let out = (run_rules(&rules, &cx), run_collectors(&collectors, &cx));
                     (page, out)
                 });
@@ -140,7 +148,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                     LinkStatusMap::new()
                 };
                 {
-                    let cx = RuleCx { page: &page, dom: None, links: &link_map, site };
+                    let cx = RuleCx { page: &page, dom: None, html: None, rendered: None, links: &link_map, site };
                     outcomes.extend(run_rules(enriched_rules, &cx));
                     metrics.extend(run_collectors(enriched_collectors, &cx));
                 }
@@ -266,7 +274,7 @@ fn worst(results: &[RuleResult]) -> Status {
     results.iter().map(|r| r.status).min_by_key(|s| rank(*s)).filter(|s| rank(*s) < 3).unwrap_or(Status::Pass)
 }
 
-fn finding(meta: &RuleMeta, r: RuleResult, page_url: &str) -> Finding {
+pub(crate) fn finding(meta: &RuleMeta, r: RuleResult, page_url: &str) -> Finding {
     let rule_id = r.rule_id.unwrap_or_else(|| meta.id.to_string());
     let evidence =
         r.evidence.map(|e| if e.chars().count() > EVIDENCE_CAP { e.chars().take(EVIDENCE_CAP).collect() } else { e });

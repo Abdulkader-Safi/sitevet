@@ -1,8 +1,34 @@
 //! The rule and collector traits, and the registry. M2 fills the registry with the ported rules.
 
+#[macro_use]
+pub(crate) mod kit;
+mod accessibility;
+mod analytics;
+mod content;
+mod core_seo;
+mod crawlability;
+mod eeat;
+mod images;
+mod internationalization;
+mod legal;
+mod links;
+#[cfg(test)]
+mod parity;
+mod performance;
+mod security;
+mod social_media;
+mod structured_data;
+#[cfg(test)]
+pub(crate) mod testkit;
+mod url_structure;
+
+pub(crate) use internationalization::HREFLANG;
+pub(crate) use structured_data::JSON_LD;
+
 use std::sync::Arc;
 
 use scraper::Html;
+use serde::{Deserialize, Serialize};
 
 use crate::report::{MetricBody, MetricCell, Severity, Status, ValueStatus};
 use crate::{LinkStatusMap, Options, PageData, SiteData};
@@ -72,6 +98,73 @@ impl RuleResult {
             severity: None,
         }
     }
+
+    pub fn pass(message: impl Into<String>) -> Self {
+        Self::new(Status::Pass, message)
+    }
+
+    pub fn fail(message: impl Into<String>) -> Self {
+        Self::new(Status::Fail, message)
+    }
+
+    pub fn warn(message: impl Into<String>) -> Self {
+        Self::new(Status::Warn, message)
+    }
+
+    pub fn info(message: impl Into<String>) -> Self {
+        Self::new(Status::Info, message)
+    }
+
+    pub fn with_evidence(mut self, evidence: impl Into<String>) -> Self {
+        self.evidence = Some(evidence.into());
+        self
+    }
+}
+
+/// What the rendered stage measured on one page (M4 fills it).
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct RenderedData {
+    /// False when the page could not be rendered.
+    pub ok: bool,
+    pub error: Option<String>,
+    pub axe: Vec<AxeViolation>,
+    pub axe_passes: Vec<AxePass>,
+    /// None when the provider measured no performance numbers.
+    pub metrics: Option<PerfMetrics>,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AxeViolation {
+    pub id: String,
+    /// minor, moderate, serious or critical.
+    pub impact: Option<String>,
+    pub help: String,
+    pub description: String,
+    pub help_url: String,
+    pub nodes: u32,
+    pub sample: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct AxePass {
+    pub id: String,
+    pub help: String,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PerfMetrics {
+    pub ttfb_ms: f64,
+    pub load_ms: f64,
+    /// 0 when not measured.
+    pub lcp_ms: f64,
+    pub cls: f64,
+    pub dom_nodes: u32,
+    pub requests: u32,
+    pub transfer_bytes: u64,
 }
 
 /// What a rule or collector can read.
@@ -80,6 +173,10 @@ pub struct RuleCx<'a> {
     pub page: &'a PageData,
     /// Only in [`Stage::Dom`].
     pub dom: Option<&'a Html>,
+    /// The raw HTML as decoded. Only in [`Stage::Dom`].
+    pub html: Option<&'a str>,
+    /// Browser or PageSpeed data. Only in [`Stage::Rendered`].
+    pub rendered: Option<&'a RenderedData>,
     /// Status of every link on the page, from [`Stage::Enriched`] on. Empty before that.
     pub links: &'a LinkStatusMap,
     pub site: &'a SiteData,
@@ -127,15 +224,36 @@ impl MetricInput {
         Self { id: id.into(), label: label.into(), status: None, note: None, body }
     }
 
+    pub fn with_status(mut self, status: ValueStatus) -> Self {
+        self.status = Some(status);
+        self
+    }
+
+    pub fn with_note(mut self, note: impl Into<String>) -> Self {
+        self.note = Some(note.into());
+        self
+    }
+
     /// Keeps the first [`ROW_CAP`] rows and records the full count.
     pub fn table(
         id: impl Into<String>,
         label: impl Into<String>,
         columns: &[&str],
+        rows: Vec<Vec<MetricCell>>,
+    ) -> Self {
+        Self::table_capped(id, label, columns, rows, ROW_CAP)
+    }
+
+    /// [`MetricInput::table`] with its own row cap.
+    pub fn table_capped(
+        id: impl Into<String>,
+        label: impl Into<String>,
+        columns: &[&str],
         mut rows: Vec<Vec<MetricCell>>,
+        cap: usize,
     ) -> Self {
         let total = rows.len() as u32;
-        rows.truncate(ROW_CAP);
+        rows.truncate(cap);
         let body = MetricBody::Table { columns: columns.iter().map(|c| c.to_string()).collect(), rows, total };
         Self { id: id.into(), label: label.into(), status: None, note: None, body }
     }
@@ -147,14 +265,31 @@ pub trait Collector: Send + Sync {
     fn collect(&self, cx: &RuleCx<'_>) -> Vec<MetricInput>;
 }
 
-/// Every built-in rule.
+/// Every built-in rule, in the TS package's order.
 pub fn all_rules() -> Vec<Arc<dyn Rule>> {
-    Vec::new()
+    [
+        core_seo::rules(),
+        content::rules(),
+        links::rules(),
+        images::rules(),
+        structured_data::rules(),
+        security::rules(),
+        crawlability::rules(),
+        url_structure::rules(),
+        social_media::rules(),
+        internationalization::rules(),
+        legal::rules(),
+        analytics::rules(),
+        eeat::rules(),
+        accessibility::rules(),
+        performance::rules(),
+    ]
+    .concat()
 }
 
-/// Every built-in collector.
+/// Every built-in collector, in the TS package's order.
 pub fn all_collectors() -> Vec<Arc<dyn Collector>> {
-    Vec::new()
+    crate::metrics::all()
 }
 
 /// The rules an audit with these options runs: `options.rules` or the registry, filtered by

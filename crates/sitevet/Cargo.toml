@@ -19,6 +19,7 @@ media = []
 async-channel.workspace = true
 futures.workspace = true
 quick-xml.workspace = true
+regex.workspace = true
 reqwest.workspace = true
 scraper.workspace = true
 serde.workspace = true
@@ -29,6 +30,7 @@ tokio.workspace = true
 tokio-util.workspace = true
 toml.workspace = true
 tracing.workspace = true
+unicode-segmentation.workspace = true
 url.workspace = true
 
 [dev-dependencies]
@@ -41,3 +43,7 @@ workspace = true
 [[example]]
 name = "spawn-futures"
 path = "../../examples/spawn-futures.rs"
+
+[[example]]
+name = "custom-rule"
+path = "../../examples/custom-rule.rs"

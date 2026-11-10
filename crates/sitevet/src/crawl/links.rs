@@ -105,8 +105,12 @@ impl LinkChecker {
         let mut wanted: Vec<&str> = urls.into_iter().collect();
         wanted.sort_unstable();
         wanted.dedup();
-        let pending: Vec<(&str, Pending)> =
-            wanted.into_iter().filter_map(|u| Url::parse(u).ok().map(|parsed| (u, self.check(parsed)))).collect();
+        let pending: Vec<(&str, Pending)> = wanted
+            .into_iter()
+            .filter_map(|u| {
+                Url::parse(u).ok().filter(|p| matches!(p.scheme(), "http" | "https")).map(|p| (u, self.check(p)))
+            })
+            .collect();
         let statuses = futures::future::join_all(pending.iter().map(|(_, p)| p.clone())).await;
         pending.into_iter().zip(statuses).map(|((u, _), s)| (u.to_string(), s)).collect()
     }

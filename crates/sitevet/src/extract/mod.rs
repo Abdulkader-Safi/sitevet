@@ -56,8 +56,9 @@ pub struct Heading {
 #[non_exhaustive]
 pub struct Link {
     pub href: String,
-    /// Absolute, fragment kept. None when the href does not parse.
+    /// Absolute, fragment kept, any scheme (`mailto:` too). None when the href does not parse.
     pub url: Option<String>,
+    /// Trimmed, inner whitespace kept, as the TS package reads it.
     pub text: String,
     /// Lowercased.
     pub rel: String,
@@ -144,11 +145,11 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
         .select(&sel.links)
         .map(|a| {
             let href = attr(&a, "href").unwrap_or_default();
-            let url = abs(&href).filter(|u| matches!(u.scheme(), "http" | "https"));
+            let url = abs(&href);
             Link {
-                internal: url.as_ref().is_some_and(|u| u.origin() == *origin),
+                internal: url.as_ref().is_some_and(|u| matches!(u.scheme(), "http" | "https") && u.origin() == *origin),
                 url: url.map(String::from),
-                text: text_of(a),
+                text: a.text().collect::<String>().trim().to_string(),
                 rel: attr(&a, "rel").unwrap_or_default().to_lowercase(),
                 href,
             }
@@ -234,7 +235,8 @@ mod tests {
         assert_eq!(page.headings[1].text, "Sub part");
         assert_eq!(page.links[0].url.as_deref(), Some("https://site.test/in#x"));
         assert!(page.links[0].internal && !page.links[1].internal);
-        assert_eq!(page.links[2].url, None);
+        assert_eq!(page.links[2].url.as_deref(), Some("mailto:a@b.c"));
+        assert!(!page.links[2].internal);
         assert_eq!(page.images[0].url.as_deref(), Some("https://site.test/dir/i.png"));
         assert_eq!(page.images[0].alt.as_deref(), Some(""));
         assert_eq!(page.scripts.len(), 2);

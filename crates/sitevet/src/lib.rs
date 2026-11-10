@@ -15,14 +15,18 @@
 //! # }
 //! ```
 
+// Rules first: their helper macros are used by the collectors.
+#[macro_use]
+mod rules;
 mod crawl;
 mod engine;
 mod error;
 mod extract;
+mod metrics;
 mod options;
 mod report;
-mod rules;
 mod score;
+mod text;
 mod time;
 
 pub use crawl::{LinkStatus, LinkStatusMap, RobotsInfo, SiteData, SitemapInfo};
@@ -35,8 +39,8 @@ pub use report::{
     ValueStatus,
 };
 pub use rules::{
-    Collector, CollectorMeta, MetricInput, ROW_CAP, Rule, RuleCx, RuleMeta, RuleResult, Stage, all_collectors,
-    all_rules, select_rules,
+    AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,
+    RuleMeta, RuleResult, Stage, all_collectors, all_rules, select_rules,
 };
 pub use score::{compute_overall, score_findings};
 
