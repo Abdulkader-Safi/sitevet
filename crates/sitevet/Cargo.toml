@@ -13,12 +13,15 @@ categories = ["web-programming", "development-tools"]
 
 [features]
 default = []
-# Built in M4, M5 and M12. Declared now so Options::validate can say which feature a setting needs.
-browser = []
+# Rendered checks in a local Chrome (M4). History (M5) and media (M12) are declared so
+# Options::validate can say which feature a setting needs.
+browser = ["dep:chromiumoxide"]
 history = []
 media = []
 
 [dependencies]
+async-compression.workspace = true
+chromiumoxide = { workspace = true, optional = true }
 askama.workspace = true
 schemars.workspace = true
 async-channel.workspace = true

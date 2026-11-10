@@ -15,6 +15,13 @@ pub enum Error {
     },
     #[error("the start page {url} is not HTML (content type `{content_type}`)")]
     NotHtml { url: String, content_type: String },
+    #[error(
+        "no Chrome or Chromium found (tried {}). Install Google Chrome or Chromium, or set `chrome_path` (or SITEVET_CHROME) to its binary",
+        tried.join(", ")
+    )]
+    BrowserNotFound { tried: Vec<String> },
+    #[error("the browser failed: {0}")]
+    BrowserFailed(String),
     #[error("the audit was cancelled")]
     Cancelled,
 }

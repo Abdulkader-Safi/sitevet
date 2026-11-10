@@ -24,6 +24,7 @@ mod error;
 mod extract;
 mod metrics;
 mod options;
+mod render_stage;
 mod report;
 mod score;
 mod text;
@@ -40,7 +41,7 @@ pub use options::Options;
 pub use options::unknown_key_reason;
 pub use report::{
     AuditReport, BlockedUrl, CategoryScore, Finding, Format, Metric, MetricBody, MetricCell, PageResult, RenderOptions,
-    Severity, Status, ValueStatus, render, render_with, report_schema,
+    Severity, SkippedRule, Status, ValueStatus, render, render_with, report_schema,
 };
 pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,

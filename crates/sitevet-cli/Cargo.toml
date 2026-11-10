@@ -16,7 +16,7 @@ name = "sitevet"
 path = "src/main.rs"
 
 [dependencies]
-sitevet.workspace = true
+sitevet = { workspace = true, features = ["browser"] }
 anstream.workspace = true
 anstyle.workspace = true
 anyhow.workspace = true
