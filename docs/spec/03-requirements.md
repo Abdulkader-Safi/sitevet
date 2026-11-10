@@ -1,6 +1,6 @@
 # Functional requirements
 
-Status: draft
+Status: signed off 2026-11-10
 
 Requirements say what the product must do, not how. Tech choices are in Stage 4. Each traces to the product (Stage 1) and the journeys or core loop (Stage 2).
 
@@ -184,8 +184,8 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
   _Acceptance:_ `user-scalable=no` is flagged.
 - **FR-MOBILE-03 [Must]** Console errors captured during load, and the content that disappears when JavaScript is off (rendered text compared with raw text).
   _Acceptance:_ a fixture that throws on load reports the error. An SPA fixture reports the missing content share.
-- **FR-MOBILE-04 [Must]** Screenshots, full page and above the fold, at desktop and mobile widths, saved as files next to the report and referenced from it. Off by default (`screenshots` option).
-  _Acceptance:_ with the option on, PNG files exist and the HTML report shows them.
+- **FR-MOBILE-04 [Must]** Screenshots, full page and above the fold, at desktop and mobile widths, saved as files next to the report. Off by default (`screenshots` option). The HTML report embeds above-the-fold thumbnails as base64 and links the full-page files.
+  _Acceptance:_ with the option on, PNG files exist, the HTML report shows the thumbnails offline, and the full-page links open the files.
 
 ### Scoring
 
@@ -370,11 +370,7 @@ performance: document, html-size, script-count, script-tags.
 
 ### Open questions
 
-1. Default crawl size: you picked bigger defaults. I set 100 pages, depth 5, concurrency 5 per host, 15 s timeout. Concurrency stays at 5 so small client servers are not hammered. OK? : recommend as written.
-2. Should items: FR-CRAWL-10 (rendered crawl), FR-AEO-07 (page-type hint), FR-TRUST-04 (citation quality list), FR-MEDIA-02 (optimisation estimates), FR-CLI-07 (`sitevet init`), FR-DIST-03 (Homebrew). Everything else from phases 2 to 9 is Must. Agree with this split? : recommend as written. These are the items with the most guesswork or the least user value.
-3. Screenshots: files next to the report, off by default. Should the HTML report embed them as base64 so it stays one file? : recommend embed only above-the-fold thumbnails, link full-page files.
-4. History DB location: the OS data folder (`~/Library/Application Support/sitevet` on macOS, `~/.local/share/sitevet` on Linux, `%APPDATA%\sitevet` on Windows), overridable with `SITEVET_HOME`. OK? : recommend as written.
-5. NFR-01 target: 100 pages in under 60 s, static. OK? : recommend as written.
+None.
 
 ### Assumptions confirmed
 
@@ -383,5 +379,9 @@ performance: document, html-size, script-count, script-tags.
 3. **Run comparison : RESOLVED.** Local SQLite history, auto-saved by the CLI, opt-out with `--no-save`. Library gets it behind a `history` feature, off by default. `history`, `show` and `diff` commands.
 4. **MCP server : RESOLVED.** v1.1, not v1.
 5. **JS-rendered sites : RESOLVED.** Raw HTML crawl by default. Rendered crawl is opt-in with the browser feature.
-6. **Crawl defaults : RESOLVED.** Bigger than the TS package (100 pages instead of 20). Exact numbers in open question 1.
+6. **Crawl defaults : RESOLVED.** 100 pages, depth 5, concurrency 5 per host, 15 s timeout, cap 10,000.
 7. **Exit codes : RESOLVED.** 0 ran and passed, 1 threshold failed, 2 could not run.
+8. **Should items : RESOLVED.** FR-CRAWL-10, FR-AEO-07, FR-TRUST-04, FR-MEDIA-02, FR-CLI-07 and FR-DIST-03 are Should. Everything else in phases 2 to 9 is Must.
+9. **Screenshots : RESOLVED.** Above-the-fold thumbnails embedded as base64 in the HTML report. Full-page shots stay as linked files.
+10. **History location : RESOLVED.** OS data folder, overridable with `SITEVET_HOME`.
+11. **Speed target : RESOLVED.** NFR-01 as written: 100 pages static in under 60 s on a 16 GB M1.
