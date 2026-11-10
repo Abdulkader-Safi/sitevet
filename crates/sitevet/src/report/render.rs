@@ -165,6 +165,8 @@ struct View {
     categories: Vec<CategoryView>,
     pages: Vec<PageView>,
     blocked: Vec<(String, String)>,
+    /// (reason, rule IDs), one row per reason.
+    skipped: Vec<(String, String)>,
 }
 
 struct CategoryView {
@@ -254,6 +256,16 @@ impl View {
                 .collect(),
             pages: r.pages.iter().enumerate().map(|(i, p)| PageView::new(i, p, esc)).collect(),
             blocked: r.blocked.iter().map(|b| (esc(&b.url), esc(b.rule.as_deref().unwrap_or("")))).collect(),
+            skipped: {
+                let mut by_reason: Vec<(String, Vec<&str>)> = Vec::new();
+                for s in &r.skipped_rules {
+                    match by_reason.iter_mut().find(|(reason, _)| *reason == s.reason) {
+                        Some((_, ids)) => ids.push(&s.rule_id),
+                        None => by_reason.push((s.reason.clone(), vec![&s.rule_id])),
+                    }
+                }
+                by_reason.into_iter().map(|(reason, ids)| (esc(&reason), esc(&ids.join(", ")))).collect()
+            },
         }
     }
 }

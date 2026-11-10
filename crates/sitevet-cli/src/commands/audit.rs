@@ -72,6 +72,10 @@ async fn audit(url: &str, options: sitevet::Options, quiet: bool) -> anyhow::Res
             continue;
         }
         match event {
+            AuditEvent::RenderComplete { provider, rendered, pages, .. } => {
+                let via = if provider == "psi" { "PageSpeed Insights" } else { "the browser" };
+                eprintln!("rendered {rendered} of {pages} pages with {via}");
+            }
             AuditEvent::CrawlComplete { pages, checks_total, .. } => {
                 let s = if pages == 1 { "" } else { "s" };
                 eprintln!("crawled {pages} page{s}, running {checks_total} checks");
@@ -111,6 +115,11 @@ fn summary(report: &AuditReport, out: Option<&std::path::Path>) {
             report.blocked.len(),
             if report.blocked.len() == 1 { "URL" } else { "URLs" }
         );
+    }
+    if !report.skipped_rules.is_empty() {
+        let n = report.skipped_rules.len();
+        let reason = &report.skipped_rules[0].reason;
+        eprintln!("{n} {} skipped ({reason})", if n == 1 { "rule" } else { "rules" });
     }
     if let Some(path) = out {
         eprintln!("report written to {}", path.display());

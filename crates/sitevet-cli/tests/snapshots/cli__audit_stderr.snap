@@ -29,3 +29,4 @@ Score  0/100  FAIL
   url-structure         100  PASS  0 fail, 0 warn
 5 pages audited
 1 URL blocked by robots.txt
+7 rules skipped (needs browser or psi_key)

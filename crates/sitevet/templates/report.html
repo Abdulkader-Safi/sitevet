@@ -108,6 +108,15 @@
   {% endfor %}
 </section>
 
+{% if !v.skipped.is_empty() %}
+<section aria-labelledby="skipped-h">
+  <h2 id="skipped-h">Skipped rules</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Reason</th><th scope="col">Rules</th></tr></thead>
+    <tbody>{% for (reason, ids) in v.skipped %}<tr><td>{{ reason }}</td><td><code>{{ ids }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}
 {% if !v.blocked.is_empty() %}
 <section aria-labelledby="blocked-h">
   <h2 id="blocked-h">Blocked by robots.txt</h2>

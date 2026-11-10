@@ -56,6 +56,13 @@
     "sitevet_version": {
       "type": "string"
     },
+    "skipped_rules": {
+      "description": "Rules that did not run, with the reason, e.g. \"needs browser or psi_key\".",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SkippedRule"
+      }
+    },
     "start_url": {
       "type": "string"
     }
@@ -71,7 +78,8 @@
     "score",
     "categories",
     "pages",
-    "blocked"
+    "blocked",
+    "skipped_rules"
   ],
   "$defs": {
     "BlockedUrl": {
@@ -578,6 +586,21 @@
         "error",
         "warning",
         "info"
+      ]
+    },
+    "SkippedRule": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "reason"
       ]
     },
     "Status": {

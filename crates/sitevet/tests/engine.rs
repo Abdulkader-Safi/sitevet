@@ -246,3 +246,33 @@ async fn collectors_and_info_findings_never_move_the_score() {
     assert_eq!(scores(&with), scores(&without));
     assert_eq!(scores(&with), scores(&noted));
 }
+
+/// FR-RENDER-04: without a browser or PSI key the rendered rules are listed as skipped and do
+/// not move the score.
+#[tokio::test]
+async fn rendered_rules_are_skipped_with_a_reason() {
+    let fx = Fixture::start(Site::from_dir("basic")).await;
+    let report = audit(&fx.url("/"), sitevet::Options::default()).await.unwrap();
+    let ids: Vec<&str> = report.skipped_rules.iter().map(|s| s.rule_id.as_str()).collect();
+    assert_eq!(
+        ids,
+        [
+            "accessibility/axe",
+            "performance/lcp",
+            "performance/cls",
+            "performance/ttfb",
+            "performance/dom-size",
+            "performance/page-weight",
+            "performance/request-count"
+        ]
+    );
+    assert!(report.skipped_rules.iter().all(|s| s.reason == "needs browser or psi_key"));
+    assert!(
+        !report
+            .pages
+            .iter()
+            .flat_map(|p| &p.findings)
+            .any(|f| f.category == "accessibility" || f.rule_id == "performance/lcp")
+    );
+    assert!(sitevet::render(&report, sitevet::Format::Markdown).contains("| needs browser or psi\\_key |"));
+}

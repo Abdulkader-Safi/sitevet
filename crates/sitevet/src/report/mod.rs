@@ -61,6 +61,15 @@ pub struct AuditReport {
     pub pages: Vec<PageResult>,
     /// URLs skipped because robots.txt disallows them.
     pub blocked: Vec<BlockedUrl>,
+    /// Rules that did not run, with the reason, e.g. "needs browser or psi_key".
+    pub skipped_rules: Vec<SkippedRule>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[non_exhaustive]
+pub struct SkippedRule {
+    pub rule_id: String,
+    pub reason: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

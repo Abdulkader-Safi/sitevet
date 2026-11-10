@@ -68,6 +68,15 @@ None found.
 {% endfor -%}
 {% endif -%}
 {% endfor -%}
+{% if !v.skipped.is_empty() %}
+## Skipped rules
+
+| Reason | Rules |
+| --- | --- |
+{%- for (reason, ids) in v.skipped %}
+| {{ reason }} | {{ ids }} |
+{%- endfor %}
+{% endif -%}
 {% if !v.blocked.is_empty() %}
 ## Blocked by robots.txt
 

@@ -3673,6 +3673,15 @@ tbody th { font-weight: 500; }
 </section>
 
 
+<section aria-labelledby="skipped-h">
+  <h2 id="skipped-h">Skipped rules</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Reason</th><th scope="col">Rules</th></tr></thead>
+    <tbody><tr><td>needs browser or psi_key</td><td><code>accessibility/axe, performance/lcp, performance/cls, performance/ttfb, performance/dom-size, performance/page-weight, performance/request-count</code></td></tr></tbody>
+  </table></div>
+</section>
+
+
 <section aria-labelledby="blocked-h">
   <h2 id="blocked-h">Blocked by robots.txt</h2>
   <div class="table-wrap"><table>

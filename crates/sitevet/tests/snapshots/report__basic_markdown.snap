@@ -1286,6 +1286,12 @@ All 8 checks passed.
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
 
+## Skipped rules
+
+| Reason | Rules |
+| --- | --- |
+| needs browser or psi\_key | accessibility/axe, performance/lcp, performance/cls, performance/ttfb, performance/dom-size, performance/page-weight, performance/request-count |
+
 ## Blocked by robots.txt
 
 | URL | Rule |
