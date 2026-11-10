@@ -1,0 +1,39 @@
+# FR-DIST-02: the released installers work on fresh machines. Run by hand after a release.
+name: install-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to test, e.g. v0.1.0"
+        required: true
+
+jobs:
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install with the shell installer
+        run: curl --proto '=https' --tlsv1.2 -LsSf "https://github.com/${{ github.repository }}/releases/download/${{ inputs.version }}/sitevet-cli-installer.sh" | sh
+      - name: Run it
+        run: |
+          "$HOME/.cargo/bin/sitevet" --version
+          "$HOME/.cargo/bin/sitevet" rules --category legal
+          "$HOME/.cargo/bin/sitevet" audit https://example.com --max-pages 1 --format json --out report.json
+          grep '"schema_version": 1' report.json
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Install with the PowerShell installer
+        shell: pwsh
+        run: irm "https://github.com/${{ github.repository }}/releases/download/${{ inputs.version }}/sitevet-cli-installer.ps1" | iex
+      - name: Run it
+        shell: pwsh
+        run: |
+          & "$env:USERPROFILE\.cargo\bin\sitevet.exe" --version
+          & "$env:USERPROFILE\.cargo\bin\sitevet.exe" audit https://example.com --max-pages 1 --format json --out report.json
+          Select-String -Path report.json -Pattern '"schema_version": 1'
