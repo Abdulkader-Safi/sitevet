@@ -1,11 +1,11 @@
 ---
 id: "html-report-2026-11-10"
-status: "review"
+status: "done"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T14:16:46.000Z"
+modified: "2026-11-10T18:26:05.000Z"
 labels: ["m3", "needs-review"]
 order: 3
 ---
@@ -35,3 +35,7 @@ Checked on a live 15-page audit of abdulkadersafi.com: Lighthouse accessibility 
 FR-REPORT-04: page text sits in `dir="auto"` elements; the Arabic fixture's title shows as right-to-left evidence. Escaping is askama's; a test feeds `<script>` and pipes through a page.
 
 Needs Safi's look. Render one with `sitevet audit <url> --out report.html`.
+
+## Review
+
+Safi opened the report from the released CLI on 2026-11-10 (100 pages of abdulkadersafi.com, score 92, 2.4 MB with `--browser`). It rendered as built; no layout issues raised. Found in use: LinkedIn answers bots with status 999, which `links/broken-external` counts as broken on every page. A 0.1.1 fix is proposed (report it as unverifiable); logged in PROGRESS.md.

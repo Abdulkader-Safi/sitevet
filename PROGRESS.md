@@ -9,7 +9,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
-| M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). HTML, CLI and README in review |
+| M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 to M14      | Not started                              |
 
@@ -46,7 +46,8 @@ Tests: 3 Chrome tests in `tests/browser.rs`, 1 in `tests/browser_cancel.rs` and 
 
 ### Open items for Safi
 
-None new. M3's open items (release, the overall score formula, reviews) still stand.
+- From Safi's first real runs of 0.1.0 (2026-11-10), proposed as 0.1.1 and not started: show crawl progress from `PageFetched`; add a render progress event (a stage 5 change) so a `--browser` run is not silent for minutes; report LinkedIn's status 999 as "could not be checked" instead of a broken link (a change from the TS rule).
+- The overall score formula (from M3) is still open.
 
 ## M3: reports and CLI
 

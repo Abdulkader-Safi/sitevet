@@ -1,11 +1,11 @@
 ---
 id: "cli-progress-thresholds-and-exit-codes-2026-11-10"
-status: "review"
+status: "done"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T14:16:46.000Z"
+modified: "2026-11-10T18:26:05.000Z"
 labels: ["m3", "needs-review"]
 order: 6
 ---
@@ -37,3 +37,7 @@ Exit 0 passed, 1 when `--fail-under` or `--fail-on error|warning` trips (with a 
 Tests in `crates/sitevet-cli/tests/cli.rs`: every exit code, `NO_COLOR` with colour forced on, `--plain`, `--quiet`, and an insta snapshot of stderr on the basic site.
 
 Needs Safi's look at the terminal output.
+
+## Review
+
+Safi ran the released CLI against abdulkadersafi.com on 2026-11-10 (100 pages, then 100 pages with `--browser`). FR-CLI-03 to FR-CLI-05 hold. Found in use: between "crawling..." and the end of rendering the CLI prints nothing, which on a 100-page `--browser` run is about 2.5 silent minutes. Proposed for 0.1.1 (crawl progress from `PageFetched`, plus a render progress event, which needs a stage 5 change). Logged in PROGRESS.md.

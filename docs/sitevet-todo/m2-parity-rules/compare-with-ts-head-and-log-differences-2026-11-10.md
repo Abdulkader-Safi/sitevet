@@ -1,11 +1,11 @@
 ---
 id: "compare-with-ts-head-and-log-differences-2026-11-10"
-status: "review"
+status: "done"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T13:40:13.000Z"
+modified: "2026-11-10T18:26:05.000Z"
 labels: ["m2", "needs-review"]
 order: 21
 ---
@@ -22,3 +22,7 @@ Spec: `docs/spec/06-build-spec.md`, section 8.
 ## Result
 
 The TS repo's HEAD is `de27aea` itself, with a clean working tree and `origin/main` at the same commit, so there is nothing to diff today. Logged in PROGRESS.md.
+
+## Review
+
+Rechecked 2026-11-10 after M4: the TS repo's HEAD is still `de27aea` with a clean tree, so there is nothing to port.

@@ -1,11 +1,11 @@
 ---
 id: "contributing-guide-and-custom-rule-example-2026-11-10"
-status: "review"
+status: "done"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T13:40:13.000Z"
+modified: "2026-11-10T18:26:05.000Z"
 labels: ["m2", "needs-review"]
 order: 20
 ---
@@ -29,3 +29,7 @@ Spec: `docs/spec/06-build-spec.md`, section 8.
 `CONTRIBUTING.md` explains the file-per-category layout, the three stages, and walks through `core-seo/viewport-present`: the rule, its registry line and its test, quoted from the source. A test (`contributing_example_matches_the_source`) fails if the quoted code drifts from `core_seo.rs`, so the example always compiles and passes. `examples/custom-rule.rs` adds a rule from outside the crate.
 
 Needs Safi's read of the guide's wording.
+
+## Review
+
+Rechecked 2026-11-10: the guide ships in the published 0.1.0 crates, and `contributing_example_matches_the_source` still passes.
