@@ -9,7 +9,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
-| M3 reports, CLI | Built and tested. Release 0.1.0 held by Safi (2026-11-10); HTML, CLI and README in review |
+| M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). HTML, CLI and README in review |
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 to M14      | Not started                              |
 
@@ -67,8 +67,8 @@ Live check on abdulkadersafi.com (15 pages, 8 s): overall 86, exit 0. Its HTML r
 - [x] FR-REPORT-04: the Arabic fixture's title is quoted in a `dir="auto"` element.
 - [x] FR-CLI-01, FR-CLI-02, FR-CLI-03, FR-CLI-04, FR-CLI-05, FR-CLI-06.
 - [x] FR-CLI-07 (Should): `sitevet init`.
-- [ ] FR-DIST-01: crates package and verify (`cargo package`), and CI checks the library's tree has no clap or rusqlite. Publishing to crates.io waits for Safi.
-- [ ] FR-DIST-02: `dist plan` lists the five targets and both installers. The GitHub Release runs when a `v0.1.0` tag is pushed, which waits for Safi.
+- [x] FR-DIST-01: `cargo install sitevet-cli` from crates.io works, and a fresh project depending on `sitevet` has no clap, rusqlite or chromiumoxide in its tree.
+- [x] FR-DIST-02: the `install-check` workflow ran the released installers on fresh Ubuntu, macOS and Windows runners (run 42872388546).
 
 ### Decisions made in M3
 
@@ -86,7 +86,7 @@ Live check on abdulkadersafi.com (15 pages, 8 s): overall 86, exit 0. Its HTML r
 ### Open items for Safi
 
 - Review: the HTML report (`sitevet audit <url> --out report.html`), the CLI output, and the README.
-- Release 0.1.0: Safi chose on 2026-11-10 to hold it and start M4, with FR-DIST-01 and FR-DIST-02 left open until publishing. Steps when it goes ahead: bump both crates to 0.1.0, `cargo publish -p sitevet` then `-p sitevet-cli` (needs your crates.io token through `cargo login`; a published version cannot be deleted), then push the `v0.1.0` tag so the cargo-dist workflow builds the five binaries and installers into a GitHub Release.
+- Release 0.1.0: held during M4, then released on 2026-11-10 at Safi's request, so it includes M4. Both crates are on crates.io and the `v0.1.0` GitHub Release has the binaries and installers.
 - The overall score uses the TS package's harsh formula. On the bare fixture site it is 0 while every page scores 64 to 77, because many rules fail on every page. That is parity, but it reads oddly in a report. Keep it?
 
 ## M2: parity rules, metrics, scoring
