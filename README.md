@@ -19,9 +19,11 @@ The library's engine core:
 - A shared link checker that requests each URL once per audit.
 - Private-network blocking when the start URL is public.
 - Three entry points: `audit()`, `audit_stream()` with typed progress events, and `spawn()` for apps that don't run tokio.
-- The rule and collector traits, so your own rules already run and score.
+- The 94 rules ported from the TypeScript package, with the same IDs, severities and scoring. 87 run today; the accessibility rule and 6 Core Web Vitals rules need the browser stage, which is planned.
+- Per-page measurements (title and description lengths, link and heading tables, Open Graph and Twitter tags, directives, dates) that never touch the score.
+- Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 
-Planned: the 94 built-in rules (next milestone), the CLI, HTML and Markdown reports, run history, the browser stage and everything listed below.
+Planned: the CLI, HTML and Markdown reports, run history, the browser stage and everything listed below.
 
 ## Where it comes from
 
@@ -44,7 +46,7 @@ Every page gets two kinds of output. Findings are verdicts (pass, fail, warn) wi
 
 ## Usage
 
-As a library (works today, with no built-in rules yet):
+As a library (works today):
 
 ```rust
 let report = sitevet::audit("https://example.com", sitevet::Options::default()).await?;

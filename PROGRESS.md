@@ -8,7 +8,51 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | -------------- | ---------------------------------------- |
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
-| M2 to M14      | Not started                              |
+| M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
+| M3 to M14      | Not started                              |
+
+## M2: parity rules, metrics, scoring
+
+All 94 rules from the TS package at `de27aea`, in `crates/sitevet/src/rules/<category>.rs`, one unit struct and one registry line each. 87 run today (85 in the Dom stage, 2 link rules in the Enriched stage). The 7 rendered-stage rules (`accessibility/axe` and 6 Core Web Vitals rules) have their logic and tests now and start running in M4. 14 collectors in `crates/sitevet/src/metrics/`.
+
+CI run 42827541672 passed every job. Two earlier M2 runs failed on Windows only, both in tests: CRLF checkouts broke the CONTRIBUTING.md quote check, and server-side arrival times jittered past the delay test's margin. Both tests were fixed; the code under test did not change.
+
+Tests: 77 unit tests (every rule and collector has a passing and a failing case, NFR-11), 21 integration tests, 2 doc tests. The TS package's own `rules.test.ts`, `metrics.test.ts` and `runner.test.ts` assertions are ported against the same 8 fixtures and give the same results and the same scores.
+
+### Acceptance boxes
+
+- [x] FR-RULE-01: 94 rules, same IDs, severities, categories and conditions. Every TS fixture expectation matches.
+- [ ] FR-RULE-02: needs the report JSON Schema, which M3 builds for FR-REPORT-01. Every finding already carries all the fields. Ticked in M3.
+- [x] FR-RULE-03: 3 axe violations give 3 findings with distinct IDs (synthetic rendered data; the real browser arrives in M4).
+- [x] FR-RULE-04: `only = ["security"]` leaves only security rules, collectors and categories.
+- [x] FR-MET-01: every phase 1 collector is ported with fixture tests, and scores are identical with collectors on and off. The phase 2 text collectors come with M6 (see decisions).
+- [x] FR-MET-02: 300 links give 25 rows and a total of 300.
+- [x] FR-SCORE-01: the TS scoring cases give identical numbers.
+- [x] FR-SCORE-02: collectors and info findings leave every score unchanged. Skipped rules arrive with the browser stage in M4 and are checked again there.
+- [x] FR-EXT-01: `examples/custom-rule.rs`; custom rules passed through `Options.rules` show up in the report in the engine tests.
+- [x] FR-EXT-02: `CONTRIBUTING.md` quotes a real rule, its registry line and its test, and a test fails if the quote drifts from the source.
+
+### Decisions made in M2
+
+- `RuleCx` has two fields beyond stage 5's list: `html` (the raw markup, Dom stage only) and `rendered` (`RenderedData`, Rendered stage only). 13 of the 94 TS rules read the raw HTML, so a parity port needs it. Both are additive.
+- Rules use the DOM the way the TS package's cheerio calls do: `body.text()` includes script text, `.attr()` reads the first match, and string lengths count UTF-16 units like JavaScript's `.length`. Link text is trimmed but not collapsed, and links keep non-http URLs (`mailto:`), as the TS `absUrl` does.
+- Repeated response headers are joined with ", ". Node's header object kept one `Set-Cookie` value; joining checks every cookie, so `security/cookie-secure` can flag a cookie the TS package missed.
+- `eeat/dates` treats a date as valid when it is ISO 8601 or RFC 2822 (HTTP header style). JavaScript's `Date.parse` also reads looser forms such as "January 15, 2026", which show as `warn` here.
+- `content/keyword-stuffing` reads a new `text/` module (main content, unicode-segmentation words and sentences, English stop words, the plural lemma, n-grams), ported from the TS `src/text.ts`. unicode-segmentation is the stack's M6 tokenizer, taken in early. M6 extends the module (FR-TEXT-08 asks for the rule on its n-gram output, which it already is).
+- The phase 2 text collectors (`content/text-statistics`, `content/readability`, `content/keywords` and their values) are FR-TEXT-04 to FR-TEXT-07, which M6 builds. They are not in M2.
+- Metric text follows sitevet's writing rules: "-" instead of an em dash for empty cells and the heading outline indent, and "..." instead of the ellipsis character. The TS package's own metric tests are ported with that one substitution.
+- Selectors and regexes are compiled per call. Rule CPU time is far under NFR-01's 50 ms per page at today's sizes; caching is the upgrade if it ever is not.
+- `regex` (M11's stack crate) is used now, since the TS rules are regex based.
+
+### Parity drift
+
+At the end of M2 the TS repo's HEAD is still `de27aea`, with a clean working tree and `origin/main` at the same commit. No differences to log.
+
+### Open items for Safi
+
+- FR-RULE-02's acceptance test needs the JSON Schema that M3 generates. Fine to tick it in M3, or should the schema move into M2?
+- Phase 2 text collectors sit in M6 with the text engine. Agree?
+- Character sets (from M1): still open.
 
 ## M1: engine core
 
