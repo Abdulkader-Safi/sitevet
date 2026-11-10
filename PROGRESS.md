@@ -6,8 +6,9 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 
 | Milestone      | Status                                   |
 | -------------- | ---------------------------------------- |
-| M0 de-risk     | Spikes pass. Waiting for Safi's go or stop |
-| M1 to M14      | Not started                              |
+| M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
+| M1 engine core | In progress                              |
+| M2 to M14      | Not started                              |
 
 ## M0: de-risk
 
