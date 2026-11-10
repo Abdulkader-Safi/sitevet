@@ -48,8 +48,9 @@ The library and the `sitevet` command:
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
+- Run history (not released yet, coming in 0.2.0): every CLI audit is saved locally. `sitevet history` lists runs, `sitevet show <id>` renders one again, `sitevet diff <a> <b>` compares two, and `--baseline last` adds a "changes since" section to the report. `--no-save` skips saving.
 
-Planned: run history and everything listed below.
+Planned: everything listed below.
 
 ## Where it comes from
 
@@ -86,12 +87,14 @@ sitevet audit https://example.com --out report.html
 sitevet audit https://example.com --format json --fail-under 85 > report.json
 sitevet audit https://example.com --browser --out report.html   # needs Chrome or Chromium
 sitevet rules --category security
+sitevet history                                   # saved runs, newest first
+sitevet audit https://example.com --baseline last --out report.html
 sitevet init
 ```
 
 The report goes to stdout, or to `--out` (the format follows its extension unless `--format` says otherwise). Progress goes to stderr. The exit code is 0 when the audit ran and passed, 1 when `--fail-under` or `--fail-on` tripped, and 2 when it could not run.
 
-Settings can live in a `sitevet.toml` in the current folder (`sitevet init` writes one with every default). Its keys match the library options one to one, and command-line flags override it. The full rule list is in [`docs/rules.md`](./docs/rules.md).
+Settings can live in a `sitevet.toml` in the current folder (`sitevet init` writes one with every default). Its keys match the library options one to one, and command-line flags override it. The full rule list is in [`docs/rules.md`](./docs/rules.md). History lives in `history.db` under `SITEVET_HOME`, or the OS data folder (`~/Library/Application Support/sitevet`, `~/.local/share/sitevet`, `%APPDATA%\sitevet`).
 
 ## License
 

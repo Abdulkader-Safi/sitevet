@@ -167,6 +167,66 @@ struct View {
     blocked: Vec<(String, String)>,
     /// (reason, rule IDs), one row per reason.
     skipped: Vec<(String, String)>,
+    changes: Option<ChangesView>,
+}
+
+struct ChangesView {
+    /// "run 12 (2026-11-10T09:30:00Z)" or "report.json (2026-...)".
+    baseline: String,
+    /// "+3", "-2" or "0".
+    score_change: String,
+    score_band: &'static str,
+    /// (category, before, after, change), only categories whose score moved or appeared.
+    categories: Vec<(String, String, String, String)>,
+    /// (rule, page, message)
+    new_failures: Vec<(String, String, String)>,
+    fixed: Vec<(String, String, String)>,
+    pages_added: usize,
+    pages_removed: usize,
+}
+
+fn signed(n: i16) -> String {
+    if n > 0 { format!("+{n}") } else { n.to_string() }
+}
+
+impl ChangesView {
+    fn new(d: &super::ReportDiff, esc: fn(&str) -> String) -> Self {
+        let b = &d.baseline;
+        let name = match (b.run_id, &b.file) {
+            (Some(id), _) => format!("run {id}"),
+            (None, Some(f)) => f.clone(),
+            (None, None) => "the baseline".to_string(),
+        };
+        let score = |s: Option<u8>| s.map_or_else(|| "-".to_string(), |s| s.to_string());
+        let refs =
+            |v: &[super::FindingRef]| v.iter().map(|f| (esc(&f.rule_id), esc(&f.url), esc(&f.message))).collect();
+        Self {
+            baseline: esc(&format!("{name} ({})", b.generated_at)),
+            score_change: signed(d.score_change),
+            score_band: match d.score_change {
+                1.. => "good",
+                0 => "fair",
+                _ => "poor",
+            },
+            categories: d
+                .categories
+                .iter()
+                .filter(|c| c.before != c.after)
+                .map(|c| {
+                    let change = match (c.before, c.after) {
+                        (Some(a), Some(b)) => signed(i16::from(b) - i16::from(a)),
+                        (None, _) => "new".into(),
+                        (_, None) => "not run".into(),
+                    };
+                    (category_name(&c.category), score(c.before), score(c.after), change)
+                })
+                .collect(),
+            new_failures: refs(&d.new_failures),
+            fixed: refs(&d.fixed),
+            pages_added: d.pages_added.len(),
+            pages_removed: d.pages_removed.len(),
+        }
+    }
 }
 
 struct CategoryView {
@@ -256,6 +316,7 @@ impl View {
                 .collect(),
             pages: r.pages.iter().enumerate().map(|(i, p)| PageView::new(i, p, esc)).collect(),
             blocked: r.blocked.iter().map(|b| (esc(&b.url), esc(b.rule.as_deref().unwrap_or("")))).collect(),
+            changes: r.changes.as_ref().map(|d| ChangesView::new(d, esc)),
             skipped: {
                 let mut by_reason: Vec<(String, Vec<&str>)> = Vec::new();
                 for s in &r.skipped_rules {

@@ -48,6 +48,10 @@ pub fn error(e: &anyhow::Error) {
         Some(sitevet::Error::InvalidOptions { .. }) => {
             Some("check the flag or the key in sitevet.toml (sitevet init writes every key)")
         }
+        Some(sitevet::Error::History(m)) if m.starts_with("no run") => {
+            Some("sitevet history lists the saved runs and their IDs")
+        }
+        Some(sitevet::Error::BrowserNotFound { .. }) => Some("or run without --browser"),
         _ => None,
     };
     if let Some(hint) = hint {

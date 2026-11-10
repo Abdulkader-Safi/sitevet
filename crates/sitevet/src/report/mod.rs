@@ -1,10 +1,12 @@
 //! The report types. JSON field names are snake_case, enums are lowercase strings.
 
+mod diff;
 mod render;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+pub use diff::{BaselineRef, CategoryChange, FindingRef, ReportDiff, diff};
 pub use render::{Format, RenderOptions, render, render_with, report_schema};
 
 use crate::Options;
@@ -62,7 +64,11 @@ pub struct AuditReport {
     /// URLs skipped because robots.txt disallows them.
     pub blocked: Vec<BlockedUrl>,
     /// Rules that did not run, with the reason, e.g. "needs browser or psi_key".
+    #[serde(default)]
     pub skipped_rules: Vec<SkippedRule>,
+    /// Changes against a baseline, when one was given.
+    #[serde(default)]
+    pub changes: Option<ReportDiff>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

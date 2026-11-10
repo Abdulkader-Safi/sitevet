@@ -6,6 +6,38 @@ Overall score: **{{ v.score }}/100** ({{ v.band_label }}). {{ v.pages_count }} {
 The start URL redirected to {{ v.final_url }}.
 {%- endif %}
 
+{%- if let Some(c) = v.changes %}
+
+## Changes since {{ c.baseline }}
+
+Score change: **{{ c.score_change }}**. {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.
+{% if !c.categories.is_empty() %}
+| Category | Before | After | Change |
+| --- | --- | --- | --- |
+{%- for (name, before, after, change) in c.categories %}
+| {{ name }} | {{ before }} | {{ after }} | {{ change }} |
+{%- endfor %}
+{% endif -%}
+{% if !c.fixed.is_empty() %}
+**Fixed**
+
+| Rule | Page | Was |
+| --- | --- | --- |
+{%- for (rule, url, message) in c.fixed %}
+| {{ rule }} | {{ url }} | {{ message }} |
+{%- endfor %}
+{% endif -%}
+{% if !c.new_failures.is_empty() %}
+**New issues**
+
+| Rule | Page | Message |
+| --- | --- | --- |
+{%- for (rule, url, message) in c.new_failures %}
+| {{ rule }} | {{ url }} | {{ message }} |
+{%- endfor %}
+{% endif -%}
+{%- endif %}
+
 ## Category scores
 {% if v.categories.is_empty() %}
 No checks ran.
