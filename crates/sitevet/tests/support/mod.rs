@@ -83,7 +83,9 @@ impl Site {
     /// Every file under `tests/fixtures/sites/<name>/` at its own path, `index.html` also at its
     /// folder's path, then the overrides in `site.toml`.
     pub fn from_dir(name: &str) -> Self {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sites").join(name);
+        // Works from either crate: both sit in crates/, and the fixtures live in crates/sitevet.
+        let crates = Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap();
+        let root = crates.join("sitevet/tests/fixtures/sites").join(name);
         let mut site = Self::new();
         site.add_dir(&root, &root);
         if let Ok(text) = std::fs::read_to_string(root.join("site.toml")) {

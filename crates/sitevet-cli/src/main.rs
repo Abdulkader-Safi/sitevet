@@ -1,5 +1,30 @@
-//! The `sitevet` binary. Flags, config and output arrive in M3.
+//! The `sitevet` binary: flags and `sitevet.toml` into `Options`, the library does the audit,
+//! this prints progress to stderr and the report to stdout or `--out`.
 
-fn main() {
-    println!("sitevet {}", env!("CARGO_PKG_VERSION"));
+mod args;
+mod commands;
+mod config;
+mod output;
+
+use std::process::ExitCode;
+
+use clap::Parser;
+
+use args::{Cli, Command};
+
+fn main() -> ExitCode {
+    let cli = Cli::parse();
+    output::init(&cli);
+    let result = match cli.command {
+        Command::Audit(a) => commands::audit::run(*a),
+        Command::Rules(r) => commands::rules::run(&r),
+        Command::Init(i) => commands::init::run(&i),
+    };
+    match result {
+        Ok(code) => code,
+        Err(e) => {
+            output::error(&e);
+            ExitCode::from(2)
+        }
+    }
 }
