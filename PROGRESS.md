@@ -9,7 +9,49 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
-| M3 to M14      | Not started                              |
+| M3 reports, CLI | Built and tested. Waiting for Safi: HTML and CLI review, and approval to publish 0.1.0 |
+| M4 to M14      | Not started                              |
+
+## M3: reports and CLI
+
+Reports: JSON (pretty, `schema_version` 1, with a generated JSON Schema committed as `schema/report.schema.json`), Markdown and a self-contained HTML file, all from askama templates in `crates/sitevet/templates/`. CLI: `sitevet audit`, `rules` and `init`. Release: cargo-dist 0.34 configured; nothing published yet. CI run 42833300105 passed every job.
+
+Tests: 79 unit tests, 28 library integration tests (7 new in `tests/report.rs`), 12 CLI tests (8 in `crates/sitevet-cli/tests/cli.rs`), 2 doc tests. Snapshots with insta: the Markdown and HTML reports of the basic fixture site, CLI stderr, and the `rules` table.
+
+Live check on abdulkadersafi.com (15 pages, 8 s): overall 86, exit 0. Its HTML report scored 100 for accessibility in Lighthouse (axe-core) in dark mode on desktop and in light mode at 360 px.
+
+### Acceptance boxes
+
+- [x] FR-API-04 (from M1): every field through TOML and through flags gives equal Options.
+- [x] FR-API-05: each helper equals `render` on `audit`'s report.
+- [x] FR-RULE-02 (from M2): every finding from four fixture audits validates against the schema.
+- [x] FR-REPORT-01: every fixture report validates, and the committed schema equals the generated one.
+- [x] FR-REPORT-02: Markdown snapshot passes. Rendering on GitHub is part of Safi's review.
+- [x] FR-REPORT-03: no external requests (checked in a test), axe-core via Lighthouse at 100. The axe check moves into the test suite when the browser stage lands in M4.
+- [x] FR-REPORT-04: the Arabic fixture's title is quoted in a `dir="auto"` element.
+- [x] FR-CLI-01, FR-CLI-02, FR-CLI-03, FR-CLI-04, FR-CLI-05, FR-CLI-06.
+- [x] FR-CLI-07 (Should): `sitevet init`.
+- [ ] FR-DIST-01: crates package and verify (`cargo package`), and CI checks the library's tree has no clap or rusqlite. Publishing to crates.io waits for Safi.
+- [ ] FR-DIST-02: `dist plan` lists the five targets and both installers. The GitHub Release runs when a `v0.1.0` tag is pushed, which waits for Safi.
+
+### Decisions made in M3
+
+- The report's format follows `--out`'s extension when `--format` is not given, else HTML (the TS package's default).
+- Status words for scores, shared by the HTML badge and the CLI: 90 and up PASS ("Good"), 50 and up WARN ("Needs work"), below FAIL ("Poor").
+- `--fail-on error` trips on any failing error-severity finding. `--fail-on warning` trips on any failing or warning finding of error or warning severity.
+- `--quiet` prints only errors and the threshold line. `--plain` turns colour off; anstream already honours `NO_COLOR` and `CLICOLOR`.
+- The HTML report lists the findings that need attention and counts passes per category, and keeps measurements in a collapsed section, so a 100-page report stays readable.
+- A link robots.txt keeps sitevet from requesting is no longer reported as a broken link (it showed as "no response" before).
+- `tracing-subscriber` is added to the CLI for `--verbose` and `SITEVET_LOG`. Stage 5 says the CLI installs a subscriber but the stack table does not name the crate.
+- `cargo deny` ignores RUSTSEC-2026-0374: `basic-toml` is unmaintained, and askama's derive macro uses it at compile time only.
+- The delay test allows 100 ms of server-side arrival jitter; the Windows runner delivered a fresh connection's first request 55 ms late.
+- `Options::KEYS` and a hidden `unknown_key_reason` are public so the CLI can suggest keys for its `[cli]` table too.
+
+### Open items for Safi
+
+- Review: the HTML report (`sitevet audit <url> --out report.html`), the CLI output, and the README.
+- Release 0.1.0 needs your go. Steps: bump both crates to 0.1.0, `cargo publish -p sitevet` then `-p sitevet-cli` (needs your crates.io token through `cargo login`; a published version cannot be deleted), then push the `v0.1.0` tag so the cargo-dist workflow builds the five binaries and installers into a GitHub Release.
+- The overall score uses the TS package's harsh formula. On the bare fixture site it is 0 while every page scores 64 to 77, because many rules fail on every page. That is parity, but it reads oddly in a report. Keep it?
 
 ## M2: parity rules, metrics, scoring
 
