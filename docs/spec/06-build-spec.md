@@ -2,7 +2,7 @@
 
 > **This is the hand-off document for Claude Code.** It is self-contained: build from this file alone. It pulls together stages 1 to 5 (product, users, requirements, tech decisions, tech requirements). Where it says "see Stage N", that is optional background.
 
-Status: draft. Sources: 01 to 05 as of 2026-11-10.
+Status: signed off 2026-11-10. Sources: 01 to 05 as of that date.
 
 ## 1. What we're building
 
@@ -10,31 +10,31 @@ sitevet is a website audit engine in Rust, shipped as a library crate (`sitevet`
 
 ## 2. Stack (decided, see Stage 4)
 
-| Layer | Choice |
-|-------|--------|
-| Language | Rust edition 2024, MSRV pinned in M0, no newer than 1.90 |
-| Layout | Cargo workspace: `crates/sitevet` (library), `crates/sitevet-cli` (binary `sitevet`) |
-| Async runtime | tokio 1.54, plus an owned 2-thread runtime for `spawn()`. Events on async-channel 2.5. Cancel with tokio-util 0.7 `CancellationToken` |
-| HTTP | reqwest 0.13 with rustls, gzip, brotli, zstd, http2, manual redirects |
-| HTML parsing | scraper 0.29 (html5ever 0.40) |
-| Crawl inputs | url 2.5, texting_robots 0.2 (fallback robotstxt), quick-xml 0.42 |
-| Browser | chromiumoxide 0.9 behind the `browser` feature, user's installed Chrome (fallback crate: chromey) |
-| Accessibility | axe-core 4.14.0, bundled unmodified (MPL-2.0) |
-| PageSpeed | PSI v5 REST through reqwest |
-| Text engine | unicode-segmentation 1.13, whatlang 0.18, stop-words 0.10, rust-stemmers 1.2, readability in-crate (English formulas) |
-| Structured data | serde_json for JSON-LD, in-crate microdata and RDFa |
-| Site-wide | in-crate SimHash over 5-shingles, hash-map duplicate groups, BFS link graph |
-| Fingerprinting | own `data/fingerprints.toml`, regex 1.13, aho-corasick 1.1 |
-| Media | imagesize 0.15 over ranged GET |
-| Report rendering | askama 0.16 (HTML, Markdown), serde JSON, schemars 1.2 for the JSON Schema |
-| History | rusqlite 0.41 (bundled) behind the `history` feature, zstd blobs, directories 6 |
-| CLI | clap 4.6 derive, toml 1.2, anstream and anstyle, anyhow |
-| Errors and logs | thiserror 2.0 (library), tracing 0.1 |
-| Testing | cargo test, wiremock 0.6 fixture server, insta 1.49, jsonschema 0.61, assert_cmd |
-| CI | GitHub Actions: fmt, clippy, tests on three OSes, browser tests on Linux, cargo deny |
-| Distribution | crates.io (both crates), cargo-dist 0.34: GitHub Releases for 5 targets, installers for shell and PowerShell, Homebrew tap |
-| Docs | README, docs.rs, CONTRIBUTING.md, generated `docs/rules.md` |
-| Hosting, database server, auth, payments | none: local library and CLI |
+| Layer                                    | Choice                                                                                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Language                                 | Rust edition 2024, MSRV pinned in M0, no newer than 1.90                                                                              |
+| Layout                                   | Cargo workspace: `crates/sitevet` (library), `crates/sitevet-cli` (binary `sitevet`)                                                  |
+| Async runtime                            | tokio 1.54, plus an owned 2-thread runtime for `spawn()`. Events on async-channel 2.5. Cancel with tokio-util 0.7 `CancellationToken` |
+| HTTP                                     | reqwest 0.13 with rustls, gzip, brotli, zstd, http2, manual redirects                                                                 |
+| HTML parsing                             | scraper 0.29 (html5ever 0.40)                                                                                                         |
+| Crawl inputs                             | url 2.5, texting_robots 0.2 (fallback robotstxt), quick-xml 0.42                                                                      |
+| Browser                                  | chromiumoxide 0.9 behind the `browser` feature, user's installed Chrome (fallback crate: chromey)                                     |
+| Accessibility                            | axe-core 4.14.0, bundled unmodified (MPL-2.0)                                                                                         |
+| PageSpeed                                | PSI v5 REST through reqwest                                                                                                           |
+| Text engine                              | unicode-segmentation 1.13, whatlang 0.18, stop-words 0.10, rust-stemmers 1.2, readability in-crate (English formulas)                 |
+| Structured data                          | serde_json for JSON-LD, in-crate microdata and RDFa                                                                                   |
+| Site-wide                                | in-crate SimHash over 5-shingles, hash-map duplicate groups, BFS link graph                                                           |
+| Fingerprinting                           | own `data/fingerprints.toml`, regex 1.13, aho-corasick 1.1                                                                            |
+| Media                                    | imagesize 0.15 over ranged GET                                                                                                        |
+| Report rendering                         | askama 0.16 (HTML, Markdown), serde JSON, schemars 1.2 for the JSON Schema                                                            |
+| History                                  | rusqlite 0.41 (bundled) behind the `history` feature, zstd blobs, directories 6                                                       |
+| CLI                                      | clap 4.6 derive, toml 1.2, anstream and anstyle, anyhow                                                                               |
+| Errors and logs                          | thiserror 2.0 (library), tracing 0.1                                                                                                  |
+| Testing                                  | cargo test, wiremock 0.6 fixture server, insta 1.49, jsonschema 0.61, assert_cmd                                                      |
+| CI                                       | GitHub Actions: fmt, clippy, tests on three OSes, browser tests on Linux, cargo deny                                                  |
+| Distribution                             | crates.io (both crates), cargo-dist 0.34: GitHub Releases for 5 targets, installers for shell and PowerShell, Homebrew tap            |
+| Docs                                     | README, docs.rs, CONTRIBUTING.md, generated `docs/rules.md`                                                                           |
+| Hosting, database server, auth, payments | none: local library and CLI                                                                                                           |
 
 ## 3. Architecture and principles
 
@@ -339,7 +339,6 @@ A throwaway spike in `spikes/` (deleted or moved into the real crates once prove
   - Publish 1.0.0 of both crates and the GitHub Release.
 - **Exit criteria:** every box in section 9 is ticked, every NFR box is ticked, 1.0.0 is installable from crates.io, the shell installer and Releases.
 
-
 ## 9. Acceptance criteria
 
 One checkbox per Must requirement, generated from stage 3. POC proves the core idea (a typed, streaming, parity audit from library and CLI). MVP is the shippable v1.0.
@@ -464,28 +463,28 @@ One checkbox per Must requirement, generated from stage 3. POC proves the core i
 
 ## 10. Standard states
 
-| Item | Coverage |
-|------|----------|
-| Undo and redo | Out of scope: no editing, runs are read-only snapshots. |
-| Empty states | FR-CLI-03, FR-HIST-02, FR-RENDER-04. |
-| Loading and progress | FR-API-02, FR-EVENT-01, FR-CLI-03. |
-| Error states and messages | FR-CRAWL-11, FR-RENDER-05, FR-CLI-02, FR-CLI-04. |
-| Confirm before destructive actions | FR-HIST-05. |
-| Autosave or save and reopen | FR-HIST-01, FR-HIST-03. |
-| Search and filter | FR-RULE-04, FR-HIST-02. |
-| Keyboard shortcuts | Out of scope: non-interactive CLI. |
-| Settings that persist | FR-CLI-02. |
-| First run and onboarding | FR-CLI-07, README quick start, crate docs example. |
-| Offline or bad connection | FR-CRAWL-06, FR-CRAWL-11. `show`, `history` and `diff` work offline. |
-| Permissions per role | Out of scope: single-user tool. |
-| Notifications | Out of scope: exit codes and stderr only. |
-| Import and export | FR-REPORT-01 to FR-REPORT-03, FR-HIST-04 baseline import. |
-| Delete and restore | FR-HIST-05. No restore. |
-| Audit log | Out of scope: run history is the record. |
-| Multi-language and RTL | Tool text English. FR-TEXT-01, FR-TEXT-03, FR-REPORT-04. |
-| Accessibility | FR-REPORT-03, FR-CLI-05. |
-| Mobile layout | HTML report readable at 360 px (FR-REPORT-03). |
-| Rate limits and quotas | FR-CRAWL-01, FR-CRAWL-06, FR-RENDER-03, FR-MEDIA-01. |
+| Item                               | Coverage                                                             |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| Undo and redo                      | Out of scope: no editing, runs are read-only snapshots.              |
+| Empty states                       | FR-CLI-03, FR-HIST-02, FR-RENDER-04.                                 |
+| Loading and progress               | FR-API-02, FR-EVENT-01, FR-CLI-03.                                   |
+| Error states and messages          | FR-CRAWL-11, FR-RENDER-05, FR-CLI-02, FR-CLI-04.                     |
+| Confirm before destructive actions | FR-HIST-05.                                                          |
+| Autosave or save and reopen        | FR-HIST-01, FR-HIST-03.                                              |
+| Search and filter                  | FR-RULE-04, FR-HIST-02.                                              |
+| Keyboard shortcuts                 | Out of scope: non-interactive CLI.                                   |
+| Settings that persist              | FR-CLI-02.                                                           |
+| First run and onboarding           | FR-CLI-07, README quick start, crate docs example.                   |
+| Offline or bad connection          | FR-CRAWL-06, FR-CRAWL-11. `show`, `history` and `diff` work offline. |
+| Permissions per role               | Out of scope: single-user tool.                                      |
+| Notifications                      | Out of scope: exit codes and stderr only.                            |
+| Import and export                  | FR-REPORT-01 to FR-REPORT-03, FR-HIST-04 baseline import.            |
+| Delete and restore                 | FR-HIST-05. No restore.                                              |
+| Audit log                          | Out of scope: run history is the record.                             |
+| Multi-language and RTL             | Tool text English. FR-TEXT-01, FR-TEXT-03, FR-REPORT-04.             |
+| Accessibility                      | FR-REPORT-03, FR-CLI-05.                                             |
+| Mobile layout                      | HTML report readable at 360 px (FR-REPORT-03).                       |
+| Rate limits and quotas             | FR-CRAWL-01, FR-CRAWL-06, FR-RENDER-03, FR-MEDIA-01.                 |
 
 ## 11. Out of scope for MVP
 
@@ -531,4 +530,4 @@ Don't build these even if they look easy.
 
 ---
 
-*Companion files in `docs/spec/`: 01-product, 02-users, 03-requirements, 04-tech-decisions, 05-tech-requirements. This build spec is the entry point.*
+_Companion files in `docs/spec/`: 01-product, 02-users, 03-requirements, 04-tech-decisions, 05-tech-requirements. This build spec is the entry point._
