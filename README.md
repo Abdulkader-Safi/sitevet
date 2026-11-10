@@ -8,11 +8,33 @@ It ships two ways from one codebase:
 - A CLI. `sitevet audit https://example.com` for a quick check in the terminal, or with `--fail-under 85` as a CI step that fails when the score drops.
 
 > [!NOTE]
-> sitevet is under construction and nothing is published yet. Build progress is in [`PROGRESS.md`](./PROGRESS.md) and the spec in [`docs/spec/`](./docs/spec/).
+> sitevet 0.1.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
+
+## Install
+
+With Rust installed:
+
+```bash
+cargo install sitevet-cli
+```
+
+Or a prebuilt binary, on macOS and Linux:
+
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Abdulkader-Safi/sitevet/releases/latest/download/sitevet-cli-installer.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://github.com/Abdulkader-Safi/sitevet/releases/latest/download/sitevet-cli-installer.ps1 | iex
+```
+
+Binaries for macOS (arm64, x86_64), Linux (arm64, x86_64, static) and Windows (x86_64) are on the [releases page](https://github.com/Abdulkader-Safi/sitevet/releases). To use the library in your own project: `cargo add sitevet` (add `--features browser` for the rendered checks).
 
 ## What works today
 
-The library and the `sitevet` command, built from this repo (not yet on crates.io):
+The library and the `sitevet` command:
 
 - A breadth-first crawl of same-origin pages with page and depth limits, per-host concurrency, an optional per-host delay, manual redirects and size caps.
 - robots.txt obeyed by default, with blocked URLs listed in the report. Sitemaps (and sitemap indexes) seed the crawl.
@@ -27,7 +49,7 @@ The library and the `sitevet` command, built from this repo (not yet on crates.i
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
 
-Planned: release 0.1.0 on crates.io with prebuilt binaries, run history and everything listed below.
+Planned: run history and everything listed below.
 
 ## Where it comes from
 
@@ -57,7 +79,7 @@ let report = sitevet::audit("https://example.com", sitevet::Options::default()).
 println!("{} pages, score {}", report.pages.len(), report.score);
 ```
 
-From the terminal, after `cargo install --path crates/sitevet-cli` (crates.io and prebuilt binaries are planned for 0.1.0):
+From the terminal:
 
 ```bash
 sitevet audit https://example.com --out report.html
