@@ -8,7 +8,7 @@ It ships two ways from one codebase:
 - A CLI. `sitevet audit https://example.com` for a quick check in the terminal, or with `--fail-under 85` as a CI step that fails when the score drops.
 
 > [!NOTE]
-> sitevet 0.1.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
+> sitevet 0.2.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
 
 ## Install
 
@@ -48,7 +48,7 @@ The library and the `sitevet` command:
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
-- Run history (not released yet, coming in 0.2.0): every CLI audit is saved locally. `sitevet history` lists runs, `sitevet show <id>` renders one again, `sitevet diff <a> <b>` compares two, and `--baseline last` adds a "changes since" section to the report. `--no-save` skips saving.
+- Run history: every CLI audit is saved locally. `sitevet history` lists runs, `sitevet show <id>` renders one again, `sitevet diff <a> <b>` compares two, and `--baseline last` adds a "changes since" section to the report. `--no-save` skips saving.
 
 Planned: everything listed below.
 
