@@ -1,0 +1,3689 @@
+---
+source: crates/sitevet/tests/report.rs
+expression: "stable(&html, &origin)"
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Audit report: http://fixture.test/</title>
+<style>:root {
+  --bg: #ffffff;
+  --surface: #f6f7f9;
+  --border: #d8dce2;
+  --text: #1b1f24;
+  --muted: #545c66;
+  --good: #146c2e;
+  --good-bg: #e3f4e8;
+  --fair: #7a4a00;
+  --fair-bg: #fdf0d5;
+  --poor: #a1161b;
+  --poor-bg: #fbe3e4;
+  --info: #24518f;
+  --info-bg: #e2ecf9;
+  --focus: #24518f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b;
+    --surface: #1d2126;
+    --border: #353b43;
+    --text: #e8eaed;
+    --muted: #a7afb9;
+    --good: #7fd69a;
+    --good-bg: #183424;
+    --fair: #f2c26b;
+    --fair-bg: #3a2c10;
+    --poor: #ff9a9e;
+    --poor-bg: #401b1d;
+    --info: #9cc3ff;
+    --info-bg: #1a2a42;
+    --focus: #9cc3ff;
+  }
+}
+* { box-sizing: border-box; }
+html { font-size: 100%; }
+body {
+  margin: 0 auto;
+  max-width: 72rem;
+  padding: 1rem;
+  background: var(--bg);
+  color: var(--text);
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-wrap: anywhere;
+}
+a { color: var(--info); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; background: var(--bg); padding: .5rem; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+h1 { font-size: 1.5rem; margin: .25rem 0; line-height: 1.25; }
+h2 { font-size: 1.25rem; margin: 2rem 0 .75rem; }
+h3 { font-size: 1.05rem; margin: 1.25rem 0 .5rem; }
+h4 { font-size: 1rem; margin: 1rem 0 .5rem; }
+.top { display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.top-text { flex: 1 1 20rem; min-width: 0; }
+.eyebrow, .meta { color: var(--muted); margin: 0; }
+.badge { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 7rem; height: 7rem; border-radius: 50%; border: 4px solid currentColor; }
+.badge-score { font-size: 2.25rem; font-weight: 700; line-height: 1; }
+.badge-label { font-size: .75rem; font-weight: 600; text-align: center; line-height: 1.1; padding: 0 .5rem; }
+.good { color: var(--good); }
+.fair { color: var(--fair); }
+.poor { color: var(--poor); }
+.grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .75rem; }
+.cat { background: var(--surface); border: 1px solid var(--border); border-left: 6px solid currentColor; border-radius: .5rem; padding: .75rem; display: grid; gap: .1rem; }
+.cat-name { color: var(--text); font-weight: 600; }
+.cat-score { font-size: 1.5rem; font-weight: 700; }
+.cat-counts { color: var(--muted); font-size: .875rem; }
+.page { border: 1px solid var(--border); border-radius: .5rem; margin-bottom: .75rem; background: var(--bg); }
+.page > summary { display: flex; gap: .75rem; align-items: center; padding: .75rem; cursor: pointer; background: var(--surface); border-radius: .5rem; }
+.page[open] > summary { border-bottom: 1px solid var(--border); border-radius: .5rem .5rem 0 0; }
+.page-url { flex: 1; min-width: 0; font-weight: 600; }
+.page-count { color: var(--muted); font-size: .875rem; white-space: nowrap; }
+.pill { min-width: 2.75rem; text-align: center; font-weight: 700; padding: .1rem .5rem; border-radius: 1rem; border: 2px solid currentColor; }
+.page-body { padding: 0 .75rem .75rem; }
+.error { color: var(--poor); background: var(--poor-bg); padding: .5rem .75rem; border-radius: .375rem; }
+.ok { color: var(--muted); margin: .25rem 0; }
+.findings { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+.finding { display: flex; gap: .75rem; padding: .625rem .75rem; border-radius: .375rem; border-left: 4px solid currentColor; }
+.finding.fail { color: var(--poor); background: var(--poor-bg); }
+.finding.warn { color: var(--fair); background: var(--fair-bg); }
+.finding.info { color: var(--info); background: var(--info-bg); }
+.word { font-weight: 700; font-size: .8rem; letter-spacing: .04em; min-width: 2.75rem; padding-top: .15rem; }
+.finding-body { color: var(--text); min-width: 0; flex: 1; }
+.finding-body p { margin: 0 0 .25rem; }
+.finding-title { font-weight: 600; }
+.rule { color: var(--muted); font-size: .8rem; font-weight: 400; }
+pre { margin: .25rem 0; padding: .5rem; background: var(--bg); border: 1px solid var(--border); border-radius: .25rem; overflow-x: auto; white-space: pre-wrap; font-size: .875rem; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.fix-label { font-weight: 600; }
+.metrics { margin-top: 1rem; }
+.metrics > summary { cursor: pointer; font-weight: 600; padding: .25rem 0; }
+.table-wrap { overflow-x: auto; margin: .5rem 0 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+caption { text-align: left; font-weight: 600; padding-bottom: .25rem; }
+.showing { color: var(--muted); font-weight: 400; }
+th, td { border: 1px solid var(--border); padding: .375rem .5rem; text-align: left; vertical-align: top; }
+thead th { background: var(--surface); }
+tbody th { font-weight: 500; }
+.vs { font-weight: 600; }
+.vs.ok { color: var(--good); }
+.vs.warn, .vs.missing { color: var(--fair); }
+.vs.bad { color: var(--poor); }
+.empty { color: var(--muted); }
+.foot { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1rem; color: var(--muted); font-size: .875rem; }
+@media (max-width: 30rem) {
+  body { padding: .75rem; }
+  .badge { width: 6.5rem; height: 6.5rem; }
+  .badge-score { font-size: 1.75rem; }
+  .cat-score { font-size: 1.25rem; }
+  .page > summary { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#pages">Skip to pages</a>
+<header class="top">
+  <div class="top-text">
+    <p class="eyebrow">sitevet audit report</p>
+    <h1><span dir="auto">http://fixture.test/</span></h1>
+    <p class="meta">5 pages audited on <time datetime="2026-01-01T00:00:00Z">2026-01-01T00:00:00Z</time> in 1.0 s.</p>
+  </div>
+  <div class="badge poor" role="img" aria-label="Overall score 0 out of 100, Poor">
+    <span class="badge-score">0</span>
+    <span class="badge-label">Poor</span>
+  </div>
+</header>
+<main>
+<section aria-labelledby="categories-h">
+  <h2 id="categories-h">Categories</h2>
+  
+  <ul class="grid">
+    
+    <li class="cat fair">
+      <span class="cat-name">Core SEO</span>
+      <span class="cat-score">52<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">11 fail, 26 warn, 18 pass</span>
+    </li>
+    
+    <li class="cat good">
+      <span class="cat-name">Content</span>
+      <span class="cat-score">91<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 6 warn, 24 pass</span>
+    </li>
+    
+    <li class="cat good">
+      <span class="cat-name">Links</span>
+      <span class="cat-score">90<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">1 fail, 0 warn, 24 pass</span>
+    </li>
+    
+    <li class="cat good">
+      <span class="cat-name">Images</span>
+      <span class="cat-score">100<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 0 warn, 30 pass</span>
+    </li>
+    
+    <li class="cat fair">
+      <span class="cat-name">Structured data</span>
+      <span class="cat-score">80<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 10 warn, 40 pass</span>
+    </li>
+    
+    <li class="cat poor">
+      <span class="cat-name">Security</span>
+      <span class="cat-score">47<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">5 fail, 25 warn, 20 pass</span>
+    </li>
+    
+    <li class="cat fair">
+      <span class="cat-name">Crawlability</span>
+      <span class="cat-score">88<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 5 warn, 25 pass</span>
+    </li>
+    
+    <li class="cat good">
+      <span class="cat-name">URL structure</span>
+      <span class="cat-score">100<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 0 warn, 40 pass</span>
+    </li>
+    
+    <li class="cat poor">
+      <span class="cat-name">Social media</span>
+      <span class="cat-score">38<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 10 warn, 5 pass</span>
+    </li>
+    
+    <li class="cat good">
+      <span class="cat-name">Internationalization</span>
+      <span class="cat-score">100<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 0 warn, 5 pass</span>
+    </li>
+    
+    <li class="cat poor">
+      <span class="cat-name">Legal</span>
+      <span class="cat-score">32<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 5 warn, 2 pass</span>
+    </li>
+    
+    <li class="cat fair">
+      <span class="cat-name">Analytics</span>
+      <span class="cat-score">63<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 5 warn, 5 pass</span>
+    </li>
+    
+    <li class="cat poor">
+      <span class="cat-name">E-E-A-T</span>
+      <span class="cat-score">38<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 5 warn, 1 pass</span>
+    </li>
+    
+    <li class="cat fair">
+      <span class="cat-name">Performance</span>
+      <span class="cat-score">69<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 10 warn, 20 pass</span>
+    </li>
+    
+  </ul>
+  
+</section>
+
+<section id="pages" aria-labelledby="pages-h">
+  <h2 id="pages-h">Pages</h2>
+  
+  <details class="page" id="page-1" open>
+    <summary>
+      <span class="pill fair">77</span>
+      <span class="page-url" dir="auto">http://fixture.test/</span>
+      <span class="page-count">23 issues</span>
+    </summary>
+    <div class="page-body">
+      
+      
+      
+      <h3>Core SEO</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Viewport meta present <code class="rule">core-seo/viewport-present</code></p>
+            <p dir="auto">Missing viewport meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1&#34;&#62; for mobile rendering.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Title length <code class="rule">core-seo/title-length</code></p>
+            <p dir="auto">Title is short (4 chars)</p>
+            <pre dir="auto"><code>Home</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the title to sit between 30 and 60 characters so it is not truncated in search results.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description length <code class="rule">core-seo/meta-description-length</code></p>
+            <p dir="auto">Description short (21 chars)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Trim or expand the meta description to 70 to 160 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">H1 length <code class="rule">core-seo/h1-length</code></p>
+            <p dir="auto">H1 is short (4 chars)</p>
+            <pre dir="auto"><code>Home</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the H1 to sit between 10 and 70 characters. One word says nothing; a sentence is not a heading.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical URL present <code class="rule">core-seo/canonical-present</code></p>
+            <p dir="auto">No canonical link</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;canonical&#34; href=&#34;...&#34;&#62; pointing to the preferred absolute URL of this page.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph basics <code class="rule">core-seo/open-graph-basics</code></p>
+            <p dir="auto">Missing Open Graph tags: og:title, og:description, og:image</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add og:title, og:description, and og:image meta tags so the page previews well when shared.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>Content</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Word count <code class="rule">content/word-count</code></p>
+            <p dir="auto">Thin content (9 words)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add more substantive content. Thin pages rank poorly. Aim for at least 300 meaningful words.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>Links</h3>
+      
+      <p class="ok">All 5 checks passed.</p>
+      
+      
+      <h3>Images</h3>
+      
+      <p class="ok">All 6 checks passed.</p>
+      
+      
+      <h3>Structured data</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Organization or WebSite schema <code class="rule">structured-data/org-or-website</code></p>
+            <p dir="auto">No Organization or WebSite schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Organization or WebSite JSON-LD so search engines understand the site entity and can show a knowledge panel.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">JSON-LD present <code class="rule">structured-data/jsonld-present</code></p>
+            <p dir="auto">No JSON-LD structured data</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add JSON-LD structured data describing the page, e.g. Article, Product, or Organization.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Breadcrumb schema <code class="rule">structured-data/breadcrumb-valid</code></p>
+            <p dir="auto">No breadcrumb schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">8 other checks passed.</p>
+      
+      
+      <h3>Security</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Served over HTTPS <code class="rule">security/https</code></p>
+            <p dir="auto">Not served over HTTPS</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTPS and redirect all HTTP traffic to HTTPS.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HSTS header <code class="rule">security/hsts</code></p>
+            <p dir="auto">Missing Strict-Transport-Security</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add the Strict-Transport-Security header to enforce HTTPS on future visits.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Content-Security-Policy <code class="rule">security/csp</code></p>
+            <p dir="auto">Missing Content-Security-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Content-Security-Policy header to limit what scripts and resources can load.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Clickjacking protection <code class="rule">security/x-frame-options</code></p>
+            <p dir="auto">No X-Frame-Options or frame-ancestors</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set X-Frame-Options: DENY or a CSP frame-ancestors directive to block clickjacking.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">X-Content-Type-Options <code class="rule">security/x-content-type-options</code></p>
+            <p dir="auto">Missing X-Content-Type-Options: nosniff</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add X-Content-Type-Options: nosniff to stop MIME-type sniffing.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Referrer-Policy <code class="rule">security/referrer-policy</code></p>
+            <p dir="auto">Missing Referrer-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Referrer-Policy header, e.g. strict-origin-when-cross-origin.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cross-Origin-Opener-Policy <code class="rule">security/coop</code></p>
+            <p dir="auto">No Cross-Origin-Opener-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Cross-Origin-Opener-Policy: same-origin to isolate your browsing context.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Permissions-Policy <code class="rule">security/permissions-policy</code></p>
+            <p dir="auto">No Permissions-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Permissions-Policy header to restrict powerful browser features the site does not use.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Crawlability</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical valid <code class="rule">crawlability/canonical-valid</code></p>
+            <p dir="auto">No canonical to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Use an absolute, valid URL in the canonical link.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>URL structure</h3>
+      
+      <p class="ok">All 8 checks passed.</p>
+      
+      
+      <h3>Social media</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Twitter Card <code class="rule">social-media/twitter-card</code></p>
+            <p dir="auto">No twitter:card meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;twitter:card&#34; content=&#34;summary_large_image&#34;&#62; so links preview well on X/Twitter.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph image is absolute <code class="rule">social-media/og-image-absolute</code></p>
+            <p dir="auto">No og:image to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> og:image must be an absolute https URL. Social platforms cannot resolve relative paths.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Social profile links <code class="rule">social-media/profile-links</code></p>
+            <p dir="auto">No social profile links found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to your social profiles so visitors and search engines can connect your brand accounts.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Internationalization</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">hreflang annotations <code class="rule">internationalization/hreflang-present</code></p>
+            <p dir="auto">No hreflang alternates (fine for a single-language site)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If the site serves more than one language or region, add hreflang link alternates so Google serves the right version.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Legal</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Privacy policy link <code class="rule">legal/privacy-policy</code></p>
+            <p dir="auto">No privacy policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to a privacy policy. Most jurisdictions require one if you collect any personal data.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Terms of service link <code class="rule">legal/terms</code></p>
+            <p dir="auto">No terms of service link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to terms of service or terms and conditions to set the rules for using your site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cookie consent <code class="rule">legal/cookie-consent</code></p>
+            <p dir="auto">No cookie consent banner detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you set non-essential cookies, show a consent banner (a CMP) to comply with privacy law.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Analytics</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Analytics installed <code class="rule">analytics/tag-present</code></p>
+            <p dir="auto">No analytics tag detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Install an analytics tag (GA4, Plausible, Fathom, etc.) so you can measure traffic and behaviour.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>E-E-A-T</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Author attribution <code class="rule">eeat/author</code></p>
+            <p dir="auto">No author attribution found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Attribute content to a named author via a byline, rel=author, or schema author property.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Published or updated date <code class="rule">eeat/date</code></p>
+            <p dir="auto">No published or updated date found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a published or last-updated date. Freshness and transparency are trust signals.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Outbound citations <code class="rule">eeat/outbound-citations</code></p>
+            <p dir="auto">No outbound citations</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Performance</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Text compression <code class="rule">performance/text-compression</code></p>
+            <p dir="auto">HTML response is not compressed</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Enable gzip or Brotli compression on HTML, CSS, and JS responses to cut transfer size.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Cache headers <code class="rule">performance/cache-control</code></p>
+            <p dir="auto">No Cache-Control header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Send a Cache-Control header so browsers and CDNs can cache responses.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      
+      <details class="metrics">
+        <summary>Measurements</summary>
+        
+        <h4>Core SEO</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Title length</th><td dir="auto">4 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 30 to 60</td></tr>
+          
+          <tr><th scope="row">Description length</th><td dir="auto">21 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 70 to 160</td></tr>
+          
+          <tr><th scope="row">H1 count</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">Exactly one</td></tr>
+          
+          <tr><th scope="row">H1 length</th><td dir="auto">4 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 10 to 70</td></tr>
+          
+          <tr><th scope="row">Open Graph tags</th><td dir="auto">0 of 7</td><td><span class="vs missing">missing</span></td><td dir="auto">Missing og:title, og:description, og:image</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Open Graph</caption>
+          <thead><tr><th scope="col">Property</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">og:title</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:description</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:image</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:url</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:type</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:site_name</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:locale</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Content</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Declared language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">The lang attribute on &#60;html&#62;</td></tr>
+          
+          <tr><th scope="row">Hidden elements</th><td dir="auto">0</td><td>-</td><td dir="auto">Inline display:none or the hidden attribute</td></tr>
+          
+          <tr><th scope="row">Inline style attributes</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Style belongs in a stylesheet</td></tr>
+          
+          <tr><th scope="row">Style blocks in body</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">CSS after &#60;body&#62; opens can restyle painted content</td></tr>
+          
+          <tr><th scope="row">HTML comments</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Comments ship to every visitor</td></tr>
+          
+          <tr><th scope="row">Placeholder links</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">href=&#34;#&#34; or empty</td></tr>
+          
+          <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Headings per level</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">1</td></tr><tr><td dir="auto">H2</td><td dir="auto">0</td></tr><tr><td dir="auto">H3</td><td dir="auto">0</td></tr><tr><td dir="auto">H4</td><td dir="auto">0</td></tr><tr><td dir="auto">H5</td><td dir="auto">0</td></tr><tr><td dir="auto">H6</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Heading outline</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Heading</th><th scope="col">Contains</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">Home</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Links</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Links</th><td dir="auto">3</td><td>-</td><td dir="auto">3 internal, 0 external</td></tr>
+          
+          <tr><th scope="row">Internal links</th><td dir="auto">3</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">External links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Dofollow links</th><td dir="auto">3</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Nofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Duplicated targets</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">URLs linked more than once from this page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Dofollow links</caption>
+          <thead><tr><th scope="col">URL</th><th scope="col">Anchor</th><th scope="col">Scope</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">http://fixture.test/about.html</td><td dir="auto">About</td><td dir="auto">internal</td></tr><tr><td dir="auto">http://fixture.test/contact.html#form</td><td dir="auto">Contact</td><td dir="auto">internal</td></tr><tr><td dir="auto">http://fixture.test/private/secret.html</td><td dir="auto">Private</td><td dir="auto">internal</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Images</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Images</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">With alt text</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 marked decorative, 0 with no alt attribute</td></tr>
+          
+          <tr><th scope="row">Missing alt</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Loaded over HTTP</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Insecure images break the padlock on an HTTPS page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Crawlability</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTTP status</th><td dir="auto">200</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Response time</th><td dir="auto">1 ms</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Robots meta</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Absent means index, follow</td></tr>
+          
+          <tr><th scope="row">X-Robots-Tag</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The header form of the same directive</td></tr>
+          
+          <tr><th scope="row">Canonical URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Canonical matches this URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">robots.txt</th><td dir="auto">3 directives</td><td><span class="vs ok">ok</span></td><td dir="auto">Declares 1 sitemap(s)</td></tr>
+          
+          <tr><th scope="row">Sitemap URLs</th><td dir="auto">3</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Social media</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Twitter tags</th><td dir="auto">0 of 6</td><td><span class="vs missing">missing</span></td><td dir="auto">Falls back to Open Graph</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Twitter card</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">twitter:card</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">twitter:title</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:description</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:image</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:site</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:creator</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Internationalization</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">hreflang alternates</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>E-E-A-T</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Performance</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
+          
+          <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+      </details>
+      
+    </div>
+  </details>
+  
+  <details class="page" id="page-2">
+    <summary>
+      <span class="pill fair">73</span>
+      <span class="page-url" dir="auto">http://fixture.test/about.html</span>
+      <span class="page-count">24 issues</span>
+    </summary>
+    <div class="page-body">
+      
+      
+      
+      <h3>Core SEO</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description present <code class="rule">core-seo/meta-description-present</code></p>
+            <p dir="auto">Missing meta description</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a &#60;meta name=&#34;description&#34;&#62; with a 70 to 160 character summary of the page.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Viewport meta present <code class="rule">core-seo/viewport-present</code></p>
+            <p dir="auto">Missing viewport meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1&#34;&#62; for mobile rendering.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Title length <code class="rule">core-seo/title-length</code></p>
+            <p dir="auto">Title is short (5 chars)</p>
+            <pre dir="auto"><code>About</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the title to sit between 30 and 60 characters so it is not truncated in search results.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description length <code class="rule">core-seo/meta-description-length</code></p>
+            <p dir="auto">No description to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Trim or expand the meta description to 70 to 160 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">H1 length <code class="rule">core-seo/h1-length</code></p>
+            <p dir="auto">H1 is short (5 chars)</p>
+            <pre dir="auto"><code>About</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the H1 to sit between 10 and 70 characters. One word says nothing; a sentence is not a heading.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical URL present <code class="rule">core-seo/canonical-present</code></p>
+            <p dir="auto">No canonical link</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;canonical&#34; href=&#34;...&#34;&#62; pointing to the preferred absolute URL of this page.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph basics <code class="rule">core-seo/open-graph-basics</code></p>
+            <p dir="auto">Missing Open Graph tags: og:title, og:description, og:image</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add og:title, og:description, and og:image meta tags so the page previews well when shared.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Content</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Word count <code class="rule">content/word-count</code></p>
+            <p dir="auto">Thin content (4 words)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add more substantive content. Thin pages rank poorly. Aim for at least 300 meaningful words.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>Links</h3>
+      
+      <p class="ok">All 5 checks passed.</p>
+      
+      
+      <h3>Images</h3>
+      
+      <p class="ok">All 6 checks passed.</p>
+      
+      
+      <h3>Structured data</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Organization or WebSite schema <code class="rule">structured-data/org-or-website</code></p>
+            <p dir="auto">No Organization or WebSite schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Organization or WebSite JSON-LD so search engines understand the site entity and can show a knowledge panel.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">JSON-LD present <code class="rule">structured-data/jsonld-present</code></p>
+            <p dir="auto">No JSON-LD structured data</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add JSON-LD structured data describing the page, e.g. Article, Product, or Organization.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Breadcrumb schema <code class="rule">structured-data/breadcrumb-valid</code></p>
+            <p dir="auto">No breadcrumb schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">8 other checks passed.</p>
+      
+      
+      <h3>Security</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Served over HTTPS <code class="rule">security/https</code></p>
+            <p dir="auto">Not served over HTTPS</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTPS and redirect all HTTP traffic to HTTPS.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HSTS header <code class="rule">security/hsts</code></p>
+            <p dir="auto">Missing Strict-Transport-Security</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add the Strict-Transport-Security header to enforce HTTPS on future visits.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Content-Security-Policy <code class="rule">security/csp</code></p>
+            <p dir="auto">Missing Content-Security-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Content-Security-Policy header to limit what scripts and resources can load.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Clickjacking protection <code class="rule">security/x-frame-options</code></p>
+            <p dir="auto">No X-Frame-Options or frame-ancestors</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set X-Frame-Options: DENY or a CSP frame-ancestors directive to block clickjacking.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">X-Content-Type-Options <code class="rule">security/x-content-type-options</code></p>
+            <p dir="auto">Missing X-Content-Type-Options: nosniff</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add X-Content-Type-Options: nosniff to stop MIME-type sniffing.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Referrer-Policy <code class="rule">security/referrer-policy</code></p>
+            <p dir="auto">Missing Referrer-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Referrer-Policy header, e.g. strict-origin-when-cross-origin.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cross-Origin-Opener-Policy <code class="rule">security/coop</code></p>
+            <p dir="auto">No Cross-Origin-Opener-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Cross-Origin-Opener-Policy: same-origin to isolate your browsing context.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Permissions-Policy <code class="rule">security/permissions-policy</code></p>
+            <p dir="auto">No Permissions-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Permissions-Policy header to restrict powerful browser features the site does not use.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Crawlability</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical valid <code class="rule">crawlability/canonical-valid</code></p>
+            <p dir="auto">No canonical to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Use an absolute, valid URL in the canonical link.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>URL structure</h3>
+      
+      <p class="ok">All 8 checks passed.</p>
+      
+      
+      <h3>Social media</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Twitter Card <code class="rule">social-media/twitter-card</code></p>
+            <p dir="auto">No twitter:card meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;twitter:card&#34; content=&#34;summary_large_image&#34;&#62; so links preview well on X/Twitter.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph image is absolute <code class="rule">social-media/og-image-absolute</code></p>
+            <p dir="auto">No og:image to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> og:image must be an absolute https URL. Social platforms cannot resolve relative paths.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Social profile links <code class="rule">social-media/profile-links</code></p>
+            <p dir="auto">No social profile links found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to your social profiles so visitors and search engines can connect your brand accounts.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Internationalization</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">hreflang annotations <code class="rule">internationalization/hreflang-present</code></p>
+            <p dir="auto">No hreflang alternates (fine for a single-language site)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If the site serves more than one language or region, add hreflang link alternates so Google serves the right version.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Legal</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Privacy policy link <code class="rule">legal/privacy-policy</code></p>
+            <p dir="auto">No privacy policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to a privacy policy. Most jurisdictions require one if you collect any personal data.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Terms of service link <code class="rule">legal/terms</code></p>
+            <p dir="auto">No terms of service link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to terms of service or terms and conditions to set the rules for using your site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cookie consent <code class="rule">legal/cookie-consent</code></p>
+            <p dir="auto">No cookie consent banner detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you set non-essential cookies, show a consent banner (a CMP) to comply with privacy law.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Analytics</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Analytics installed <code class="rule">analytics/tag-present</code></p>
+            <p dir="auto">No analytics tag detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Install an analytics tag (GA4, Plausible, Fathom, etc.) so you can measure traffic and behaviour.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>E-E-A-T</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Author attribution <code class="rule">eeat/author</code></p>
+            <p dir="auto">No author attribution found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Attribute content to a named author via a byline, rel=author, or schema author property.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Published or updated date <code class="rule">eeat/date</code></p>
+            <p dir="auto">No published or updated date found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a published or last-updated date. Freshness and transparency are trust signals.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Outbound citations <code class="rule">eeat/outbound-citations</code></p>
+            <p dir="auto">No outbound citations</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">About page <code class="rule">eeat/about-page</code></p>
+            <p dir="auto">No about page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Performance</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Text compression <code class="rule">performance/text-compression</code></p>
+            <p dir="auto">HTML response is not compressed</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Enable gzip or Brotli compression on HTML, CSS, and JS responses to cut transfer size.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Cache headers <code class="rule">performance/cache-control</code></p>
+            <p dir="auto">No Cache-Control header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Send a Cache-Control header so browsers and CDNs can cache responses.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      
+      <details class="metrics">
+        <summary>Measurements</summary>
+        
+        <h4>Core SEO</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Title length</th><td dir="auto">5 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 30 to 60</td></tr>
+          
+          <tr><th scope="row">Description length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 70 to 160</td></tr>
+          
+          <tr><th scope="row">H1 count</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">Exactly one</td></tr>
+          
+          <tr><th scope="row">H1 length</th><td dir="auto">5 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 10 to 70</td></tr>
+          
+          <tr><th scope="row">Open Graph tags</th><td dir="auto">0 of 7</td><td><span class="vs missing">missing</span></td><td dir="auto">Missing og:title, og:description, og:image</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Open Graph</caption>
+          <thead><tr><th scope="col">Property</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">og:title</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:description</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:image</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:url</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:type</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:site_name</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:locale</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Content</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Declared language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">The lang attribute on &#60;html&#62;</td></tr>
+          
+          <tr><th scope="row">Hidden elements</th><td dir="auto">0</td><td>-</td><td dir="auto">Inline display:none or the hidden attribute</td></tr>
+          
+          <tr><th scope="row">Inline style attributes</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Style belongs in a stylesheet</td></tr>
+          
+          <tr><th scope="row">Style blocks in body</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">CSS after &#60;body&#62; opens can restyle painted content</td></tr>
+          
+          <tr><th scope="row">HTML comments</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Comments ship to every visitor</td></tr>
+          
+          <tr><th scope="row">Placeholder links</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">href=&#34;#&#34; or empty</td></tr>
+          
+          <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Headings per level</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">1</td></tr><tr><td dir="auto">H2</td><td dir="auto">0</td></tr><tr><td dir="auto">H3</td><td dir="auto">0</td></tr><tr><td dir="auto">H4</td><td dir="auto">0</td></tr><tr><td dir="auto">H5</td><td dir="auto">0</td></tr><tr><td dir="auto">H6</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Heading outline</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Heading</th><th scope="col">Contains</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">About</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Links</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Links</th><td dir="auto">2</td><td>-</td><td dir="auto">2 internal, 0 external</td></tr>
+          
+          <tr><th scope="row">Internal links</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">External links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Dofollow links</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Nofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Duplicated targets</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">URLs linked more than once from this page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Dofollow links</caption>
+          <thead><tr><th scope="col">URL</th><th scope="col">Anchor</th><th scope="col">Scope</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">http://fixture.test/</td><td dir="auto">Home</td><td dir="auto">internal</td></tr><tr><td dir="auto">http://fixture.test/contact.html</td><td dir="auto">Contact</td><td dir="auto">internal</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Images</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Images</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">With alt text</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 marked decorative, 0 with no alt attribute</td></tr>
+          
+          <tr><th scope="row">Missing alt</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Loaded over HTTP</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Insecure images break the padlock on an HTTPS page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Crawlability</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTTP status</th><td dir="auto">200</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Response time</th><td dir="auto">1 ms</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Robots meta</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Absent means index, follow</td></tr>
+          
+          <tr><th scope="row">X-Robots-Tag</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The header form of the same directive</td></tr>
+          
+          <tr><th scope="row">Canonical URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Canonical matches this URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">robots.txt</th><td dir="auto">3 directives</td><td><span class="vs ok">ok</span></td><td dir="auto">Declares 1 sitemap(s)</td></tr>
+          
+          <tr><th scope="row">Sitemap URLs</th><td dir="auto">3</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Social media</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Twitter tags</th><td dir="auto">0 of 6</td><td><span class="vs missing">missing</span></td><td dir="auto">Falls back to Open Graph</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Twitter card</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">twitter:card</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">twitter:title</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:description</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:image</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:site</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:creator</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Internationalization</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">hreflang alternates</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>E-E-A-T</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Performance</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
+          
+          <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+      </details>
+      
+    </div>
+  </details>
+  
+  <details class="page" id="page-3">
+    <summary>
+      <span class="pill fair">73</span>
+      <span class="page-url" dir="auto">http://fixture.test/orphan.html</span>
+      <span class="page-count">24 issues</span>
+    </summary>
+    <div class="page-body">
+      
+      
+      
+      <h3>Core SEO</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description present <code class="rule">core-seo/meta-description-present</code></p>
+            <p dir="auto">Missing meta description</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a &#60;meta name=&#34;description&#34;&#62; with a 70 to 160 character summary of the page.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Viewport meta present <code class="rule">core-seo/viewport-present</code></p>
+            <p dir="auto">Missing viewport meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1&#34;&#62; for mobile rendering.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Title length <code class="rule">core-seo/title-length</code></p>
+            <p dir="auto">Title is short (6 chars)</p>
+            <pre dir="auto"><code>Orphan</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the title to sit between 30 and 60 characters so it is not truncated in search results.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description length <code class="rule">core-seo/meta-description-length</code></p>
+            <p dir="auto">No description to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Trim or expand the meta description to 70 to 160 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">H1 length <code class="rule">core-seo/h1-length</code></p>
+            <p dir="auto">H1 is short (6 chars)</p>
+            <pre dir="auto"><code>Orphan</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the H1 to sit between 10 and 70 characters. One word says nothing; a sentence is not a heading.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical URL present <code class="rule">core-seo/canonical-present</code></p>
+            <p dir="auto">No canonical link</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;canonical&#34; href=&#34;...&#34;&#62; pointing to the preferred absolute URL of this page.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph basics <code class="rule">core-seo/open-graph-basics</code></p>
+            <p dir="auto">Missing Open Graph tags: og:title, og:description, og:image</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add og:title, og:description, and og:image meta tags so the page previews well when shared.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Content</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Word count <code class="rule">content/word-count</code></p>
+            <p dir="auto">Thin content (6 words)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add more substantive content. Thin pages rank poorly. Aim for at least 300 meaningful words.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>Links</h3>
+      
+      <p class="ok">All 5 checks passed.</p>
+      
+      
+      <h3>Images</h3>
+      
+      <p class="ok">All 6 checks passed.</p>
+      
+      
+      <h3>Structured data</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Organization or WebSite schema <code class="rule">structured-data/org-or-website</code></p>
+            <p dir="auto">No Organization or WebSite schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Organization or WebSite JSON-LD so search engines understand the site entity and can show a knowledge panel.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">JSON-LD present <code class="rule">structured-data/jsonld-present</code></p>
+            <p dir="auto">No JSON-LD structured data</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add JSON-LD structured data describing the page, e.g. Article, Product, or Organization.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Breadcrumb schema <code class="rule">structured-data/breadcrumb-valid</code></p>
+            <p dir="auto">No breadcrumb schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">8 other checks passed.</p>
+      
+      
+      <h3>Security</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Served over HTTPS <code class="rule">security/https</code></p>
+            <p dir="auto">Not served over HTTPS</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTPS and redirect all HTTP traffic to HTTPS.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HSTS header <code class="rule">security/hsts</code></p>
+            <p dir="auto">Missing Strict-Transport-Security</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add the Strict-Transport-Security header to enforce HTTPS on future visits.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Content-Security-Policy <code class="rule">security/csp</code></p>
+            <p dir="auto">Missing Content-Security-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Content-Security-Policy header to limit what scripts and resources can load.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Clickjacking protection <code class="rule">security/x-frame-options</code></p>
+            <p dir="auto">No X-Frame-Options or frame-ancestors</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set X-Frame-Options: DENY or a CSP frame-ancestors directive to block clickjacking.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">X-Content-Type-Options <code class="rule">security/x-content-type-options</code></p>
+            <p dir="auto">Missing X-Content-Type-Options: nosniff</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add X-Content-Type-Options: nosniff to stop MIME-type sniffing.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Referrer-Policy <code class="rule">security/referrer-policy</code></p>
+            <p dir="auto">Missing Referrer-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Referrer-Policy header, e.g. strict-origin-when-cross-origin.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cross-Origin-Opener-Policy <code class="rule">security/coop</code></p>
+            <p dir="auto">No Cross-Origin-Opener-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Cross-Origin-Opener-Policy: same-origin to isolate your browsing context.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Permissions-Policy <code class="rule">security/permissions-policy</code></p>
+            <p dir="auto">No Permissions-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Permissions-Policy header to restrict powerful browser features the site does not use.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Crawlability</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical valid <code class="rule">crawlability/canonical-valid</code></p>
+            <p dir="auto">No canonical to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Use an absolute, valid URL in the canonical link.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>URL structure</h3>
+      
+      <p class="ok">All 8 checks passed.</p>
+      
+      
+      <h3>Social media</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Twitter Card <code class="rule">social-media/twitter-card</code></p>
+            <p dir="auto">No twitter:card meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;twitter:card&#34; content=&#34;summary_large_image&#34;&#62; so links preview well on X/Twitter.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph image is absolute <code class="rule">social-media/og-image-absolute</code></p>
+            <p dir="auto">No og:image to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> og:image must be an absolute https URL. Social platforms cannot resolve relative paths.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Social profile links <code class="rule">social-media/profile-links</code></p>
+            <p dir="auto">No social profile links found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to your social profiles so visitors and search engines can connect your brand accounts.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Internationalization</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">hreflang annotations <code class="rule">internationalization/hreflang-present</code></p>
+            <p dir="auto">No hreflang alternates (fine for a single-language site)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If the site serves more than one language or region, add hreflang link alternates so Google serves the right version.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Legal</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Privacy policy link <code class="rule">legal/privacy-policy</code></p>
+            <p dir="auto">No privacy policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to a privacy policy. Most jurisdictions require one if you collect any personal data.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Terms of service link <code class="rule">legal/terms</code></p>
+            <p dir="auto">No terms of service link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to terms of service or terms and conditions to set the rules for using your site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cookie consent <code class="rule">legal/cookie-consent</code></p>
+            <p dir="auto">No cookie consent banner detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you set non-essential cookies, show a consent banner (a CMP) to comply with privacy law.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Contact information <code class="rule">legal/contact</code></p>
+            <p dir="auto">No contact link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Provide a contact link or page. It builds trust and is a positive E-E-A-T signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Analytics</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Analytics installed <code class="rule">analytics/tag-present</code></p>
+            <p dir="auto">No analytics tag detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Install an analytics tag (GA4, Plausible, Fathom, etc.) so you can measure traffic and behaviour.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>E-E-A-T</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Author attribution <code class="rule">eeat/author</code></p>
+            <p dir="auto">No author attribution found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Attribute content to a named author via a byline, rel=author, or schema author property.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Published or updated date <code class="rule">eeat/date</code></p>
+            <p dir="auto">No published or updated date found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a published or last-updated date. Freshness and transparency are trust signals.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Outbound citations <code class="rule">eeat/outbound-citations</code></p>
+            <p dir="auto">No outbound citations</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">About page <code class="rule">eeat/about-page</code></p>
+            <p dir="auto">No about page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Performance</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Text compression <code class="rule">performance/text-compression</code></p>
+            <p dir="auto">HTML response is not compressed</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Enable gzip or Brotli compression on HTML, CSS, and JS responses to cut transfer size.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Cache headers <code class="rule">performance/cache-control</code></p>
+            <p dir="auto">No Cache-Control header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Send a Cache-Control header so browsers and CDNs can cache responses.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      
+      <details class="metrics">
+        <summary>Measurements</summary>
+        
+        <h4>Core SEO</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Title length</th><td dir="auto">6 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 30 to 60</td></tr>
+          
+          <tr><th scope="row">Description length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 70 to 160</td></tr>
+          
+          <tr><th scope="row">H1 count</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">Exactly one</td></tr>
+          
+          <tr><th scope="row">H1 length</th><td dir="auto">6 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 10 to 70</td></tr>
+          
+          <tr><th scope="row">Open Graph tags</th><td dir="auto">0 of 7</td><td><span class="vs missing">missing</span></td><td dir="auto">Missing og:title, og:description, og:image</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Open Graph</caption>
+          <thead><tr><th scope="col">Property</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">og:title</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:description</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:image</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:url</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:type</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:site_name</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:locale</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Content</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Declared language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">The lang attribute on &#60;html&#62;</td></tr>
+          
+          <tr><th scope="row">Hidden elements</th><td dir="auto">0</td><td>-</td><td dir="auto">Inline display:none or the hidden attribute</td></tr>
+          
+          <tr><th scope="row">Inline style attributes</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Style belongs in a stylesheet</td></tr>
+          
+          <tr><th scope="row">Style blocks in body</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">CSS after &#60;body&#62; opens can restyle painted content</td></tr>
+          
+          <tr><th scope="row">HTML comments</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Comments ship to every visitor</td></tr>
+          
+          <tr><th scope="row">Placeholder links</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">href=&#34;#&#34; or empty</td></tr>
+          
+          <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Headings per level</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">1</td></tr><tr><td dir="auto">H2</td><td dir="auto">0</td></tr><tr><td dir="auto">H3</td><td dir="auto">0</td></tr><tr><td dir="auto">H4</td><td dir="auto">0</td></tr><tr><td dir="auto">H5</td><td dir="auto">0</td></tr><tr><td dir="auto">H6</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Heading outline</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Heading</th><th scope="col">Contains</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">Orphan</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Links</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Links</th><td dir="auto">0</td><td>-</td><td dir="auto">0 internal, 0 external</td></tr>
+          
+          <tr><th scope="row">Internal links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">External links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Dofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Nofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Duplicated targets</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">URLs linked more than once from this page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Images</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Images</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">With alt text</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 marked decorative, 0 with no alt attribute</td></tr>
+          
+          <tr><th scope="row">Missing alt</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Loaded over HTTP</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Insecure images break the padlock on an HTTPS page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Crawlability</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTTP status</th><td dir="auto">200</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Response time</th><td dir="auto">1 ms</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Robots meta</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Absent means index, follow</td></tr>
+          
+          <tr><th scope="row">X-Robots-Tag</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The header form of the same directive</td></tr>
+          
+          <tr><th scope="row">Canonical URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Canonical matches this URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">robots.txt</th><td dir="auto">3 directives</td><td><span class="vs ok">ok</span></td><td dir="auto">Declares 1 sitemap(s)</td></tr>
+          
+          <tr><th scope="row">Sitemap URLs</th><td dir="auto">3</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Social media</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Twitter tags</th><td dir="auto">0 of 6</td><td><span class="vs missing">missing</span></td><td dir="auto">Falls back to Open Graph</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Twitter card</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">twitter:card</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">twitter:title</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:description</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:image</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:site</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:creator</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Internationalization</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">hreflang alternates</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>E-E-A-T</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Performance</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
+          
+          <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+      </details>
+      
+    </div>
+  </details>
+  
+  <details class="page" id="page-4">
+    <summary>
+      <span class="pill fair">64</span>
+      <span class="page-url" dir="auto">http://fixture.test/contact.html</span>
+      <span class="page-count">26 issues</span>
+    </summary>
+    <div class="page-body">
+      
+      
+      
+      <h3>Core SEO</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Title tag present <code class="rule">core-seo/title-present</code></p>
+            <p dir="auto">Missing &#60;title&#62;</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a unique &#60;title&#62; in &#60;head&#62; that summarises the page in 30 to 60 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description present <code class="rule">core-seo/meta-description-present</code></p>
+            <p dir="auto">Missing meta description</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a &#60;meta name=&#34;description&#34;&#62; with a 70 to 160 character summary of the page.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Viewport meta present <code class="rule">core-seo/viewport-present</code></p>
+            <p dir="auto">Missing viewport meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1&#34;&#62; for mobile rendering.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Title length <code class="rule">core-seo/title-length</code></p>
+            <p dir="auto">No title to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the title to sit between 30 and 60 characters so it is not truncated in search results.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description length <code class="rule">core-seo/meta-description-length</code></p>
+            <p dir="auto">No description to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Trim or expand the meta description to 70 to 160 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">H1 length <code class="rule">core-seo/h1-length</code></p>
+            <p dir="auto">H1 is short (7 chars)</p>
+            <pre dir="auto"><code>Contact</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the H1 to sit between 10 and 70 characters. One word says nothing; a sentence is not a heading.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical URL present <code class="rule">core-seo/canonical-present</code></p>
+            <p dir="auto">No canonical link</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;canonical&#34; href=&#34;...&#34;&#62; pointing to the preferred absolute URL of this page.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph basics <code class="rule">core-seo/open-graph-basics</code></p>
+            <p dir="auto">Missing Open Graph tags: og:title, og:description, og:image</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add og:title, og:description, and og:image meta tags so the page previews well when shared.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">3 other checks passed.</p>
+      
+      
+      <h3>Content</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Word count <code class="rule">content/word-count</code></p>
+            <p dir="auto">Thin content (7 words)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add more substantive content. Thin pages rank poorly. Aim for at least 300 meaningful words.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>Links</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Broken internal links <code class="rule">links/broken-internal</code></p>
+            <p dir="auto">Broken internal link (404)</p>
+            <pre dir="auto"><code>http://fixture.test/missing.html</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Fix or remove the linked internal URLs that return errors.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Images</h3>
+      
+      <p class="ok">All 6 checks passed.</p>
+      
+      
+      <h3>Structured data</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Organization or WebSite schema <code class="rule">structured-data/org-or-website</code></p>
+            <p dir="auto">No Organization or WebSite schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Organization or WebSite JSON-LD so search engines understand the site entity and can show a knowledge panel.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">JSON-LD present <code class="rule">structured-data/jsonld-present</code></p>
+            <p dir="auto">No JSON-LD structured data</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add JSON-LD structured data describing the page, e.g. Article, Product, or Organization.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Breadcrumb schema <code class="rule">structured-data/breadcrumb-valid</code></p>
+            <p dir="auto">No breadcrumb schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">8 other checks passed.</p>
+      
+      
+      <h3>Security</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Served over HTTPS <code class="rule">security/https</code></p>
+            <p dir="auto">Not served over HTTPS</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTPS and redirect all HTTP traffic to HTTPS.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HSTS header <code class="rule">security/hsts</code></p>
+            <p dir="auto">Missing Strict-Transport-Security</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add the Strict-Transport-Security header to enforce HTTPS on future visits.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Content-Security-Policy <code class="rule">security/csp</code></p>
+            <p dir="auto">Missing Content-Security-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Content-Security-Policy header to limit what scripts and resources can load.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Clickjacking protection <code class="rule">security/x-frame-options</code></p>
+            <p dir="auto">No X-Frame-Options or frame-ancestors</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set X-Frame-Options: DENY or a CSP frame-ancestors directive to block clickjacking.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">X-Content-Type-Options <code class="rule">security/x-content-type-options</code></p>
+            <p dir="auto">Missing X-Content-Type-Options: nosniff</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add X-Content-Type-Options: nosniff to stop MIME-type sniffing.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Referrer-Policy <code class="rule">security/referrer-policy</code></p>
+            <p dir="auto">Missing Referrer-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Referrer-Policy header, e.g. strict-origin-when-cross-origin.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cross-Origin-Opener-Policy <code class="rule">security/coop</code></p>
+            <p dir="auto">No Cross-Origin-Opener-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Cross-Origin-Opener-Policy: same-origin to isolate your browsing context.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Permissions-Policy <code class="rule">security/permissions-policy</code></p>
+            <p dir="auto">No Permissions-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Permissions-Policy header to restrict powerful browser features the site does not use.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Crawlability</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical valid <code class="rule">crawlability/canonical-valid</code></p>
+            <p dir="auto">No canonical to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Use an absolute, valid URL in the canonical link.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>URL structure</h3>
+      
+      <p class="ok">All 8 checks passed.</p>
+      
+      
+      <h3>Social media</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Twitter Card <code class="rule">social-media/twitter-card</code></p>
+            <p dir="auto">No twitter:card meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;twitter:card&#34; content=&#34;summary_large_image&#34;&#62; so links preview well on X/Twitter.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph image is absolute <code class="rule">social-media/og-image-absolute</code></p>
+            <p dir="auto">No og:image to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> og:image must be an absolute https URL. Social platforms cannot resolve relative paths.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Social profile links <code class="rule">social-media/profile-links</code></p>
+            <p dir="auto">No social profile links found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to your social profiles so visitors and search engines can connect your brand accounts.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Internationalization</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">hreflang annotations <code class="rule">internationalization/hreflang-present</code></p>
+            <p dir="auto">No hreflang alternates (fine for a single-language site)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If the site serves more than one language or region, add hreflang link alternates so Google serves the right version.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Legal</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Privacy policy link <code class="rule">legal/privacy-policy</code></p>
+            <p dir="auto">No privacy policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to a privacy policy. Most jurisdictions require one if you collect any personal data.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Terms of service link <code class="rule">legal/terms</code></p>
+            <p dir="auto">No terms of service link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to terms of service or terms and conditions to set the rules for using your site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cookie consent <code class="rule">legal/cookie-consent</code></p>
+            <p dir="auto">No cookie consent banner detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you set non-essential cookies, show a consent banner (a CMP) to comply with privacy law.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Contact information <code class="rule">legal/contact</code></p>
+            <p dir="auto">No contact link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Provide a contact link or page. It builds trust and is a positive E-E-A-T signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Analytics</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Analytics installed <code class="rule">analytics/tag-present</code></p>
+            <p dir="auto">No analytics tag detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Install an analytics tag (GA4, Plausible, Fathom, etc.) so you can measure traffic and behaviour.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>E-E-A-T</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Author attribution <code class="rule">eeat/author</code></p>
+            <p dir="auto">No author attribution found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Attribute content to a named author via a byline, rel=author, or schema author property.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Published or updated date <code class="rule">eeat/date</code></p>
+            <p dir="auto">No published or updated date found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a published or last-updated date. Freshness and transparency are trust signals.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Outbound citations <code class="rule">eeat/outbound-citations</code></p>
+            <p dir="auto">No outbound citations</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">About page <code class="rule">eeat/about-page</code></p>
+            <p dir="auto">No about page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Performance</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Text compression <code class="rule">performance/text-compression</code></p>
+            <p dir="auto">HTML response is not compressed</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Enable gzip or Brotli compression on HTML, CSS, and JS responses to cut transfer size.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Cache headers <code class="rule">performance/cache-control</code></p>
+            <p dir="auto">No Cache-Control header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Send a Cache-Control header so browsers and CDNs can cache responses.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      
+      <details class="metrics">
+        <summary>Measurements</summary>
+        
+        <h4>Core SEO</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Title length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 30 to 60</td></tr>
+          
+          <tr><th scope="row">Description length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 70 to 160</td></tr>
+          
+          <tr><th scope="row">H1 count</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">Exactly one</td></tr>
+          
+          <tr><th scope="row">H1 length</th><td dir="auto">7 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 10 to 70</td></tr>
+          
+          <tr><th scope="row">Open Graph tags</th><td dir="auto">0 of 7</td><td><span class="vs missing">missing</span></td><td dir="auto">Missing og:title, og:description, og:image</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Open Graph</caption>
+          <thead><tr><th scope="col">Property</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">og:title</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:description</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:image</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:url</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:type</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:site_name</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:locale</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Content</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Declared language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">The lang attribute on &#60;html&#62;</td></tr>
+          
+          <tr><th scope="row">Hidden elements</th><td dir="auto">0</td><td>-</td><td dir="auto">Inline display:none or the hidden attribute</td></tr>
+          
+          <tr><th scope="row">Inline style attributes</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Style belongs in a stylesheet</td></tr>
+          
+          <tr><th scope="row">Style blocks in body</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">CSS after &#60;body&#62; opens can restyle painted content</td></tr>
+          
+          <tr><th scope="row">HTML comments</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Comments ship to every visitor</td></tr>
+          
+          <tr><th scope="row">Placeholder links</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">href=&#34;#&#34; or empty</td></tr>
+          
+          <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Headings per level</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">1</td></tr><tr><td dir="auto">H2</td><td dir="auto">0</td></tr><tr><td dir="auto">H3</td><td dir="auto">0</td></tr><tr><td dir="auto">H4</td><td dir="auto">0</td></tr><tr><td dir="auto">H5</td><td dir="auto">0</td></tr><tr><td dir="auto">H6</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Heading outline</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Heading</th><th scope="col">Contains</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">Contact</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Links</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Links</th><td dir="auto">2</td><td>-</td><td dir="auto">2 internal, 0 external</td></tr>
+          
+          <tr><th scope="row">Internal links</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">External links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Dofollow links</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Nofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Duplicated targets</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">URLs linked more than once from this page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Dofollow links</caption>
+          <thead><tr><th scope="col">URL</th><th scope="col">Anchor</th><th scope="col">Scope</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">http://fixture.test/</td><td dir="auto">Home</td><td dir="auto">internal</td></tr><tr><td dir="auto">http://fixture.test/missing.html</td><td dir="auto">Old page</td><td dir="auto">internal</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Images</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Images</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">With alt text</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 marked decorative, 0 with no alt attribute</td></tr>
+          
+          <tr><th scope="row">Missing alt</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Loaded over HTTP</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Insecure images break the padlock on an HTTPS page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Crawlability</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTTP status</th><td dir="auto">200</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Response time</th><td dir="auto">1 ms</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Robots meta</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Absent means index, follow</td></tr>
+          
+          <tr><th scope="row">X-Robots-Tag</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The header form of the same directive</td></tr>
+          
+          <tr><th scope="row">Canonical URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Canonical matches this URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">robots.txt</th><td dir="auto">3 directives</td><td><span class="vs ok">ok</span></td><td dir="auto">Declares 1 sitemap(s)</td></tr>
+          
+          <tr><th scope="row">Sitemap URLs</th><td dir="auto">3</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Social media</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Twitter tags</th><td dir="auto">0 of 6</td><td><span class="vs missing">missing</span></td><td dir="auto">Falls back to Open Graph</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Twitter card</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">twitter:card</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">twitter:title</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:description</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:image</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:site</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:creator</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Internationalization</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">hreflang alternates</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>E-E-A-T</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Performance</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
+          
+          <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+      </details>
+      
+    </div>
+  </details>
+  
+  <details class="page" id="page-5">
+    <summary>
+      <span class="pill fair">66</span>
+      <span class="page-url" dir="auto">http://fixture.test/missing.html</span>
+      <span class="page-count">27 issues</span>
+    </summary>
+    <div class="page-body">
+      
+      
+      <p class="error">HTTP status 404</p>
+      
+      
+      <h3>Core SEO</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Title tag present <code class="rule">core-seo/title-present</code></p>
+            <p dir="auto">Missing &#60;title&#62;</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a unique &#60;title&#62; in &#60;head&#62; that summarises the page in 30 to 60 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description present <code class="rule">core-seo/meta-description-present</code></p>
+            <p dir="auto">Missing meta description</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a &#60;meta name=&#34;description&#34;&#62; with a 70 to 160 character summary of the page.</p>
+          </div>
+        </li>
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Viewport meta present <code class="rule">core-seo/viewport-present</code></p>
+            <p dir="auto">Missing viewport meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1&#34;&#62; for mobile rendering.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Title length <code class="rule">core-seo/title-length</code></p>
+            <p dir="auto">No title to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the title to sit between 30 and 60 characters so it is not truncated in search results.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Meta description length <code class="rule">core-seo/meta-description-length</code></p>
+            <p dir="auto">No description to measure</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Trim or expand the meta description to 70 to 160 characters.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">H1 length <code class="rule">core-seo/h1-length</code></p>
+            <p dir="auto">H1 is short (9 chars)</p>
+            <pre dir="auto"><code>Not found</code></pre>
+            <p class="fix"><span class="fix-label">Fix:</span> Rewrite the H1 to sit between 10 and 70 characters. One word says nothing; a sentence is not a heading.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical URL present <code class="rule">core-seo/canonical-present</code></p>
+            <p dir="auto">No canonical link</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;canonical&#34; href=&#34;...&#34;&#62; pointing to the preferred absolute URL of this page.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Charset declared <code class="rule">core-seo/charset-declared</code></p>
+            <p dir="auto">No charset declared</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta charset=&#34;utf-8&#34;&#62; as the first tag in &#60;head&#62;.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph basics <code class="rule">core-seo/open-graph-basics</code></p>
+            <p dir="auto">Missing Open Graph tags: og:title, og:description, og:image</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add og:title, og:description, and og:image meta tags so the page previews well when shared.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">2 other checks passed.</p>
+      
+      
+      <h3>Content</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Word count <code class="rule">content/word-count</code></p>
+            <p dir="auto">Thin content (2 words)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add more substantive content. Thin pages rank poorly. Aim for at least 300 meaningful words.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTML lang attribute <code class="rule">content/html-lang</code></p>
+            <p dir="auto">Missing lang on &#60;html&#62;</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set the language on the root element, e.g. &#60;html lang=&#34;en&#34;&#62;.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Links</h3>
+      
+      <p class="ok">All 5 checks passed.</p>
+      
+      
+      <h3>Images</h3>
+      
+      <p class="ok">All 6 checks passed.</p>
+      
+      
+      <h3>Structured data</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Organization or WebSite schema <code class="rule">structured-data/org-or-website</code></p>
+            <p dir="auto">No Organization or WebSite schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Organization or WebSite JSON-LD so search engines understand the site entity and can show a knowledge panel.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">JSON-LD present <code class="rule">structured-data/jsonld-present</code></p>
+            <p dir="auto">No JSON-LD structured data</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add JSON-LD structured data describing the page, e.g. Article, Product, or Organization.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Breadcrumb schema <code class="rule">structured-data/breadcrumb-valid</code></p>
+            <p dir="auto">No breadcrumb schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">8 other checks passed.</p>
+      
+      
+      <h3>Security</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding fail">
+          <span class="word">FAIL</span>
+          <div class="finding-body">
+            <p class="finding-title">Served over HTTPS <code class="rule">security/https</code></p>
+            <p dir="auto">Not served over HTTPS</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTPS and redirect all HTTP traffic to HTTPS.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HSTS header <code class="rule">security/hsts</code></p>
+            <p dir="auto">Missing Strict-Transport-Security</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add the Strict-Transport-Security header to enforce HTTPS on future visits.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Content-Security-Policy <code class="rule">security/csp</code></p>
+            <p dir="auto">Missing Content-Security-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Content-Security-Policy header to limit what scripts and resources can load.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Clickjacking protection <code class="rule">security/x-frame-options</code></p>
+            <p dir="auto">No X-Frame-Options or frame-ancestors</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set X-Frame-Options: DENY or a CSP frame-ancestors directive to block clickjacking.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">X-Content-Type-Options <code class="rule">security/x-content-type-options</code></p>
+            <p dir="auto">Missing X-Content-Type-Options: nosniff</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add X-Content-Type-Options: nosniff to stop MIME-type sniffing.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Referrer-Policy <code class="rule">security/referrer-policy</code></p>
+            <p dir="auto">Missing Referrer-Policy</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Referrer-Policy header, e.g. strict-origin-when-cross-origin.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cross-Origin-Opener-Policy <code class="rule">security/coop</code></p>
+            <p dir="auto">No Cross-Origin-Opener-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add Cross-Origin-Opener-Policy: same-origin to isolate your browsing context.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Permissions-Policy <code class="rule">security/permissions-policy</code></p>
+            <p dir="auto">No Permissions-Policy header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add a Permissions-Policy header to restrict powerful browser features the site does not use.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      <h3>Crawlability</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Canonical valid <code class="rule">crawlability/canonical-valid</code></p>
+            <p dir="auto">No canonical to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Use an absolute, valid URL in the canonical link.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">5 other checks passed.</p>
+      
+      
+      <h3>URL structure</h3>
+      
+      <p class="ok">All 8 checks passed.</p>
+      
+      
+      <h3>Social media</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Twitter Card <code class="rule">social-media/twitter-card</code></p>
+            <p dir="auto">No twitter:card meta</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;meta name=&#34;twitter:card&#34; content=&#34;summary_large_image&#34;&#62; so links preview well on X/Twitter.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Open Graph image is absolute <code class="rule">social-media/og-image-absolute</code></p>
+            <p dir="auto">No og:image to validate</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> og:image must be an absolute https URL. Social platforms cannot resolve relative paths.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Social profile links <code class="rule">social-media/profile-links</code></p>
+            <p dir="auto">No social profile links found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to your social profiles so visitors and search engines can connect your brand accounts.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Internationalization</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">hreflang annotations <code class="rule">internationalization/hreflang-present</code></p>
+            <p dir="auto">No hreflang alternates (fine for a single-language site)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If the site serves more than one language or region, add hreflang link alternates so Google serves the right version.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>Legal</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Privacy policy link <code class="rule">legal/privacy-policy</code></p>
+            <p dir="auto">No privacy policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to a privacy policy. Most jurisdictions require one if you collect any personal data.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Terms of service link <code class="rule">legal/terms</code></p>
+            <p dir="auto">No terms of service link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to terms of service or terms and conditions to set the rules for using your site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Cookie consent <code class="rule">legal/cookie-consent</code></p>
+            <p dir="auto">No cookie consent banner detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you set non-essential cookies, show a consent banner (a CMP) to comply with privacy law.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Contact information <code class="rule">legal/contact</code></p>
+            <p dir="auto">No contact link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Provide a contact link or page. It builds trust and is a positive E-E-A-T signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Analytics</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Analytics installed <code class="rule">analytics/tag-present</code></p>
+            <p dir="auto">No analytics tag detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Install an analytics tag (GA4, Plausible, Fathom, etc.) so you can measure traffic and behaviour.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">1 other check passed.</p>
+      
+      
+      <h3>E-E-A-T</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Author attribution <code class="rule">eeat/author</code></p>
+            <p dir="auto">No author attribution found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Attribute content to a named author via a byline, rel=author, or schema author property.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Published or updated date <code class="rule">eeat/date</code></p>
+            <p dir="auto">No published or updated date found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a published or last-updated date. Freshness and transparency are trust signals.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Outbound citations <code class="rule">eeat/outbound-citations</code></p>
+            <p dir="auto">No outbound citations</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">About page <code class="rule">eeat/about-page</code></p>
+            <p dir="auto">No about page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+      </ul>
+      
+      
+      
+      <h3>Performance</h3>
+      
+      <ul class="findings">
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Text compression <code class="rule">performance/text-compression</code></p>
+            <p dir="auto">HTML response is not compressed</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Enable gzip or Brotli compression on HTML, CSS, and JS responses to cut transfer size.</p>
+          </div>
+        </li>
+        
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">Cache headers <code class="rule">performance/cache-control</code></p>
+            <p dir="auto">No Cache-Control header</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Send a Cache-Control header so browsers and CDNs can cache responses.</p>
+          </div>
+        </li>
+        
+      </ul>
+      <p class="ok">4 other checks passed.</p>
+      
+      
+      
+      <details class="metrics">
+        <summary>Measurements</summary>
+        
+        <h4>Core SEO</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Title length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 30 to 60</td></tr>
+          
+          <tr><th scope="row">Description length</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Recommended 70 to 160</td></tr>
+          
+          <tr><th scope="row">H1 count</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">Exactly one</td></tr>
+          
+          <tr><th scope="row">H1 length</th><td dir="auto">9 chars</td><td><span class="vs warn">warn</span></td><td dir="auto">Recommended 10 to 70</td></tr>
+          
+          <tr><th scope="row">Open Graph tags</th><td dir="auto">0 of 7</td><td><span class="vs missing">missing</span></td><td dir="auto">Missing og:title, og:description, og:image</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Open Graph</caption>
+          <thead><tr><th scope="col">Property</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">og:title</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:description</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:image</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">og:url</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:type</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:site_name</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">og:locale</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Content</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Declared language</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The lang attribute on &#60;html&#62;</td></tr>
+          
+          <tr><th scope="row">Hidden elements</th><td dir="auto">0</td><td>-</td><td dir="auto">Inline display:none or the hidden attribute</td></tr>
+          
+          <tr><th scope="row">Inline style attributes</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Style belongs in a stylesheet</td></tr>
+          
+          <tr><th scope="row">Style blocks in body</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">CSS after &#60;body&#62; opens can restyle painted content</td></tr>
+          
+          <tr><th scope="row">HTML comments</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Comments ship to every visitor</td></tr>
+          
+          <tr><th scope="row">Placeholder links</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">href=&#34;#&#34; or empty</td></tr>
+          
+          <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Headings per level</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">1</td></tr><tr><td dir="auto">H2</td><td dir="auto">0</td></tr><tr><td dir="auto">H3</td><td dir="auto">0</td></tr><tr><td dir="auto">H4</td><td dir="auto">0</td></tr><tr><td dir="auto">H5</td><td dir="auto">0</td></tr><tr><td dir="auto">H6</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Heading outline</caption>
+          <thead><tr><th scope="col">Level</th><th scope="col">Heading</th><th scope="col">Contains</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">Not found</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Links</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Links</th><td dir="auto">0</td><td>-</td><td dir="auto">0 internal, 0 external</td></tr>
+          
+          <tr><th scope="row">Internal links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">External links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Dofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Nofollow links</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Duplicated targets</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">URLs linked more than once from this page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Images</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Images</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">With alt text</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 marked decorative, 0 with no alt attribute</td></tr>
+          
+          <tr><th scope="row">Missing alt</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Loaded over HTTP</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">Insecure images break the padlock on an HTTPS page</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Crawlability</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTTP status</th><td dir="auto">404</td><td><span class="vs bad">bad</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Response time</th><td dir="auto">1 ms</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Robots meta</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Absent means index, follow</td></tr>
+          
+          <tr><th scope="row">X-Robots-Tag</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">The header form of the same directive</td></tr>
+          
+          <tr><th scope="row">Canonical URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Canonical matches this URL</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">robots.txt</th><td dir="auto">3 directives</td><td><span class="vs ok">ok</span></td><td dir="auto">Declares 1 sitemap(s)</td></tr>
+          
+          <tr><th scope="row">Sitemap URLs</th><td dir="auto">3</td><td><span class="vs ok">ok</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Social media</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Twitter tags</th><td dir="auto">0 of 6</td><td><span class="vs missing">missing</span></td><td dir="auto">Falls back to Open Graph</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Twitter card</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Content</th><th scope="col">State</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">twitter:card</td><td dir="auto">-</td><td dir="auto">missing</td></tr><tr><td dir="auto">twitter:title</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:description</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:image</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:site</td><td dir="auto">-</td><td dir="auto">not set</td></tr><tr><td dir="auto">twitter:creator</td><td dir="auto">-</td><td dir="auto">not set</td></tr>
+          </tbody>
+        </table></div>
+        
+        
+        <h4>Internationalization</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">hreflang alternates</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>E-E-A-T</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+        <h4>Performance</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
+          
+          <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
+      </details>
+      
+    </div>
+  </details>
+  
+</section>
+
+
+<section aria-labelledby="blocked-h">
+  <h2 id="blocked-h">Blocked by robots.txt</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">URL</th><th scope="col">Rule</th></tr></thead>
+    <tbody><tr><td dir="auto">http://fixture.test/private/secret.html</td><td><code>Disallow: /private</code></td></tr></tbody>
+  </table></div>
+</section>
+
+</main>
+<footer class="foot">
+  <p>sitevet 0.0.0, report schema 1.</p>
+</footer>
+</body>
+</html>

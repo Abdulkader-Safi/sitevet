@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Audit report: {{ v.start_url }}</title>
+<style>{{ css|safe }}</style>
+</head>
+<body>
+<a class="skip" href="#pages">Skip to pages</a>
+<header class="top">
+  <div class="top-text">
+    <p class="eyebrow">sitevet audit report</p>
+    <h1><span dir="auto">{{ v.start_url }}</span></h1>
+    <p class="meta">{{ v.pages_count }} {% if v.pages_count == 1 %}page{% else %}pages{% endif %} audited on <time datetime="{{ v.generated_at }}">{{ v.generated_at }}</time> in {{ v.duration }}{% if v.final_url != v.start_url %}. Redirected to <span dir="auto">{{ v.final_url }}</span>{% endif %}.</p>
+  </div>
+  <div class="badge {{ v.band }}" role="img" aria-label="Overall score {{ v.score }} out of 100, {{ v.band_label }}">
+    <span class="badge-score">{{ v.score }}</span>
+    <span class="badge-label">{{ v.band_label }}</span>
+  </div>
+</header>
+<main>
+<section aria-labelledby="categories-h">
+  <h2 id="categories-h">Categories</h2>
+  {% if v.categories.is_empty() %}
+  <p class="empty">No checks ran.</p>
+  {% else %}
+  <ul class="grid">
+    {% for c in v.categories %}
+    <li class="cat {{ c.band }}">
+      <span class="cat-name">{{ c.name }}</span>
+      <span class="cat-score">{{ c.score }}<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">{{ c.fail }} fail, {{ c.warn }} warn, {{ c.pass }} pass</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section id="pages" aria-labelledby="pages-h">
+  <h2 id="pages-h">Pages</h2>
+  {% for p in v.pages %}
+  <details class="page" id="{{ p.anchor }}"{% if loop.first %} open{% endif %}>
+    <summary>
+      <span class="pill {{ p.band }}">{{ p.score }}</span>
+      <span class="page-url" dir="auto">{{ p.url }}</span>
+      <span class="page-count">{% if p.error.is_some() %}not fetched{% else %}{{ p.open_issues }} {% if p.open_issues == 1 %}issue{% else %}issues{% endif %}{% endif %}</span>
+    </summary>
+    <div class="page-body">
+      {% if let Some(f) = p.final_url %}<p class="meta">Final URL: <span dir="auto">{{ f }}</span></p>{% endif %}
+      {% if let Some(e) = p.error %}
+      <p class="error">Could not fetch this page: {{ e }}</p>
+      {% else if p.status >= 400 %}
+      <p class="error">HTTP status {{ p.status }}</p>
+      {% endif %}
+      {% for g in p.groups %}
+      <h3>{{ g.name }}</h3>
+      {% if g.issues.is_empty() %}
+      <p class="ok">All {{ g.passed }} checks passed.</p>
+      {% else %}
+      <ul class="findings">
+        {% for f in g.issues %}
+        <li class="finding {{ f.class }}">
+          <span class="word">{{ f.word }}</span>
+          <div class="finding-body">
+            <p class="finding-title">{{ f.title }} <code class="rule">{{ f.rule_id }}</code></p>
+            <p dir="auto">{{ f.message }}</p>
+            {% if let Some(e) = f.evidence %}<pre dir="auto"><code>{{ e }}</code></pre>{% endif %}
+            {% if let Some(fix) = f.fix %}<p class="fix"><span class="fix-label">Fix:</span> {{ fix }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if g.passed > 0 %}<p class="ok">{{ g.passed }} other {% if g.passed == 1 %}check{% else %}checks{% endif %} passed.</p>{% endif %}
+      {% endif %}
+      {% endfor %}
+      {% if !p.metric_groups.is_empty() %}
+      <details class="metrics">
+        <summary>Measurements</summary>
+        {% for g in p.metric_groups %}
+        <h4>{{ g.name }}</h4>
+        {% if !g.values.is_empty() %}
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          {% for m in g.values %}
+          <tr><th scope="row">{{ m.label }}</th><td dir="auto">{{ m.value }}</td><td>{% if m.status.is_empty() %}-{% else %}<span class="vs {{ m.status }}">{{ m.status }}</span>{% endif %}</td><td dir="auto">{{ m.note }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+        {% endif %}
+        {% for t in g.tables %}
+        <div class="table-wrap"><table>
+          <caption>{{ t.label }}{% if !t.caption.is_empty() %} <span class="showing">({{ t.caption }})</span>{% endif %}</caption>
+          <thead><tr>{% for c in t.columns %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+          <tbody>
+          {% if t.rows.is_empty() %}<tr><td colspan="{{ t.columns.len() }}">None found.</td></tr>{% endif %}
+          {% for r in t.rows %}<tr>{% for cell in r %}<td dir="auto">{{ cell }}</td>{% endfor %}</tr>{% endfor %}
+          </tbody>
+        </table></div>
+        {% endfor %}
+        {% endfor %}
+      </details>
+      {% endif %}
+    </div>
+  </details>
+  {% endfor %}
+</section>
+
+{% if !v.blocked.is_empty() %}
+<section aria-labelledby="blocked-h">
+  <h2 id="blocked-h">Blocked by robots.txt</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">URL</th><th scope="col">Rule</th></tr></thead>
+    <tbody>{% for (url, rule) in v.blocked %}<tr><td dir="auto">{{ url }}</td><td><code>{{ rule }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}
+</main>
+<footer class="foot">
+  <p>sitevet {{ v.version }}, report schema {{ v.schema_version }}.</p>
+</footer>
+</body>
+</html>
