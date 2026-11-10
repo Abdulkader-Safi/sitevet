@@ -25,6 +25,12 @@ pub enum Command {
     Rules(RulesArgs),
     /// Write a sitevet.toml with every setting at its default.
     Init(InitArgs),
+    /// List saved runs, newest first, or delete and prune them.
+    History(HistoryArgs),
+    /// Render a saved run without crawling again.
+    Show(ShowArgs),
+    /// Compare two saved runs.
+    Diff(DiffArgs),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, serde::Deserialize)]
@@ -66,6 +72,12 @@ pub struct AuditArgs {
     /// Print only errors.
     #[arg(long, short)]
     pub quiet: bool,
+    /// Do not save this run to history.
+    #[arg(long)]
+    pub no_save: bool,
+    /// Compare with a saved run (its ID or "last" for this site) or a JSON report file.
+    #[arg(long)]
+    pub baseline: Option<String>,
 
     /// Categories to run, comma separated. Default: all.
     #[arg(long, value_delimiter = ',', help_heading = "Audit options")]
@@ -177,6 +189,64 @@ pub struct RulesArgs {
 #[derive(Clone, Copy, ValueEnum)]
 pub enum ListFormat {
     Table,
+    Md,
+    Json,
+}
+
+#[derive(Args)]
+#[command(args_conflicts_with_subcommands = true)]
+pub struct HistoryArgs {
+    #[command(subcommand)]
+    pub action: Option<HistoryAction>,
+    /// Only runs for this site (any URL on it).
+    pub url: Option<String>,
+    /// How many runs to list.
+    #[arg(long, default_value_t = 20)]
+    pub limit: usize,
+}
+
+#[derive(Subcommand)]
+pub enum HistoryAction {
+    /// Delete one run.
+    Delete {
+        id: i64,
+        /// Do not ask for confirmation.
+        #[arg(long, short)]
+        yes: bool,
+    },
+    /// Keep the newest runs and delete the rest.
+    Prune {
+        #[arg(long)]
+        keep: usize,
+        /// Do not ask for confirmation.
+        #[arg(long, short)]
+        yes: bool,
+    },
+}
+
+#[derive(Args)]
+pub struct ShowArgs {
+    pub id: i64,
+    /// Default: from the --out extension, else html.
+    #[arg(long, value_enum)]
+    pub format: Option<ReportFormat>,
+    #[arg(long, short)]
+    pub out: Option<PathBuf>,
+}
+
+#[derive(Args)]
+pub struct DiffArgs {
+    /// The older run.
+    pub a: i64,
+    /// The newer run.
+    pub b: i64,
+    #[arg(long, value_enum, default_value = "text")]
+    pub format: DiffFormat,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+pub enum DiffFormat {
+    Text,
     Md,
     Json,
 }

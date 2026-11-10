@@ -18,27 +18,67 @@ pub fn run(args: AuditArgs) -> anyhow::Result<ExitCode> {
     options.validate()?;
 
     let out = args.out.clone().or(cli.out);
-    let format = args.format.or(cli.format).unwrap_or_else(|| from_extension(out.as_deref()));
+    let format = format_of(args.format.or(cli.format), out.as_deref());
     let fail_under = args.fail_under.or(cli.fail_under);
     let fail_on = args.fail_on.or(cli.fail_on);
     let quiet = args.quiet;
+    let save = !args.no_save && cli.save.unwrap_or(true);
+    // Loaded before the crawl, so a bad run ID or file fails fast.
+    let baseline = match args.baseline.as_deref().or(cli.baseline.as_deref()) {
+        Some(spec) => crate::commands::history::load_baseline(spec, &args.url)?,
+        None => None,
+    };
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(options.runtime_threads.max(1))
         .enable_all()
         .build()
         .context("could not start the runtime")?;
-    let report = runtime.block_on(audit(&args.url, options, quiet))?;
+    let mut report = runtime.block_on(audit(&args.url, options, quiet))?;
+    if let Some((base, run_id, file)) = &baseline {
+        let mut d = sitevet::diff(base, &report);
+        d.baseline.run_id = *run_id;
+        d.baseline.file = file.clone();
+        report.changes = Some(d);
+    }
 
-    let text = sitevet::render(
-        &report,
-        match format {
-            ReportFormat::Json => Format::Json,
-            ReportFormat::Md => Format::Markdown,
-            ReportFormat::Html => Format::Html,
-        },
-    );
-    match &out {
+    write_report(&report, format, out.as_deref())?;
+    // A failed save warns and leaves the exit code alone.
+    let run_id = if save {
+        match crate::commands::history::open().and_then(|h| Ok(h.save(&report)?)) {
+            Ok(id) => Some(id),
+            Err(e) => {
+                eprintln!("{RED}warning:{RED:#} the run was not saved to history: {e}");
+                None
+            }
+        }
+    } else {
+        None
+    };
+    if !quiet {
+        summary(&report, out.as_deref(), run_id);
+    }
+    Ok(thresholds(&report, fail_under, fail_on))
+}
+
+/// The format flag, else the `--out` extension, else HTML.
+pub fn format_of(flag: Option<ReportFormat>, out: Option<&std::path::Path>) -> ReportFormat {
+    flag.unwrap_or_else(|| match out.and_then(|p| p.extension()).and_then(|e| e.to_str()) {
+        Some("json") => ReportFormat::Json,
+        Some("md" | "markdown") => ReportFormat::Md,
+        _ => ReportFormat::Html,
+    })
+}
+
+/// Renders to `out`, or stdout.
+pub fn write_report(report: &AuditReport, format: ReportFormat, out: Option<&std::path::Path>) -> anyhow::Result<()> {
+    let format = match format {
+        ReportFormat::Json => Format::Json,
+        ReportFormat::Md => Format::Markdown,
+        ReportFormat::Html => Format::Html,
+    };
+    let text = sitevet::render(report, format);
+    match out {
         Some(path) => std::fs::write(path, text).with_context(|| format!("could not write {}", path.display()))?,
         None => {
             let mut stdout = std::io::stdout().lock();
@@ -46,18 +86,7 @@ pub fn run(args: AuditArgs) -> anyhow::Result<ExitCode> {
             stdout.write_all(b"\n")?;
         }
     }
-    if !quiet {
-        summary(&report, out.as_deref());
-    }
-    Ok(thresholds(&report, fail_under, fail_on))
-}
-
-fn from_extension(out: Option<&std::path::Path>) -> ReportFormat {
-    match out.and_then(|p| p.extension()).and_then(|e| e.to_str()) {
-        Some("json") => ReportFormat::Json,
-        Some("md" | "markdown") => ReportFormat::Md,
-        _ => ReportFormat::Html,
-    }
+    Ok(())
 }
 
 async fn audit(url: &str, options: sitevet::Options, quiet: bool) -> anyhow::Result<AuditReport> {
@@ -91,7 +120,7 @@ async fn audit(url: &str, options: sitevet::Options, quiet: bool) -> anyhow::Res
     Ok(stream.final_report().await?)
 }
 
-fn summary(report: &AuditReport, out: Option<&std::path::Path>) {
+fn summary(report: &AuditReport, out: Option<&std::path::Path>, run_id: Option<i64>) {
     let (word, style) = score_word(report.score);
     eprintln!();
     eprintln!("{BOLD}Score{BOLD:#}  {style}{BOLD}{}/100  {word}{BOLD:#}{style:#}", report.score);
@@ -121,8 +150,20 @@ fn summary(report: &AuditReport, out: Option<&std::path::Path>) {
         let reason = &report.skipped_rules[0].reason;
         eprintln!("{n} {} skipped ({reason})", if n == 1 { "rule" } else { "rules" });
     }
+    if let Some(d) = &report.changes {
+        let base = match (d.baseline.run_id, &d.baseline.file) {
+            (Some(id), _) => format!("run {id}"),
+            (None, Some(f)) => f.clone(),
+            (None, None) => "the baseline".into(),
+        };
+        let change = if d.score_change > 0 { format!("+{}", d.score_change) } else { d.score_change.to_string() };
+        eprintln!("changes since {base}: score {change}, {} fixed, {} new issues", d.fixed.len(), d.new_failures.len());
+    }
     if let Some(path) = out {
         eprintln!("report written to {}", path.display());
+    }
+    if let Some(id) = run_id {
+        eprintln!("saved as run {id} (sitevet show {id})");
     }
 }
 

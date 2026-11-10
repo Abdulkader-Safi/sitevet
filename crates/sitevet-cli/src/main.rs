@@ -19,6 +19,9 @@ fn main() -> ExitCode {
         Command::Audit(a) => commands::audit::run(*a),
         Command::Rules(r) => commands::rules::run(&r),
         Command::Init(i) => commands::init::run(&i),
+        Command::History(h) => commands::history::run(&h),
+        Command::Show(s) => commands::history::show(&s),
+        Command::Diff(d) => commands::history::diff(&d),
     };
     match result {
         Ok(code) => code,

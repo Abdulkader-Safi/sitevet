@@ -10,7 +10,12 @@ use support::{Site, ThreadFixture};
 fn sitevet() -> Command {
     let mut cmd = Command::cargo_bin("sitevet").unwrap();
     // A fresh folder, so no stray sitevet.toml is picked up.
-    cmd.current_dir(std::env::temp_dir()).env_remove("SITEVET_PSI_KEY").env_remove("SITEVET_LOG");
+    // History goes to a throwaway folder, never the real one.
+    let home = std::env::temp_dir().join(format!("sitevet-cli-home-{}", std::process::id()));
+    cmd.current_dir(std::env::temp_dir())
+        .env("SITEVET_HOME", home)
+        .env_remove("SITEVET_PSI_KEY")
+        .env_remove("SITEVET_LOG");
     cmd
 }
 
@@ -104,7 +109,8 @@ fn no_color_means_no_escape_codes() {
 #[test]
 fn stderr_snapshot() {
     let fx = ThreadFixture::start(Site::from_dir("basic"));
-    let out = sitevet().args(["audit", &fx.url, "--format", "json", "--concurrency", "1"]).output().unwrap();
+    let out =
+        sitevet().args(["audit", &fx.url, "--format", "json", "--concurrency", "1", "--no-save"]).output().unwrap();
     let text = stderr(&out).replace(&fx.url, "http://fixture.test").replace(env!("CARGO_PKG_VERSION"), "<version>");
     insta::assert_snapshot!("audit_stderr", text);
 }

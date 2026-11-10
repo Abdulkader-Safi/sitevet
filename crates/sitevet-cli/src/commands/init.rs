@@ -58,6 +58,10 @@ runtime_threads = 2
 # Exit 1 when the score is below fail_under, or when a finding fails at fail_on ("error" or "warning").
 # fail_under = 80
 # fail_on = "error"
+# Compare each run with a saved run ("last" for this site, or a run ID) or a JSON report file.
+# baseline = "last"
+# Save each run to history (sitevet history lists them).
+# save = true
 "#;
 
 pub fn run(args: &InitArgs) -> anyhow::Result<ExitCode> {
