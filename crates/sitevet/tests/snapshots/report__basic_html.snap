@@ -3692,7 +3692,7 @@ tbody th { font-weight: 500; }
 
 </main>
 <footer class="foot">
-  <p>sitevet 0.0.0, report schema 1.</p>
+  <p>sitevet <version>, report schema 1.</p>
 </footer>
 </body>
 </html>

@@ -69,7 +69,7 @@ fn stable(text: &str, origin: &str) -> String {
     let time = regex::Regex::new(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z").unwrap();
     let duration = regex::Regex::new(r"in \d+\.\d s").unwrap();
     let ms = regex::Regex::new(r"\b\d+ ms\b").unwrap();
-    let text = text.replace(origin, "http://fixture.test");
+    let text = text.replace(origin, "http://fixture.test").replace(env!("CARGO_PKG_VERSION"), "<version>");
     let text = time.replace_all(&text, "2026-01-01T00:00:00Z");
     let text = duration.replace_all(&text, "in 1.0 s");
     ms.replace_all(&text, "1 ms").into_owned()
