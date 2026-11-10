@@ -10,14 +10,16 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
 | M3 reports, CLI | Built and tested. Release 0.1.0 held by Safi (2026-11-10); HTML, CLI and README in review |
-| M4 rendered stage | Done locally, CI pending |
+| M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 to M14      | Not started                              |
 
 ## M4: rendered stage
 
 The `browser` feature (off in the library by default, on in the CLI) renders every page in the installed Chrome or Chromium and runs axe-core 4.14.0 and Core Web Vitals. Without a browser, a PageSpeed Insights key does the same for the first `psi_max_pages` pages. With neither, the 7 rendered-stage rules are listed as skipped. All 94 rules can now run.
 
-Tests: 3 Chrome tests in `tests/browser.rs` and 1 in `tests/browser_cancel.rs` (run with `SITEVET_TEST_CHROME=1`, and in a new Linux CI job with the runner's Chrome), the missing-Chrome test (always), the PSI test against a recorded response, the skipped-rules test, and a gzip test. Live: 6 pages of abdulkadersafi.com with `--browser` in 18 s, accessibility 100, LCP 1.04 s, CLS 0.005, no Chrome left running.
+CI run 42866636468 passed every job, the new Chrome job included.
+
+Tests: 3 Chrome tests in `tests/browser.rs`, 1 in `tests/browser_cancel.rs` and the guard test in `render_stage/browser.rs` (run with `SITEVET_TEST_CHROME=1`, and in a new Linux CI job with the runner's Chrome), the missing-Chrome test (always), the PSI test against a recorded response, the skipped-rules test, and a gzip test. Live: 6 pages of abdulkadersafi.com with `--browser` in 18 s, accessibility 100, LCP 1.04 s, CLS 0.005, no Chrome left running.
 
 ### Acceptance boxes
 
