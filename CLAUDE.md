@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The engine core (crawl, fetcher, events, entry points) exists; rules arrive in M2 and the CLI in M3.
+This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The library (crawl, 94 rules, collectors, scoring, JSON/Markdown/HTML reports) and the CLI (`audit`, `rules`, `init`) exist; history (M5) and the browser stage (M4) do not yet.
 
 - The spec lives in `docs/spec/`, written one stage at a time with the `project-spec` skill: `01-product.md` through `06-build-spec.md`. Only files marked `Status: signed off` are decided. Treat drafts as open.
 - Once `06-build-spec.md` is signed off, build from it alone, milestone by milestone, starting with M0. Follow its section 13 (keep `PROGRESS.md` at the repo root, commit per milestone, never add features outside the spec).
@@ -39,6 +39,11 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo fmt --all --check
 cargo deny check                                        # licences and advisories
 cargo run -p sitevet --example spawn-futures -- <url>   # spawn() from a non-tokio executor
+cargo run -p sitevet-cli -- audit https://abdulkadersafi.com --max-pages 15 --out /tmp/r.html   # live smoke test (Safi's own site)
+UPDATE_SCHEMA=1 cargo test -p sitevet --test report    # regenerate schema/report.schema.json
+UPDATE_DOCS=1 cargo test -p sitevet-cli                 # regenerate docs/rules.md
+INSTA_UPDATE=always cargo test                          # accept changed insta snapshots (review the diff)
+dist plan                                               # cargo-dist release plan; release.yml runs on a version tag
 ```
 
 Integration tests live in `crates/sitevet/tests/`. `tests/support/mod.rs` is the wiremock fixture server: it serves `tests/fixtures/sites/<name>/` (with `site.toml` overrides and `{{origin}}` replaced by the server URL) or pages built in the test, logs every request, and has a connection-counting proxy for cancel tests.

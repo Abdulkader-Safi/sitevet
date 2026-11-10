@@ -50,3 +50,8 @@ todo = "warn"
 unwrap_used = "warn"
 # Options is #[non_exhaustive], so callers set fields after Default::default().
 field_reassign_with_default = "allow"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

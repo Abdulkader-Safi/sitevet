@@ -12,7 +12,7 @@ It ships two ways from one codebase:
 
 ## What works today
 
-The library's engine core:
+The library and the `sitevet` command, built from this repo (not yet on crates.io):
 
 - A breadth-first crawl of same-origin pages with page and depth limits, per-host concurrency, an optional per-host delay, manual redirects and size caps.
 - robots.txt obeyed by default, with blocked URLs listed in the report. Sitemaps (and sitemap indexes) seed the crawl.
@@ -22,8 +22,10 @@ The library's engine core:
 - The 94 rules ported from the TypeScript package, with the same IDs, severities and scoring. 87 run today; the accessibility rule and 6 Core Web Vitals rules need the browser stage, which is planned.
 - Per-page measurements (title and description lengths, link and heading tables, Open Graph and Twitter tags, directives, dates) that never touch the score.
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
+- Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
+- The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
 
-Planned: the CLI, HTML and Markdown reports, run history, the browser stage and everything listed below.
+Planned: release 0.1.0 on crates.io with prebuilt binaries, run history, the browser stage and everything listed below.
 
 ## Where it comes from
 
@@ -53,14 +55,18 @@ let report = sitevet::audit("https://example.com", sitevet::Options::default()).
 println!("{} pages, score {}", report.pages.len(), report.score);
 ```
 
-From the terminal (planned, not built yet):
+From the terminal, after `cargo install --path crates/sitevet-cli` (crates.io and prebuilt binaries are planned for 0.1.0):
 
 ```bash
-cargo install sitevet-cli
-sitevet audit https://example.com --format html --out report.html
+sitevet audit https://example.com --out report.html
+sitevet audit https://example.com --format json --fail-under 85 > report.json
+sitevet rules --category security
+sitevet init
 ```
 
-Settings can live in an optional `sitevet.toml` (`Options::from_toml_str` reads it today). Its keys match the library options one to one, and command-line flags override it.
+The report goes to stdout, or to `--out` (the format follows its extension unless `--format` says otherwise). Progress goes to stderr. The exit code is 0 when the audit ran and passed, 1 when `--fail-under` or `--fail-on` tripped, and 2 when it could not run.
+
+Settings can live in a `sitevet.toml` in the current folder (`sitevet init` writes one with every default). Its keys match the library options one to one, and command-line flags override it. The full rule list is in [`docs/rules.md`](./docs/rules.md).
 
 ## License
 
