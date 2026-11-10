@@ -40,7 +40,8 @@ rule!(
             r.title = Some(v.help.clone());
             r.severity = Some(severity);
             r.evidence = v.sample.clone();
-            r.fix = Some(format!("See {}", v.help_url));
+            // PSI audits come without a link; then the rule's own fix text stands.
+            r.fix = (!v.help_url.is_empty()).then(|| format!("See {}", v.help_url));
             r
         });
         // Each passed axe check is its own pass finding, so the category score reflects the

@@ -13,19 +13,60 @@ use tokio_util::sync::CancellationToken;
 use crate::report::{AuditReport, Status};
 use crate::{Error, Options, Result};
 
-/// Progress of one audit, in order: `AuditStart`, a `PageFetched` per page, `CrawlComplete`,
+/// Progress of one audit, in order: `AuditStart`, a `PageFetched` per page, `RenderComplete`
+/// when a rendering provider ran, `CrawlComplete`,
 /// then `CheckComplete` and `PageComplete` as pages finish, and `AuditComplete` with the report.
 /// Events after `CrawlComplete` count against a known total.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum AuditEvent {
-    AuditStart { url: String, max_pages: u32 },
-    PageFetched { url: String, status: u16, depth: u32, index: u32, ms: u64 },
-    CrawlComplete { pages: u32, checks_total: u32, ms: u64 },
-    CheckComplete { url: String, rule_id: String, status: Status, checks_done: u32, checks_total: u32 },
-    PageComplete { url: String, index: u32, pages_total: u32, score: u8, findings: u32, metrics: u32, ms: u64 },
-    AuditComplete { score: u8, pages: u32, checks: u32, ms: u64, report: Box<AuditReport> },
+    AuditStart {
+        url: String,
+        max_pages: u32,
+    },
+    PageFetched {
+        url: String,
+        status: u16,
+        depth: u32,
+        index: u32,
+        ms: u64,
+    },
+    CrawlComplete {
+        pages: u32,
+        checks_total: u32,
+        ms: u64,
+    },
+    /// After the crawl, when the browser or PageSpeed Insights ran. `provider` is "browser" or "psi".
+    RenderComplete {
+        provider: String,
+        rendered: u32,
+        pages: u32,
+        ms: u64,
+    },
+    CheckComplete {
+        url: String,
+        rule_id: String,
+        status: Status,
+        checks_done: u32,
+        checks_total: u32,
+    },
+    PageComplete {
+        url: String,
+        index: u32,
+        pages_total: u32,
+        score: u8,
+        findings: u32,
+        metrics: u32,
+        ms: u64,
+    },
+    AuditComplete {
+        score: u8,
+        pages: u32,
+        checks: u32,
+        ms: u64,
+        report: Box<AuditReport>,
+    },
 }
 
 /// Where the engine sends events. Bounded, so a slow reader slows the audit instead of

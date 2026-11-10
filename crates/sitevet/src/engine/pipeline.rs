@@ -13,9 +13,11 @@ use url::Url;
 
 use super::{AuditEvent, Events};
 use crate::crawl::{self, Crawl, Fetcher, LinkChecker, RobotsGuard};
-use crate::report::{AuditReport, CategoryScore, Finding, Metric, MetricBody, PageResult, Status, ValueStatus};
+use crate::report::{
+    AuditReport, CategoryScore, Finding, Metric, MetricBody, PageResult, SkippedRule, Status, ValueStatus,
+};
 use crate::rules::{self, Collector, Rule, RuleCx, RuleMeta, RuleResult, Stage};
-use crate::{Error, LinkStatusMap, Options, PageData, Result, extract, score, time};
+use crate::{Error, LinkStatusMap, Options, PageData, Result, extract, render_stage, score, time};
 
 const EVIDENCE_CAP: usize = 2_000;
 
@@ -64,6 +66,9 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
     .map_err(|e| Error::StartPageUnreachable { url: url.clone(), source: e.into() })?;
     let fetcher = Arc::new(fetcher);
 
+    // A missing or broken Chrome fails the audit here, before anything is crawled.
+    let mut provider = render_stage::prepare(&options).await?;
+
     events.send(AuditEvent::AuditStart { url: url.clone(), max_pages: options.max_pages }).await;
 
     let site = Arc::new(crawl::load_site(&fetcher, &start).await);
@@ -72,9 +77,10 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
     let robots = Arc::new(RobotsGuard::new(&site.robots, agent, !options.ignore_robots));
     let links = LinkChecker::new(fetcher.clone(), robots.clone(), start.origin());
 
-    // The rendered stage arrives in M4. Until then, Rendered rules and collectors do not run.
-    let (dom_rules, enriched_rules) = split(rules::select_rules(&options), |r| r.meta().stage);
-    let (dom_collectors, enriched_collectors) = split(rules::select_collectors(&options), |c| c.meta().stage);
+    let (dom_rules, enriched_rules, rendered_rules) = split(rules::select_rules(&options), |r| r.meta().stage);
+    let (dom_collectors, enriched_collectors, rendered_collectors) =
+        split(rules::select_collectors(&options), |c| c.meta().stage);
+    let render_crawl = options.render_crawl;
     let (dom_rules, dom_collectors) = (Arc::new(dom_rules), Arc::new(dom_collectors));
 
     let crawl_started = Instant::now();
@@ -94,7 +100,15 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
         .run(events, |page, body| {
             let (rules, collectors, site, origin) =
                 (dom_rules.clone(), dom_collectors.clone(), site.clone(), origin.clone());
+            let provider = provider.as_ref();
             async move {
+                // render_crawl: read links and content from the DOM after scripts ran.
+                let body = match provider {
+                    Some(p) if render_crawl && page.error.is_none() => {
+                        p.rendered_html(&page.final_url).await.map_or(body, String::into_bytes)
+                    }
+                    _ => body,
+                };
                 let fallback = page.clone();
                 // The DOM is not Send: it is built, read and dropped inside this one blocking call.
                 let job = tokio::task::spawn_blocking(move || {
@@ -123,15 +137,45 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
         })
         .await?;
 
+    let crawl_ms = crawl_started.elapsed().as_millis() as u64;
     let pages_total = crawled.pages.len() as u32;
-    let checks_total = pages_total * (dom_rules.len() + enriched_rules.len()) as u32;
-    events
-        .send(AuditEvent::CrawlComplete {
-            pages: pages_total,
-            checks_total,
-            ms: crawl_started.elapsed().as_millis() as u64,
-        })
-        .await;
+
+    // The rendered stage, after the crawl, as in the TS package: RenderComplete comes before
+    // CrawlComplete, whose check total depends on which pages rendered.
+    let mut rendered = std::collections::HashMap::new();
+    let mut skipped = Vec::new();
+    let skip_all = |reason: &str| -> Vec<SkippedRule> {
+        rendered_rules
+            .iter()
+            .map(|r| SkippedRule { rule_id: r.meta().id.to_string(), reason: reason.to_string() })
+            .collect()
+    };
+    match provider.take() {
+        Some(mut p) => {
+            let render_started = Instant::now();
+            let urls: Vec<String> = crawled.pages.iter().map(|(page, _)| page.url.clone()).collect();
+            let out = p.render(&urls).await;
+            let name = p.name();
+            p.close().await;
+            events
+                .send(AuditEvent::RenderComplete {
+                    provider: name.to_string(),
+                    rendered: out.pages.len() as u32,
+                    pages: pages_total,
+                    ms: render_started.elapsed().as_millis() as u64,
+                })
+                .await;
+            if let Some(reason) = out.failed {
+                skipped = skip_all(&format!("the rendered stage stopped: {reason}"));
+            }
+            rendered = out.pages;
+        }
+        None => skipped = skip_all(render_stage::NEEDS_RENDERING),
+    }
+
+    let static_checks = (dom_rules.len() + enriched_rules.len()) as u32;
+    let checks_total = pages_total * static_checks + rendered.len() as u32 * rendered_rules.len() as u32;
+    events.send(AuditEvent::CrawlComplete { pages: pages_total, checks_total, ms: crawl_ms }).await;
 
     let need_links = !enriched_rules.is_empty() || !enriched_collectors.is_empty();
     let (checks_done, pages_done) = (AtomicU32::new(0), AtomicU32::new(0));
@@ -139,6 +183,8 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
         .map(|(page, (mut outcomes, mut metrics))| {
             let (enriched_rules, enriched_collectors, site, links) =
                 (&enriched_rules, &enriched_collectors, &site, &links);
+            let (rendered_rules, rendered_collectors) = (&rendered_rules, &rendered_collectors);
+            let data = rendered.get(&page.url);
             let (checks_done, pages_done) = (&checks_done, &pages_done);
             async move {
                 let page_started = Instant::now();
@@ -151,6 +197,12 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                     let cx = RuleCx { page: &page, dom: None, html: None, rendered: None, links: &link_map, site };
                     outcomes.extend(run_rules(enriched_rules, &cx));
                     metrics.extend(run_collectors(enriched_collectors, &cx));
+                }
+                if let Some(data) = data {
+                    let cx =
+                        RuleCx { page: &page, dom: None, html: None, rendered: Some(data), links: &link_map, site };
+                    outcomes.extend(run_rules(rendered_rules, &cx));
+                    metrics.extend(run_collectors(rendered_collectors, &cx));
                 }
                 let mut findings = Vec::new();
                 for o in outcomes {
@@ -186,7 +238,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
         .collect()
         .await;
 
-    let report = report(url, start, &options, started, pages, crawled.blocked);
+    let report = report(url, start, &options, started, pages, crawled.blocked, skipped);
     events
         .send(AuditEvent::AuditComplete {
             score: report.score,
@@ -199,17 +251,17 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
     Ok(report)
 }
 
-/// Splits by stage into (Dom, Enriched). Rendered items are dropped until that stage exists.
-fn split<T>(items: Vec<T>, stage: impl Fn(&T) -> Stage) -> (Vec<T>, Vec<T>) {
-    let (mut dom, mut enriched) = (Vec::new(), Vec::new());
+/// Splits by stage into (Dom, Enriched, Rendered).
+fn split<T>(items: Vec<T>, stage: impl Fn(&T) -> Stage) -> (Vec<T>, Vec<T>, Vec<T>) {
+    let (mut dom, mut enriched, mut rendered) = (Vec::new(), Vec::new(), Vec::new());
     for item in items {
         match stage(&item) {
             Stage::Dom => dom.push(item),
             Stage::Enriched => enriched.push(item),
-            Stage::Rendered => {}
+            Stage::Rendered => rendered.push(item),
         }
     }
-    (dom, enriched)
+    (dom, enriched, rendered)
 }
 
 /// Runs each rule under `catch_unwind`. A panic becomes one info result.
@@ -329,6 +381,7 @@ fn report(
     started: Instant,
     pages: Vec<PageResult>,
     blocked: Vec<crate::BlockedUrl>,
+    skipped_rules: Vec<SkippedRule>,
 ) -> AuditReport {
     let mut by_category: BTreeMap<&str, Vec<&Finding>> = BTreeMap::new();
     for f in pages.iter().flat_map(|p| &p.findings) {
@@ -361,5 +414,6 @@ fn report(
         categories,
         pages,
         blocked,
+        skipped_rules,
     }
 }
