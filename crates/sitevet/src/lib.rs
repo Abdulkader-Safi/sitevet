@@ -22,6 +22,8 @@ mod crawl;
 mod engine;
 mod error;
 mod extract;
+#[cfg(feature = "history")]
+mod history;
 mod metrics;
 mod options;
 mod render_stage;
@@ -36,12 +38,15 @@ pub use engine::{
 };
 pub use error::{Error, Result};
 pub use extract::{Heading, Image, Link, MetaTag, PageData, Script};
+#[cfg(feature = "history")]
+pub use history::{History, RunId, RunSummary};
 pub use options::Options;
 #[doc(hidden)] // shared with the CLI for its own config keys
 pub use options::unknown_key_reason;
 pub use report::{
-    AuditReport, BlockedUrl, CategoryScore, Finding, Format, Metric, MetricBody, MetricCell, PageResult, RenderOptions,
-    Severity, SkippedRule, Status, ValueStatus, render, render_with, report_schema,
+    AuditReport, BaselineRef, BlockedUrl, CategoryChange, CategoryScore, Finding, FindingRef, Format, Metric,
+    MetricBody, MetricCell, PageResult, RenderOptions, ReportDiff, Severity, SkippedRule, Status, ValueStatus, diff,
+    render, render_with, report_schema,
 };
 pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,

@@ -5,7 +5,7 @@ members = ["crates/sitevet", "crates/sitevet-cli"]
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.88"
+rust-version = "1.89"
 license = "MIT"
 repository = "https://github.com/Abdulkader-Safi/sitevet"
 authors = ["Abdulkader Safi"]
@@ -29,6 +29,9 @@ tracing = "0.1"
 url = { version = "2.5", features = ["serde"] }
 wiremock = "0.6"
 chromiumoxide = { version = "0.9", default-features = false }
+rusqlite = { version = "0.41", features = ["bundled"] }
+zstd = "0.14"
+directories = "6"
 regex = "1.13"
 unicode-segmentation = "1.13"
 anyhow = "1"

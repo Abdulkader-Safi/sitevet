@@ -11,7 +11,8 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
-| M5 to M14      | Not started                              |
+| M5 run history | In progress on branch `m5-run-history` |
+| M6 to M14      | Not started                              |
 
 ## M4: rendered stage
 

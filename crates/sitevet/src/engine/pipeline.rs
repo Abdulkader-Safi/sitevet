@@ -415,5 +415,6 @@ fn report(
         pages,
         blocked,
         skipped_rules,
+        changes: None,
     }
 }

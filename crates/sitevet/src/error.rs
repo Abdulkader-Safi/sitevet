@@ -22,6 +22,8 @@ pub enum Error {
     BrowserNotFound { tried: Vec<String> },
     #[error("the browser failed: {0}")]
     BrowserFailed(String),
+    #[error("history: {0}")]
+    History(String),
     #[error("the audit was cancelled")]
     Cancelled,
 }

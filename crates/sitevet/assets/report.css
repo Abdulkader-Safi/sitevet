@@ -102,6 +102,11 @@ tbody th { font-weight: 500; }
 .vs.warn, .vs.missing { color: var(--fair); }
 .vs.bad { color: var(--poor); }
 .empty { color: var(--muted); }
+.changes { background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; padding: 0 1rem .5rem; margin-top: 1.5rem; }
+.changes h2 { margin-top: 1rem; }
+.delta { font-weight: 700; margin-right: .5rem; }
+.changes summary { cursor: pointer; font-weight: 600; padding: .25rem 0; }
+.change-list { margin: .25rem 0 .75rem; padding-left: 1.25rem; }
 .foot { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1rem; color: var(--muted); font-size: .875rem; }
 @media (max-width: 30rem) {
   body { padding: .75rem; }

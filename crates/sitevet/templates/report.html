@@ -21,6 +21,25 @@
   </div>
 </header>
 <main>
+{% if let Some(c) = v.changes %}
+<section aria-labelledby="changes-h" class="changes">
+  <h2 id="changes-h">Changes since {{ c.baseline }}</h2>
+  <p><span class="delta {{ c.score_band }}">Score {{ c.score_change }}</span> {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.</p>
+  {% if !c.categories.is_empty() %}
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Category</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
+    <tbody>{% for (name, before, after, change) in c.categories %}<tr><th scope="row">{{ name }}</th><td>{{ before }}</td><td>{{ after }}</td><td>{{ change }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  {% if !c.fixed.is_empty() %}
+  <details><summary>Fixed ({{ c.fixed.len() }})</summary><ul class="change-list">{% for (rule, url, message) in c.fixed %}<li><code>{{ rule }}</code> on <span dir="auto">{{ url }}</span>: <span dir="auto">{{ message }}</span></li>{% endfor %}</ul></details>
+  {% endif %}
+  {% if !c.new_failures.is_empty() %}
+  <details open><summary>New issues ({{ c.new_failures.len() }})</summary><ul class="change-list">{% for (rule, url, message) in c.new_failures %}<li><code>{{ rule }}</code> on <span dir="auto">{{ url }}</span>: <span dir="auto">{{ message }}</span></li>{% endfor %}</ul></details>
+  {% endif %}
+</section>
+{% endif %}
+
 <section aria-labelledby="categories-h">
   <h2 id="categories-h">Categories</h2>
   {% if v.categories.is_empty() %}

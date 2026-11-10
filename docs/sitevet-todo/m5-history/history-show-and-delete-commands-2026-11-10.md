@@ -1,11 +1,11 @@
 ---
 id: "history-show-and-delete-commands-2026-11-10"
-status: "todo"
+status: "in-progress"
 priority: "medium"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T08:20:43.000Z"
+modified: "2026-11-10T18:29:12.000Z"
 labels: ["m5"]
 order: 2
 ---
