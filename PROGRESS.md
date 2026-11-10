@@ -9,8 +9,9 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
-| M3 reports, CLI | Built and tested. Waiting for Safi: HTML and CLI review, and approval to publish 0.1.0 |
-| M4 to M14      | Not started                              |
+| M3 reports, CLI | Built and tested. Release 0.1.0 held by Safi (2026-11-10); HTML, CLI and README in review |
+| M4 rendered stage | In progress |
+| M5 to M14      | Not started                              |
 
 ## M3: reports and CLI
 
@@ -50,7 +51,7 @@ Live check on abdulkadersafi.com (15 pages, 8 s): overall 86, exit 0. Its HTML r
 ### Open items for Safi
 
 - Review: the HTML report (`sitevet audit <url> --out report.html`), the CLI output, and the README.
-- Release 0.1.0 needs your go. Steps: bump both crates to 0.1.0, `cargo publish -p sitevet` then `-p sitevet-cli` (needs your crates.io token through `cargo login`; a published version cannot be deleted), then push the `v0.1.0` tag so the cargo-dist workflow builds the five binaries and installers into a GitHub Release.
+- Release 0.1.0: Safi chose on 2026-11-10 to hold it and start M4, with FR-DIST-01 and FR-DIST-02 left open until publishing. Steps when it goes ahead: bump both crates to 0.1.0, `cargo publish -p sitevet` then `-p sitevet-cli` (needs your crates.io token through `cargo login`; a published version cannot be deleted), then push the `v0.1.0` tag so the cargo-dist workflow builds the five binaries and installers into a GitHub Release.
 - The overall score uses the TS package's harsh formula. On the bare fixture site it is 0 while every page scores 64 to 77, because many rules fail on every page. That is parity, but it reads oddly in a report. Keep it?
 
 ## M2: parity rules, metrics, scoring
