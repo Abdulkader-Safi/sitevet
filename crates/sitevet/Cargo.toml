@@ -1,0 +1,43 @@
+[package]
+name = "sitevet"
+description = "Website audit engine: crawl a site, run SEO, security and accessibility rules, get a typed, scored report."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+# Built in M4, M5 and M12. Declared now so Options::validate can say which feature a setting needs.
+browser = []
+history = []
+media = []
+
+[dependencies]
+async-channel.workspace = true
+futures.workspace = true
+quick-xml.workspace = true
+reqwest.workspace = true
+scraper.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+texting_robots.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+toml.workspace = true
+tracing.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["io-util"] }
+wiremock.workspace = true
+
+[lints]
+workspace = true
+
+[[example]]
+name = "spawn-futures"
+path = "../../examples/spawn-futures.rs"

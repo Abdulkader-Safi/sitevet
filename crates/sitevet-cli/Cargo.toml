@@ -1,0 +1,19 @@
+[package]
+name = "sitevet-cli"
+description = "Command-line website audits built on the sitevet library."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "sitevet"
+path = "src/main.rs"
+
+[dependencies]
+sitevet.workspace = true
+
+[lints]
+workspace = true
