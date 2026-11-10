@@ -722,6 +722,13 @@
             "$ref": "#/$defs/FindingRef"
           }
         },
+        "not_compared": {
+          "description": "Failing findings left out of `fixed` and `new_failures` because their check ran on that\npage in only one of the two reports (say, a `--browser` run against one without).",
+          "type": "integer",
+          "format": "uint",
+          "default": 0,
+          "minimum": 0
+        },
         "pages_added": {
           "type": "array",
           "items": {
@@ -749,7 +756,8 @@
         "new_failures",
         "fixed",
         "pages_added",
-        "pages_removed"
+        "pages_removed",
+        "not_compared"
       ]
     },
     "Severity": {

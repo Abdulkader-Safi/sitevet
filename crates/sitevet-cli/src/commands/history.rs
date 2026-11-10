@@ -196,4 +196,10 @@ fn print_text(d: &ReportDiff, a: RunId, b: RunId, before: u8, after: u8) {
     if !d.pages_added.is_empty() || !d.pages_removed.is_empty() {
         anstream::println!("pages: {} added, {} removed", d.pages_added.len(), d.pages_removed.len());
     }
+    if d.not_compared > 0 {
+        anstream::println!(
+            "{DIM}{} issues not compared: their checks ran in only one of the two runs{DIM:#}",
+            d.not_compared
+        );
+    }
 }

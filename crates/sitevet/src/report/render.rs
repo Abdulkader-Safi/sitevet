@@ -183,6 +183,7 @@ struct ChangesView {
     fixed: Vec<(String, String, String)>,
     pages_added: usize,
     pages_removed: usize,
+    not_compared: usize,
 }
 
 fn signed(n: i16) -> String {
@@ -225,6 +226,7 @@ impl ChangesView {
             fixed: refs(&d.fixed),
             pages_added: d.pages_added.len(),
             pages_removed: d.pages_removed.len(),
+            not_compared: d.not_compared,
         }
     }
 }
