@@ -155,6 +155,9 @@ pub type Log = Arc<Mutex<Vec<Hit>>>;
 
 struct Responder {
     site: Site,
+    /// Routes that win once `switched` is set: the same site, changed between two runs.
+    alt: Site,
+    switched: Arc<std::sync::atomic::AtomicBool>,
     origin: String,
     log: Log,
 }
@@ -169,7 +172,8 @@ impl Respond for Responder {
             at: Instant::now(),
             user_agent,
         });
-        let Some(route) = self.site.routes.get(&path) else {
+        let alt = if self.switched.load(Ordering::SeqCst) { self.alt.routes.get(&path) } else { None };
+        let Some(route) = alt.or_else(|| self.site.routes.get(&path)) else {
             return ResponseTemplate::new(404).set_body_raw("<h1>Not found</h1>", "text/html");
         };
         // Text bodies get {{origin}} filled in; binary ones (compressed) go out as they are.
@@ -188,15 +192,22 @@ impl Respond for Responder {
 pub struct Fixture {
     pub server: MockServer,
     pub log: Log,
+    pub switched: Arc<std::sync::atomic::AtomicBool>,
 }
 
 impl Fixture {
     pub async fn start(site: Site) -> Self {
+        Self::start_with_alt(site, Site::new()).await
+    }
+
+    /// `alt`'s routes replace `site`'s once [`Fixture::switched`] is set.
+    pub async fn start_with_alt(site: Site, alt: Site) -> Self {
         let server = MockServer::start().await;
         let log = Log::default();
-        let responder = Responder { site, origin: server.uri(), log: log.clone() };
+        let switched = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let responder = Responder { site, alt, switched: switched.clone(), origin: server.uri(), log: log.clone() };
         Mock::given(any()).respond_with(responder).mount(&server).await;
-        Self { server, log }
+        Self { server, log, switched }
     }
 
     pub fn url(&self, path: &str) -> String {
@@ -247,25 +258,32 @@ pub struct ThreadFixture {
     pub proxy_url: String,
     pub open: Arc<AtomicUsize>,
     pub log: Log,
+    pub switched: Arc<std::sync::atomic::AtomicBool>,
     stop: std::sync::mpsc::Sender<()>,
 }
 
 impl ThreadFixture {
     pub fn start(site: Site) -> Self {
+        Self::start_with_alt(site, Site::new())
+    }
+
+    pub fn start_with_alt(site: Site, alt: Site) -> Self {
         let (ready_tx, ready_rx) = std::sync::mpsc::channel();
         let (stop, stop_rx) = std::sync::mpsc::channel::<()>();
         std::thread::spawn(move || {
             let rt = tokio::runtime::Builder::new_multi_thread().worker_threads(2).enable_all().build().unwrap();
             rt.block_on(async move {
-                let fixture = Fixture::start(site).await;
+                let fixture = Fixture::start_with_alt(site, alt).await;
                 let (proxy_url, open) = counting_proxy(*fixture.server.address()).await;
-                ready_tx.send((fixture.url(""), proxy_url, open, fixture.log.clone())).unwrap();
+                ready_tx
+                    .send((fixture.url(""), proxy_url, open, fixture.log.clone(), fixture.switched.clone()))
+                    .unwrap();
                 let _ = tokio::task::spawn_blocking(move || stop_rx.recv()).await;
                 drop(fixture);
             });
         });
-        let (url, proxy_url, open, log) = ready_rx.recv().unwrap();
-        Self { url, proxy_url, open, log, stop }
+        let (url, proxy_url, open, log, switched) = ready_rx.recv().unwrap();
+        Self { url, proxy_url, open, log, switched, stop }
     }
 }
 
