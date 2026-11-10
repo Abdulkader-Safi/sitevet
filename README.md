@@ -41,7 +41,7 @@ println!("{}", report.score);
 From the terminal:
 
 ```bash
-cargo install sitevet
+cargo install sitevet-cli
 sitevet audit https://example.com --format html --out report.html
 ```
 

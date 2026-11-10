@@ -2,6 +2,8 @@
 
 Status: signed off 2026-11-10
 
+> Changes: 2026-11-10, after sign-off, from stage 4 decisions. FR-DIST-01: the CLI installs as `cargo install sitevet-cli` (workspace split, library crate stays `sitevet`). FR-API-06: names the `spawn` entry point for non-tokio apps.
+
 Requirements say what the product must do, not how. Tech choices are in Stage 4. Each traces to the product (Stage 1) and the journeys or core loop (Stage 2).
 
 "The library" means the `sitevet` crate's public API. "The CLI" means the `sitevet` binary. Unless a requirement says CLI only, the library must expose the capability and the CLI must reach it through a flag or a `sitevet.toml` key. "The TS package" is the TypeScript predecessor, used as the reference for parity behaviour.
@@ -20,8 +22,8 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
   _Acceptance:_ a test sets every field through TOML and through flags and gets equal `Options` values.
 - **FR-API-05 [Must]** Convenience functions must render a report or return just the score: `render(&report, format)`, plus one-call helpers equivalent to the TS package's `auditToHtml`, `auditToMarkdown` and `auditScore`.
   _Acceptance:_ each helper's output equals `render` on the report from `audit` for the same site.
-- **FR-API-06 [Must]** The library must run inside an app that does not use tokio as its main executor (for example a GPUI app), without the caller managing a runtime by hand.
-  _Acceptance:_ an example that calls `audit` from a non-tokio executor completes a fixture audit. The documented pattern is in the crate docs.
+- **FR-API-06 [Must]** The library must run inside an app that does not use tokio as its main executor (for example a GPUI app), without the caller managing a runtime. `spawn(url, options)` runs the audit on a runtime sitevet owns and returns a handle whose event stream, cancel and final report work from any executor.
+  _Acceptance:_ an example that calls `spawn` from a `futures::executor` (no tokio) receives every event and the final report for a fixture audit, and cancel stops it within 1 second.
 
 ### Crawl
 
@@ -251,8 +253,8 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
 
 ### Distribution
 
-- **FR-DIST-01 [Must]** Publish the crate to crates.io and install the CLI with `cargo install sitevet`.
-  _Acceptance:_ a clean machine installs and runs `sitevet --version`.
+- **FR-DIST-01 [Must]** Publish the library crate `sitevet` and the CLI crate `sitevet-cli` (binary name `sitevet`) to crates.io. `cargo install sitevet-cli` installs the CLI.
+  _Acceptance:_ a clean machine runs `cargo install sitevet-cli` and then `sitevet --version`. A project with `sitevet` as a dependency compiles without clap or rusqlite in `cargo tree`.
 - **FR-DIST-02 [Must]** Prebuilt CLI binaries on GitHub Releases for macOS arm64 and x86_64, Linux x86_64 and arm64 (static), Windows x86_64, plus a one-line shell installer.
   _Acceptance:_ the installer works on a fresh macOS and a fresh Ubuntu machine.
 - **FR-DIST-03 [Should]** A Homebrew tap.
