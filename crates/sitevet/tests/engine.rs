@@ -193,3 +193,56 @@ async fn panicking_rule_is_caught() {
     assert_eq!(f.message, "rule crashed: kaboom");
     assert_eq!(report.score, 100);
 }
+
+/// FR-RULE-04: `only = ["security"]` runs only security rules and collectors.
+#[tokio::test]
+async fn only_filters_rules_and_collectors() {
+    let fx = Fixture::start(Site::from_dir("basic")).await;
+    let mut options = sitevet::Options::default();
+    options.only = vec!["security".into()];
+    let report = audit(&fx.url("/"), options).await.unwrap();
+    assert_eq!(report.categories.iter().map(|c| c.category.as_str()).collect::<Vec<_>>(), ["security"]);
+    for page in &report.pages {
+        assert!(page.findings.iter().all(|f| f.category == "security"));
+        assert!(page.metrics.iter().all(|m| m.category == "security"));
+    }
+}
+
+/// FR-MET-01 and FR-SCORE-02: the built-in rules run on a real crawl, and the scores are the
+/// same with every collector on, with none, and with info-only rules added.
+#[tokio::test]
+async fn collectors_and_info_findings_never_move_the_score() {
+    let fx = Fixture::start(Site::from_dir("basic")).await;
+    let with = audit(&fx.url("/"), sitevet::Options::default()).await.unwrap();
+    let mut options = sitevet::Options::default();
+    options.collectors = Some(vec![]);
+    let without = audit(&fx.url("/"), options).await.unwrap();
+    assert!(with.pages.iter().all(|p| !p.metrics.is_empty()));
+    assert!(without.pages.iter().all(|p| p.metrics.is_empty()));
+    assert!(with.pages[0].findings.len() > 80, "the built-in rules ran: {}", with.pages[0].findings.len());
+
+    struct InfoOnly;
+    impl sitevet::Rule for InfoOnly {
+        fn meta(&self) -> sitevet::RuleMeta {
+            sitevet::RuleMeta::new("test/note", "core-seo", "A note", sitevet::Severity::Error, sitevet::Stage::Dom)
+        }
+        fn run(&self, _: &sitevet::RuleCx<'_>) -> Vec<sitevet::RuleResult> {
+            vec![sitevet::RuleResult::info("just a note")]
+        }
+    }
+    let mut rules = sitevet::all_rules();
+    rules.push(std::sync::Arc::new(InfoOnly));
+    let mut options = sitevet::Options::default();
+    options.rules = Some(rules);
+    let noted = audit(&fx.url("/"), options).await.unwrap();
+
+    let scores = |r: &AuditReport| {
+        (
+            r.score,
+            r.categories.iter().map(|c| (c.category.clone(), c.score)).collect::<Vec<_>>(),
+            r.pages.iter().map(|p| p.score).collect::<Vec<_>>(),
+        )
+    };
+    assert_eq!(scores(&with), scores(&without));
+    assert_eq!(scores(&with), scores(&noted));
+}

@@ -43,7 +43,8 @@ async fn defaults_crawl_100_pages_within_depth_5() {
     let report = audit(&fx.url("/"), wide).await.unwrap();
     assert_eq!(report.pages.len(), 126, "depth 5 stops the crawl before /deep");
     assert_eq!(report.pages.iter().map(|p| p.depth).max(), Some(5));
-    assert_eq!(fx.count("/deep/0"), 0);
+    // The link checker may HEAD /deep/0 (it is linked), but the crawl never GETs it.
+    assert!(!fx.hits().iter().any(|h| h.path.starts_with("/deep/") && h.method == "GET"));
 }
 
 /// FR-CRAWL-03: robots.txt and sitemap.xml are requested once each, even with link checks on.
