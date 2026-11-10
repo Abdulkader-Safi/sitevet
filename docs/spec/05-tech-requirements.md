@@ -1,6 +1,6 @@
 # Technical requirements
 
-Status: draft
+Status: signed off 2026-11-10
 
 The engineering blueprint. Tech context: Rust 2024 workspace (`sitevet` library, `sitevet-cli` binary), tokio 1.54, reqwest 0.13 with rustls, scraper 0.29, chromiumoxide 0.9 behind `browser`, rusqlite 0.41 behind `history`, askama 0.16, clap 4.6.
 
@@ -152,7 +152,7 @@ Conventions:
 | note     | Option<String>      |                                                                                                 |
 | body     | MetricBody          | `Value { value: MetricCell or null, unit: Option<String> }` or `Table { columns, rows, total }` |
 
-`MetricCell` is a string or a number. Tables keep at most 100 rows (`ROW_CAP`, same as the TS package if it differs, the TS value wins), with `total` before the cap (FR-MET-02).
+`MetricCell` is a string or a number. Tables keep at most 25 rows (`ROW_CAP`, the TS package's value in `src/metrics/kit.ts`), with `total` before the cap (FR-MET-02).
 
 ### SiteResult
 
@@ -386,13 +386,14 @@ No secrets in the repo. `sitevet.toml` may hold `psi_key`, so `sitevet init` wri
 
 ### Open questions
 
-1. Site-wide findings and the score: should site findings (duplicate titles, orphans, redirect map entries) count in the category scores and the overall penalty? : recommend yes, each site finding counts once in its category and adds to the overall penalty scaled by the share of pages it affects (the same idea as the TS overall formula).
-2. SSRF default: block private addresses when the start URL is public, allow them when the start URL is private. OK? : recommend yes.
-3. History run IDs as short integers (`sitevet show 12`), not ULIDs. OK? : recommend yes.
-4. Table row cap of 100 rows per metric table (TS value wins if different). OK? : recommend yes.
+None.
 
 ### Assumptions confirmed
 
 1. **Rule shape : RESOLVED.** Synchronous rules grouped by stage, reading `PageData` (and the DOM only in the `Dom` stage). Network data is fetched before the stage runs. Decided from stage 4's scraper constraint.
 2. **Time and units : RESOLVED.** RFC 3339 UTC strings, integer milliseconds and bytes in JSON.
 3. **Deletion : RESOLVED.** Hard delete, history only (FR-HIST-05).
+4. **Site findings in the score : RESOLVED.** Each site finding counts once in its category score, and adds to the overall penalty scaled by the share of crawled pages it affects, using the TS overall weights (error 22, warning 11, info 1, warn factor 0.55).
+5. **SSRF default : RESOLVED.** Private, loopback, link-local and metadata addresses are blocked when the start URL is public, allowed when it is private. `allow_private_network` overrides.
+6. **History IDs : RESOLVED.** SQLite integers.
+7. **Table row cap : RESOLVED.** 25 rows, the TS package's `ROW_CAP`.
