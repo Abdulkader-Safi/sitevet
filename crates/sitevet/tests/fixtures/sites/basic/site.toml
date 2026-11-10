@@ -1,0 +1,4 @@
+# Per-path overrides for the fixture server: status, headers, body, delay_ms.
+[routes."/old-about"]
+status = 301
+headers = { location = "/about.html" }
