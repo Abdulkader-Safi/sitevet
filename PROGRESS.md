@@ -39,6 +39,7 @@ Tests: 3 Chrome tests in `tests/browser.rs` and 1 in `tests/browser_cancel.rs` (
 - The PSI fixture is in the real v5 response shape but hand-trimmed, since no key was available to record a live response.
 - `SITEVET_PSI_ENDPOINT` (not in stage 5's list) points the library at a recorded PSI response in tests. Setting an environment variable is `unsafe` in edition 2024, so the workspace lint went from `forbid` to `deny(unsafe_code)`, with one documented `allow` in `tests/psi.rs`.
 - The cancel test lives in its own test binary: it counts Chrome processes by a profile name that carries the process ID, and other tests launching Chrome in the same process would be counted too.
+- Security fix from an automated review: when the start URL is public, Chrome's own requests (navigations, redirects, scripts, images) now obey the same private-network rule as the fetcher. Each tab intercepts its requests through CDP's Fetch domain and fails those to private, loopback, link-local or metadata addresses. Chrome resolves names again after the check, so DNS rebinding between the two is not covered for browser requests; the fetcher's own requests are. A Chrome test checks that a page's image and `fetch()` reach a local listener with the guard off and never with it on.
 - Chrome is found from `chrome_path`, `SITEVET_CHROME`, `PATH` and the usual install folders. Microsoft Edge is not used, since the spec names Chrome and Chromium.
 
 ### Open items for Safi

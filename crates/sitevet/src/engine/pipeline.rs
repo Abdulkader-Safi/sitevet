@@ -67,7 +67,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
     let fetcher = Arc::new(fetcher);
 
     // A missing or broken Chrome fails the audit here, before anything is crawled.
-    let mut provider = render_stage::prepare(&options).await?;
+    let mut provider = render_stage::prepare(&options, !allow_private).await?;
 
     events.send(AuditEvent::AuditStart { url: url.clone(), max_pages: options.max_pages }).await;
 

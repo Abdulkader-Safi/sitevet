@@ -61,7 +61,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: google-chrome --version
-      - run: cargo test -p sitevet --features browser --test browser --test browser_cancel
+      - run: cargo test -p sitevet --features browser --lib --test browser --test browser_cancel
 
   msrv:
     runs-on: ubuntu-latest

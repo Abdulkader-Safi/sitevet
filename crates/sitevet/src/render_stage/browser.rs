@@ -7,6 +7,10 @@ use std::time::Duration;
 
 use chromiumoxide::browser::{Browser, BrowserConfig};
 use chromiumoxide::cdp::browser_protocol::browser::{SetDownloadBehaviorBehavior, SetDownloadBehaviorParams};
+use chromiumoxide::cdp::browser_protocol::fetch::{
+    ContinueRequestParams, EnableParams as FetchEnableParams, EventRequestPaused, FailRequestParams,
+};
+use chromiumoxide::cdp::browser_protocol::network::ErrorReason;
 use chromiumoxide::cdp::js_protocol::runtime::EvaluateParams;
 use chromiumoxide::page::Page;
 use futures::StreamExt;
@@ -81,13 +85,16 @@ pub(crate) struct Renderer {
     running: Option<Running>,
     executable: PathBuf,
     user_agent: String,
+    /// Same policy as the fetcher: refuse private addresses when the start URL is public.
+    block_private: bool,
     restarted: bool,
 }
 
 impl Renderer {
-    pub(crate) async fn launch(options: &Options) -> Result<Self> {
+    pub(crate) async fn launch(options: &Options, block_private: bool) -> Result<Self> {
         let executable = find_chrome(options)?;
-        let mut r = Self { running: None, executable, user_agent: options.user_agent(), restarted: false };
+        let mut r =
+            Self { running: None, executable, user_agent: options.user_agent(), block_private, restarted: false };
         r.start().await?;
         Ok(r)
     }
@@ -122,9 +129,9 @@ impl Renderer {
         let mut queue: Vec<&String> = urls.iter().collect();
         while !queue.is_empty() {
             let Some(running) = &self.running else { break };
-            let (browser, ua) = (&running.browser, self.user_agent.as_str());
+            let (browser, ua, guard) = (&running.browser, self.user_agent.as_str(), self.block_private);
             // Futures built up front: a closure inside the stream trips a compiler limit on Send.
-            let jobs: Vec<_> = queue.iter().map(|url| render_owned(browser, (*url).clone(), ua)).collect();
+            let jobs: Vec<_> = queue.iter().map(|url| render_owned(browser, (*url).clone(), ua, guard)).collect();
             let batch: Vec<(String, RenderedData)> = futures::stream::iter(jobs).buffer_unordered(TABS).collect().await;
             let alive = running.browser.version().await.is_ok();
             if alive {
@@ -153,9 +160,10 @@ impl Renderer {
     pub(crate) async fn rendered_html(&self, url: &str) -> Option<String> {
         let running = self.running.as_ref()?;
         let html = async {
-            let page = open(&running.browser, url, &self.user_agent).await.ok()?;
+            let (page, guard) = open(&running.browser, url, &self.user_agent, self.block_private).await.ok()?;
             let v = eval(&page, "document.documentElement.outerHTML").await.ok();
             let _ = page.close().await;
+            drop(guard);
             v?.as_str().map(str::to_string)
         };
         tokio::time::timeout(PAGE_TIMEOUT, html).await.ok().flatten()
@@ -169,25 +177,74 @@ impl Renderer {
     }
 }
 
-async fn open(browser: &Browser, url: &str, user_agent: &str) -> chromiumoxide::Result<Page> {
+/// Aborts a tab's request-guard task when the tab is done.
+struct GuardTask(Option<tokio::task::JoinHandle<()>>);
+
+impl Drop for GuardTask {
+    fn drop(&mut self) {
+        if let Some(t) = self.0.take() {
+            t.abort();
+        }
+    }
+}
+
+async fn open(
+    browser: &Browser,
+    url: &str,
+    user_agent: &str,
+    block_private: bool,
+) -> chromiumoxide::Result<(Page, GuardTask)> {
     // Open blank, bring to front, then navigate: a background tab records no layout shifts (M0).
     let page = browser.new_page("about:blank").await?;
     let _ = page.bring_to_front().await;
     let _ = page.set_user_agent(user_agent).await;
+    let guard = if block_private { GuardTask(Some(guard_requests(&page).await?)) } else { GuardTask(None) };
     page.goto(url).await?;
-    Ok(page)
+    Ok((page, guard))
 }
 
-async fn render_owned(browser: &Browser, url: String, user_agent: &str) -> (String, RenderedData) {
-    let data = render_page(browser, &url, user_agent).await;
+/// Holds every request the tab makes (navigations, redirects, scripts, images) until its host
+/// is checked: private, loopback, link-local and metadata addresses fail, the rest continue.
+/// The same rule the fetcher applies, so a public page cannot make Chrome reach a private
+/// address. Chrome resolves the name again after the check, so DNS rebinding in between is
+/// not covered here; the fetcher's own requests are.
+async fn guard_requests(page: &Page) -> chromiumoxide::Result<tokio::task::JoinHandle<()>> {
+    let mut paused = page.event_listener::<EventRequestPaused>().await?;
+    page.execute(FetchEnableParams::default()).await?;
+    let page = page.clone();
+    Ok(tokio::spawn(async move {
+        while let Some(event) = paused.next().await {
+            let id = event.request_id.clone();
+            if request_allowed(&event.request.url).await {
+                let _ = page.execute(ContinueRequestParams::new(id)).await;
+            } else {
+                tracing::debug!("blocked a browser request to a private address");
+                let _ = page.execute(FailRequestParams::new(id, ErrorReason::BlockedByClient)).await;
+            }
+        }
+    }))
+}
+
+async fn request_allowed(raw: &str) -> bool {
+    match url::Url::parse(raw) {
+        Ok(u) if matches!(u.scheme(), "http" | "https" | "ws" | "wss") => !crate::crawl::host_is_private(&u).await,
+        // data:, blob: and about: never leave the browser.
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
+async fn render_owned(browser: &Browser, url: String, user_agent: &str, guard: bool) -> (String, RenderedData) {
+    let data = render_page(browser, &url, user_agent, guard).await;
     (url, data)
 }
 
-async fn render_page(browser: &Browser, url: &str, user_agent: &str) -> RenderedData {
+async fn render_page(browser: &Browser, url: &str, user_agent: &str, block_private: bool) -> RenderedData {
     let work = async {
-        let page = open(browser, url, user_agent).await.map_err(|e| e.to_string())?;
+        let (page, guard) = open(browser, url, user_agent, block_private).await.map_err(|e| e.to_string())?;
         let result = measure(&page).await;
         let _ = page.close().await;
+        drop(guard);
         result
     };
     match tokio::time::timeout(PAGE_TIMEOUT, work).await {
@@ -321,4 +378,53 @@ fn candidates() -> Vec<PathBuf> {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    use super::Renderer;
+
+    /// Counts connections to a local port.
+    fn listener() -> (u16, Arc<AtomicUsize>) {
+        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = l.local_addr().unwrap().port();
+        let hits = Arc::new(AtomicUsize::new(0));
+        let h = hits.clone();
+        std::thread::spawn(move || {
+            for _ in l.incoming().flatten() {
+                h.fetch_add(1, Ordering::SeqCst);
+            }
+        });
+        (port, hits)
+    }
+
+    /// A page Chrome loads from a public-looking start must not reach private addresses.
+    #[tokio::test]
+    async fn chrome_requests_to_private_addresses_are_blocked() {
+        if std::env::var("SITEVET_TEST_CHROME").as_deref() != Ok("1") {
+            return;
+        }
+        let (port, hits) = listener();
+        let page = format!(
+            "data:text/html,<title>x</title><img src=\"http://127.0.0.1:{port}/img\"><script>fetch('http://127.0.0.1:{port}/api').catch(()=>{{}})</script>"
+        );
+        let mut options = crate::Options::default();
+        options.browser = true;
+
+        let mut open = Renderer::launch(&options, false).await.unwrap();
+        let out = open.render(std::slice::from_ref(&page)).await;
+        open.close().await;
+        assert!(out.pages[&page].ok);
+        assert!(hits.load(Ordering::SeqCst) > 0, "without the guard Chrome reaches the listener");
+
+        hits.store(0, Ordering::SeqCst);
+        let mut guarded = Renderer::launch(&options, true).await.unwrap();
+        let out = guarded.render(std::slice::from_ref(&page)).await;
+        guarded.close().await;
+        assert!(out.pages[&page].ok, "{:?}", out.pages[&page].error);
+        assert_eq!(hits.load(Ordering::SeqCst), 0, "with the guard nothing reaches the private address");
+    }
 }

@@ -20,10 +20,12 @@ pub(crate) enum Provider {
 }
 
 /// Picks and starts the provider before the crawl, so a missing Chrome fails the audit early.
-pub(crate) async fn prepare(options: &Options) -> Result<Option<Provider>> {
+/// `block_private` applies the fetcher's private-network rule to Chrome's requests too.
+#[cfg_attr(not(feature = "browser"), allow(unused_variables))]
+pub(crate) async fn prepare(options: &Options, block_private: bool) -> Result<Option<Provider>> {
     if options.browser {
         #[cfg(feature = "browser")]
-        return Ok(Some(Provider::Browser(Box::new(browser::Renderer::launch(options).await?))));
+        return Ok(Some(Provider::Browser(Box::new(browser::Renderer::launch(options, block_private).await?))));
     }
     let key = options.psi_key.clone().or_else(|| std::env::var("SITEVET_PSI_KEY").ok()).filter(|k| !k.is_empty());
     Ok(key.map(|k| Provider::Psi(psi::Psi::new(k, options.psi_max_pages as usize))))
