@@ -209,7 +209,7 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
 
 ### Progress events
 
-- **FR-EVENT-01 [Must]** Events: `AuditStart`, `PageFetched`, `CrawlComplete`, `RenderComplete`, `CheckComplete`, `PageComplete`, `AuditComplete`, with the same fields as the TS package events. Events after `CrawlComplete` carry progress against a known total.
+- **FR-EVENT-01 [Must]** Events: `AuditStart`, `PageFetched`, `CrawlComplete`, `PageRendered`, `RenderComplete`, `CheckComplete`, `PageComplete`, `AuditComplete`, with the same fields as the TS package events. `PageRendered` (per rendered page) is new in sitevet, added 2026-11-10. Events after `CrawlComplete` carry progress against a known total.
   _Acceptance:_ a fixture audit's event log matches the expected sequence and counts.
 - **FR-EVENT-02 [Must]** Events must be `Send` and serialisable, so an app can forward them across threads or over a channel.
   _Acceptance:_ a compile test sends events through a `std::sync::mpsc` channel and serialises one to JSON.
