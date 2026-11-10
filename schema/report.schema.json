@@ -18,6 +18,18 @@
         "$ref": "#/$defs/CategoryScore"
       }
     },
+    "changes": {
+      "description": "Changes against a baseline, when one was given.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReportDiff"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "duration_ms": {
       "type": "integer",
       "format": "uint64",
@@ -59,6 +71,7 @@
     "skipped_rules": {
       "description": "Rules that did not run, with the reason, e.g. \"needs browser or psi_key\".",
       "type": "array",
+      "default": [],
       "items": {
         "$ref": "#/$defs/SkippedRule"
       }
@@ -79,9 +92,47 @@
     "categories",
     "pages",
     "blocked",
-    "skipped_rules"
+    "skipped_rules",
+    "changes"
   ],
   "$defs": {
+    "BaselineRef": {
+      "description": "Which report the comparison is against.",
+      "type": "object",
+      "properties": {
+        "file": {
+          "description": "File path, when the baseline came from a JSON report file.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generated_at": {
+          "description": "When the baseline report was made.",
+          "type": "string"
+        },
+        "run_id": {
+          "description": "History run ID, when the baseline came from history.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "score": {
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        }
+      },
+      "required": [
+        "run_id",
+        "file",
+        "generated_at",
+        "score"
+      ]
+    },
     "BlockedUrl": {
       "type": "object",
       "properties": {
@@ -99,6 +150,38 @@
       "required": [
         "url",
         "rule"
+      ]
+    },
+    "CategoryChange": {
+      "type": "object",
+      "properties": {
+        "after": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        "before": {
+          "description": "None when the category did not run.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        "category": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "before",
+        "after"
       ]
     },
     "CategoryScore": {
@@ -193,6 +276,37 @@
         "evidence",
         "fix",
         "key"
+      ]
+    },
+    "FindingRef": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "rule_id",
+        "url",
+        "title",
+        "status",
+        "message"
       ]
     },
     "Metric": {
@@ -578,6 +692,64 @@
         "score",
         "findings",
         "metrics"
+      ]
+    },
+    "ReportDiff": {
+      "description": "What changed between a baseline report and a newer one.",
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "$ref": "#/$defs/BaselineRef"
+        },
+        "categories": {
+          "description": "Every category in either report, sorted by name.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CategoryChange"
+          }
+        },
+        "fixed": {
+          "description": "Findings failing or warning in the baseline that pass or are gone now.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingRef"
+          }
+        },
+        "new_failures": {
+          "description": "Findings failing or warning now that passed or did not exist in the baseline.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingRef"
+          }
+        },
+        "pages_added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pages_removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "score_change": {
+          "description": "Overall score, newer minus baseline.",
+          "type": "integer",
+          "format": "int16",
+          "maximum": 32767,
+          "minimum": -32768
+        }
+      },
+      "required": [
+        "baseline",
+        "score_change",
+        "categories",
+        "new_failures",
+        "fixed",
+        "pages_added",
+        "pages_removed"
       ]
     },
     "Severity": {

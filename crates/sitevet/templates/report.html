@@ -24,7 +24,7 @@
 {% if let Some(c) = v.changes %}
 <section aria-labelledby="changes-h" class="changes">
   <h2 id="changes-h">Changes since {{ c.baseline }}</h2>
-  <p><span class="delta {{ c.score_band }}">Score {{ c.score_change }}</span> {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.</p>
+  <p><span class="delta {{ c.score_band }}">Score change {{ c.score_change }}</span> {{ c.fixed.len() }} fixed, {{ c.new_failures.len() }} new {% if c.new_failures.len() == 1 %}issue{% else %}issues{% endif %}, {{ c.pages_added }} pages added, {{ c.pages_removed }} removed.</p>
   {% if !c.categories.is_empty() %}
   <div class="table-wrap"><table>
     <thead><tr><th scope="col">Category</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
