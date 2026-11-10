@@ -1,11 +1,11 @@
 ---
 id: "spawn-spike-from-a-non-tokio-executor-2026-11-10"
-status: "todo"
+status: "in-progress"
 priority: "critical"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-10T08:20:43.000Z"
+modified: "2026-11-10T08:23:45.000Z"
 labels: ["m0"]
 order: 3
 ---
