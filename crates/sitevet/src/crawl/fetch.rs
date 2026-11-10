@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use reqwest::header::{CONTENT_TYPE, HeaderMap, LOCATION, USER_AGENT};
+use reqwest::header::{ACCEPT_ENCODING, CONTENT_ENCODING, CONTENT_TYPE, HeaderMap, LOCATION, USER_AGENT};
 use reqwest::{Method, StatusCode};
 use tokio::sync::Semaphore;
 use url::Url;
@@ -67,7 +67,13 @@ impl Fetcher {
         timeout: Duration,
         block_private: bool,
     ) -> reqwest::Result<Self> {
+        // Decoding is done here, not by reqwest: its decoder drops Content-Encoding, which
+        // performance/text-compression needs to see.
         let client = reqwest::Client::builder()
+            .no_gzip()
+            .no_brotli()
+            .no_zstd()
+            .no_deflate()
             .redirect(reqwest::redirect::Policy::none())
             .timeout(timeout)
             .dns_resolver(Arc::new(GuardedResolver { block_private }))
@@ -147,7 +153,13 @@ impl Fetcher {
         let _external = if url.origin() == self.origin { None } else { Some(self.external.acquire().await) };
         self.wait_turn(&host).await;
         let started = Instant::now();
-        let res = self.client.request(method.clone(), url.clone()).header(USER_AGENT, &self.user_agent).send().await;
+        let res = self
+            .client
+            .request(method.clone(), url.clone())
+            .header(USER_AGENT, &self.user_agent)
+            .header(ACCEPT_ENCODING, "gzip, br, zstd, deflate")
+            .send()
+            .await;
         let status = res.as_ref().map_or(0, |r| r.status().as_u16());
         tracing::debug!(%method, url = %redact(url), status, ms = started.elapsed().as_millis() as u64, "request");
         res
@@ -218,21 +230,36 @@ pub(crate) fn is_html(content_type: Option<&str>) -> bool {
     })
 }
 
-/// Reads decoded bytes up to `cap`. Decoded, so a compressed bomb stops at the cap too.
-async fn read_capped(mut res: reqwest::Response, cap: usize) -> Result<(Vec<u8>, bool), String> {
+/// Reads up to `cap` decoded bytes. Decoding happens before the cap, so a compressed bomb stops
+/// at the cap too.
+async fn read_capped(res: reqwest::Response, cap: usize) -> Result<(Vec<u8>, bool), String> {
+    use async_compression::tokio::bufread::{BrotliDecoder, GzipDecoder, ZlibDecoder, ZstdDecoder};
+    use futures::TryStreamExt;
+    use tokio::io::{AsyncRead, AsyncReadExt};
+
     let mut out = Vec::new();
     if cap == 0 {
         return Ok((out, false));
     }
-    while let Some(chunk) = res.chunk().await.map_err(describe)? {
-        let room = cap - out.len();
-        if chunk.len() > room {
-            out.extend_from_slice(&chunk[..room]);
-            return Ok((out, true));
-        }
-        out.extend_from_slice(&chunk);
-    }
-    Ok((out, false))
+    let encoding =
+        res.headers().get(CONTENT_ENCODING).and_then(|v| v.to_str().ok()).unwrap_or("").trim().to_ascii_lowercase();
+    let stream = res.bytes_stream().map_err(std::io::Error::other);
+    let raw = tokio_util::io::StreamReader::new(stream);
+    let mut body: std::pin::Pin<Box<dyn AsyncRead + Send>> = match encoding.as_str() {
+        "gzip" | "x-gzip" => Box::pin(GzipDecoder::new(raw)),
+        "br" => Box::pin(BrotliDecoder::new(raw)),
+        "zstd" => Box::pin(ZstdDecoder::new(raw)),
+        "deflate" => Box::pin(ZlibDecoder::new(raw)),
+        _ => Box::pin(raw),
+    };
+    (&mut body)
+        .take(cap as u64 + 1)
+        .read_to_end(&mut out)
+        .await
+        .map_err(|e| format!("could not read the body: {e}"))?;
+    let truncated = out.len() > cap;
+    out.truncate(cap);
+    Ok((out, truncated))
 }
 
 /// The URL without its query string, for logs.

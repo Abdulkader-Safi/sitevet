@@ -172,8 +172,12 @@ impl Respond for Responder {
         let Some(route) = self.site.routes.get(&path) else {
             return ResponseTemplate::new(404).set_body_raw("<h1>Not found</h1>", "text/html");
         };
-        let body = String::from_utf8_lossy(&route.body).replace("{{origin}}", &self.origin);
-        let mut res = ResponseTemplate::new(route.status).set_body_bytes(body.into_bytes()).set_delay(route.delay);
+        // Text bodies get {{origin}} filled in; binary ones (compressed) go out as they are.
+        let body = match std::str::from_utf8(&route.body) {
+            Ok(text) => text.replace("{{origin}}", &self.origin).into_bytes(),
+            Err(_) => route.body.clone(),
+        };
+        let mut res = ResponseTemplate::new(route.status).set_body_bytes(body).set_delay(route.delay);
         for (k, v) in &route.headers {
             res = res.insert_header(k.as_str(), v.as_str());
         }

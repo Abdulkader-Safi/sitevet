@@ -203,3 +203,35 @@ async fn oversized_html_is_truncated() {
     assert!(report.pages[0].truncated);
     assert_eq!(report.pages[0].html_bytes, 10 * 1024 * 1024);
 }
+
+async fn gzip(data: &[u8]) -> Vec<u8> {
+    use tokio::io::AsyncReadExt;
+    let mut out = Vec::new();
+    async_compression::tokio::bufread::GzipEncoder::new(data).read_to_end(&mut out).await.unwrap();
+    out
+}
+
+/// Compressed pages decode, the compression rule sees Content-Encoding, and a decompression
+/// bomb stops at the 10 MB cap.
+#[tokio::test]
+async fn gzip_bodies_decode_and_bombs_stop_at_the_cap() {
+    let html = "<title>Compressed page</title><h1>Hello</h1>";
+    let mut page = Route::html("");
+    page.body = gzip(html.as_bytes()).await;
+    page.headers.push(("content-encoding".into(), "gzip".into()));
+    let mut bomb = Route::html("");
+    bomb.body = gzip(&vec![b'a'; 20 * 1024 * 1024]).await;
+    bomb.headers.push(("content-encoding".into(), "gzip".into()));
+    assert!(bomb.body.len() < 100_000, "20 MB of 'a' compresses small");
+    let fx = Fixture::start(Site::new().route("/", page).route("/bomb", bomb)).await;
+
+    let report = audit(&fx.url("/"), Options::default()).await.unwrap();
+    let p = &report.pages[0];
+    assert!(p.findings.iter().any(|f| f.rule_id == "core-seo/title-present" && f.status == sitevet::Status::Pass));
+    let compression = p.findings.iter().find(|f| f.rule_id == "performance/text-compression").unwrap();
+    assert_eq!(compression.message, "Compressed (gzip)");
+
+    let report = audit(&fx.url("/bomb"), Options::default()).await.unwrap();
+    assert!(report.pages[0].truncated);
+    assert_eq!(report.pages[0].html_bytes, 10 * 1024 * 1024);
+}
