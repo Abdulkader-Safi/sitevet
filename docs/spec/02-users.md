@@ -1,6 +1,6 @@
 # Users and usage
 
-Status: draft
+Status: signed off 2026-11-10
 
 Two primary users with equal weight: the developer who embeds the crate, and the person who runs the CLI. When a choice helps one and hurts the other, the tie-breaker is the rule from stage 1: the CLI is a thin wrapper over the library, so the library API gets designed first and the CLI exposes it without adding behaviour of its own.
 
@@ -96,8 +96,8 @@ Two primary users, so two short journeys.
 ## Language and accessibility
 
 - **Report language:** English only in v1, for the HTML report, the Markdown report, rule messages, fix text and CLI output. Each rule keeps its message and fix text in one place so translation can come later, and consumers can translate on their side using stable rule IDs.
-- **Page content analysis:** the text engine (stop words, readability, keyword tables) supports English only. For pages in any other language, including Arabic, it reports language-neutral numbers (word count, characters, n-grams without stop-word filtering) and marks readability as "not supported for this language" instead of returning a wrong score.
-- **RTL content in reports:** the HTML report itself is English and left-to-right, but any text quoted from an Arabic page (evidence, titles, headings, link anchors) must display in the right direction (`dir="auto"` on quoted content) and never break the layout.
+- **Page content analysis:** sitevet audits a website in any language. Every rule and the text engine work on any page, whatever its language. The page language comes from `<html lang>`, falling back to detection from the text. Tokenizing is Unicode-aware, so Arabic, Cyrillic, Greek and other non-Latin scripts count words correctly. Stop words and word grouping (stemming) cover as many languages as the chosen libraries support, with English and Arabic as the tested minimum. Readability uses a published formula for the page language where one exists. For a language without one, the report shows language-neutral numbers (average sentence and word length) and labels the formula as "not available for this language" instead of returning a wrong score.
+- **RTL content in reports:** the HTML report itself is English and left-to-right, but any text quoted from a right-to-left page (Arabic, Hebrew, Persian, Urdu) (evidence, titles, headings, link anchors) must display in the right direction (`dir="auto"` on quoted content) and never break the layout.
 - **Accessibility of the HTML report:** WCAG 2.2 AA. Status is never shown by colour alone (text label next to every colour), headings in order, readable at 200% zoom.
 - **CLI accessibility:** respects `NO_COLOR`, uses status words (PASS, FAIL, WARN) as well as colour, and has a plain non-animated output mode for screen readers and CI logs.
 - **Formats:** dates in ISO 8601 (`2026-11-10`), durations in ms or s, sizes in KB with one decimal.
@@ -106,14 +106,14 @@ Two primary users, so two short journeys.
 
 ### Open questions
 
-1. Lina's install path: is a shell installer plus GitHub Releases binaries enough for v1, or is Homebrew a Must? : recommend Homebrew as a Should, shell installer and Releases as Must.
-2. Cancellation: should dropping the audit future or stream stop all work within one second, as Omar's job above assumes? : recommend yes, with a target of under one second.
-3. Arabic content: the text engine is English only, so Arabic client pages get basic stats only. Fine for v1? : recommend yes, as you chose. Arabic stop words are a small later add.
+None.
 
 ### Assumptions confirmed
 
 1. **Primary users : RESOLVED.** Library developer and CLI user are equal primaries. Ties go to library-first design, with the CLI as a thin wrapper.
 2. **Report language : RESOLVED.** English only in v1. Messages kept per rule so translation can come later.
-3. **Content language : RESOLVED.** Text analysis supports English only. Other languages get language-neutral stats.
+3. **Content language : RESOLVED.** The tool's own text is English, but it audits websites in any language. Text analysis adapts to the page language, and only readability falls back to neutral numbers where no formula exists for that language.
 4. **Not the target : RESOLVED.** Non-technical site owners (served by GUI apps built on the crate), and SEO teams wanting rank or backlink data.
 5. **Accounts : RESOLVED.** None. Single-user local tool.
+6. **Install path : RESOLVED.** Shell installer and GitHub Releases binaries are Must. Homebrew tap is Should.
+7. **Cancellation : RESOLVED.** Dropping or cancelling an audit stops all network and browser work in under one second.
