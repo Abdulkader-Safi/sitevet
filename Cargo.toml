@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/sitevet", "crates/sitevet-cli"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.89"
 license = "MIT"
@@ -11,7 +11,7 @@ repository = "https://github.com/Abdulkader-Safi/sitevet"
 authors = ["Abdulkader Safi"]
 
 [workspace.dependencies]
-sitevet = { path = "crates/sitevet", version = "0.2.0" }
+sitevet = { path = "crates/sitevet", version = "0.2.1" }
 async-channel = "2.5"
 futures = "0.3"
 quick-xml = "0.42"
