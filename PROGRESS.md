@@ -7,12 +7,51 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | Milestone      | Status                                   |
 | -------------- | ---------------------------------------- |
 | M0 de-risk     | Done. Safi gave the go on 2026-11-10       |
-| M1 engine core | In progress                              |
+| M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 to M14      | Not started                              |
+
+## M1: engine core
+
+Workspace `crates/sitevet` and `crates/sitevet-cli`, MSRV 1.88. CI (`.github/workflows/ci.yml`): fmt, clippy with `-D warnings`, tests on Linux, macOS and Windows, a check on Rust 1.88, cargo deny.
+
+CI run 42813274176 passed every job: fmt, clippy, tests on all three OSes, the 1.88 check and cargo deny.
+
+Tests: 11 unit tests, 19 integration tests (`tests/crawl.rs`, `tests/engine.rs`, `tests/spawn.rs`) and 2 doc tests, all offline against local wiremock fixture servers.
+
+### Acceptance boxes
+
+`06-build-spec.md` is never edited by hand, so the ticks live here and on the cards.
+
+- [x] FR-API-01: 3 linked pages, score 0 to 100, findings and metrics per page. Uses test rules and a test collector; the built-in rules arrive in M2.
+- [x] FR-API-02: event order, then the streamed report equals `audit`'s (timings aside).
+- [x] FR-API-03: cancel, stream drop and `audit` future drop on a slow 100-page site leave 0 open connections within 1 s. The "no Chromium process" half is checked again in M4.
+- [ ] FR-API-04: the TOML half passes. The flags half needs the CLI (M3).
+- [x] FR-API-06: `spawn` from `futures::executor` with no tokio context gets every event and the report, and cancel and drop stop it within 1 s.
+- [x] FR-CRAWL-01, FR-CRAWL-02, FR-CRAWL-03, FR-CRAWL-04, FR-CRAWL-05, FR-CRAWL-06, FR-CRAWL-07, FR-CRAWL-08, FR-CRAWL-09, FR-CRAWL-11.
+- [x] FR-EVENT-01, FR-EVENT-02.
+
+### Decisions made in M1
+
+None of these swaps a stack choice.
+
+- Report and PageData fields arrive with the milestone that fills them. M1 has no `site`, `skipped_rules`, `changes`, `language` or `screenshots` yet, and PageData holds the DOM reads the crawl and the M2 rules need (title, meta, canonical, headings, links, images, scripts, stylesheets, text). The `Error` enum gets its browser and history variants in M4 and M5. All public types are `#[non_exhaustive]`, so adding them later is not breaking.
+- Pages listed only in the sitemap are queued right after the start page at depth 1, so `PageResult.depth` for them is 1. The click depth table in M8 comes from the link graph, not from this number.
+- A response that is not HTML (by `Content-Type`; a missing one counts as HTML) is not audited as a page. Its status still goes into the link checker's cache. A non-HTML start page is `Error::NotHtml`.
+- Sitemaps: 50,000 URLs in total across all files, not only per file, so a large sitemap index cannot pull in millions of URLs.
+- The robots.txt rule shown for a blocked URL is a label: the longest `Disallow` pattern that matches, without checking which agent group it sits in. The decision itself comes from texting_robots.
+- A page that fails to fetch (not the start page) still runs every rule, on empty content, so M2 rules can report its status. A rule that panics gives an `info` finding "rule crashed: ..." (the spec's wording; the TS package used `warn`).
+- `score_findings` and `compute_overall` are ported now because `PageComplete` needs a page score. The ported TS scoring tests come with M2 (FR-SCORE-01).
+- `allow_private_network` is `Option<bool>`: unset means "allowed when the start URL is private", the spec's dynamic default.
+- The `browser`, `history` and `media` features are declared (empty) so `Options::validate` can say which feature a setting needs.
+- `rustfmt.toml` sets 120 columns. Clippy allows `field_reassign_with_default`, since `#[non_exhaustive]` options can only be built by setting fields after `Options::default()`.
+
+### Open items for Safi
+
+- Character sets. Page bodies are decoded as UTF-8, with invalid bytes replaced. A page in Windows-1252 or Shift_JIS will have garbled text, which matters for the text engine in M6. Decoding other charsets needs a crate such as `encoding_rs` (reqwest's `charset` feature uses it), and that is a stack addition. Add it now, in M6, or not at all?
 
 ## M0: de-risk
 
-Spike code lives in `spikes/` (its own cargo package, outside the future workspace). CI runs it on three OSes through `.github/workflows/m0-spikes.yml`. Local numbers come from an M-series Mac (macOS, arm64). CI numbers come from GitHub's `ubuntu-latest`, `macos-latest` and `windows-latest` runners, over 3 pushes and 1 manual run on 2026-11-10.
+Spike code lived in `spikes/` (its own cargo package) and ran on three OSes through `.github/workflows/m0-spikes.yml`. M1 removed both; they are in git history up to commit `e920df2`. Local numbers come from an M-series Mac (macOS, arm64). CI numbers come from GitHub's `ubuntu-latest`, `macos-latest` and `windows-latest` runners, over 3 pushes and 1 manual run on 2026-11-10.
 
 Verdict: go. Every exit criterion is met, so stage 4 needs no change.
 

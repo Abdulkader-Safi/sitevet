@@ -8,7 +8,20 @@ It ships two ways from one codebase:
 - A CLI. `sitevet audit https://example.com` for a quick check in the terminal, or with `--fail-under 85` as a CI step that fails when the score drops.
 
 > [!NOTE]
-> sitevet is in the spec phase. No code is published yet, and the commands below show the planned interface, not a working one. The spec lives in [`docs/spec/`](./docs/spec/).
+> sitevet is under construction and nothing is published yet. Build progress is in [`PROGRESS.md`](./PROGRESS.md) and the spec in [`docs/spec/`](./docs/spec/).
+
+## What works today
+
+The library's engine core:
+
+- A breadth-first crawl of same-origin pages with page and depth limits, per-host concurrency, an optional per-host delay, manual redirects and size caps.
+- robots.txt obeyed by default, with blocked URLs listed in the report. Sitemaps (and sitemap indexes) seed the crawl.
+- A shared link checker that requests each URL once per audit.
+- Private-network blocking when the start URL is public.
+- Three entry points: `audit()`, `audit_stream()` with typed progress events, and `spawn()` for apps that don't run tokio.
+- The rule and collector traits, so your own rules already run and score.
+
+Planned: the 94 built-in rules (next milestone), the CLI, HTML and Markdown reports, run history, the browser stage and everything listed below.
 
 ## Where it comes from
 
@@ -29,23 +42,23 @@ On top of that, v1 plans to ship:
 
 Every page gets two kinds of output. Findings are verdicts (pass, fail, warn) with the offending markup as evidence, and they move the score. Measurements are numbers and tables, like title length or the full heading outline, and they never touch the score.
 
-## Planned usage
+## Usage
 
-As a library:
+As a library (works today, with no built-in rules yet):
 
 ```rust
-let report = sitevet::audit("https://example.com", Options::default()).await?;
-println!("{}", report.score);
+let report = sitevet::audit("https://example.com", sitevet::Options::default()).await?;
+println!("{} pages, score {}", report.pages.len(), report.score);
 ```
 
-From the terminal:
+From the terminal (planned, not built yet):
 
 ```bash
 cargo install sitevet-cli
 sitevet audit https://example.com --format html --out report.html
 ```
 
-Settings can live in an optional `sitevet.toml`. Its keys match the library options one to one, and command-line flags override it.
+Settings can live in an optional `sitevet.toml` (`Options::from_toml_str` reads it today). Its keys match the library options one to one, and command-line flags override it.
 
 ## License
 
