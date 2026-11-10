@@ -1,0 +1,35 @@
+{
+  "kind": "pagespeedonline#result",
+  "id": "https://example.com/",
+  "lighthouseResult": {
+    "lighthouseVersion": "12.6.0",
+    "audits": {
+      "server-response-time": { "id": "server-response-time", "title": "Initial server response time was short", "score": 1, "numericValue": 412.4 },
+      "interactive": { "id": "interactive", "title": "Time to Interactive", "score": 0.7, "numericValue": 5120.8 },
+      "largest-contentful-paint": { "id": "largest-contentful-paint", "title": "Largest Contentful Paint", "score": 0.6, "numericValue": 3180.2 },
+      "cumulative-layout-shift": { "id": "cumulative-layout-shift", "title": "Cumulative Layout Shift", "score": 0.9, "numericValue": 0.0613 },
+      "dom-size": { "id": "dom-size", "title": "Avoids an excessive DOM size", "score": 1, "numericValue": 742 },
+      "network-requests": { "id": "network-requests", "title": "Network Requests", "score": null, "numericValue": 38 },
+      "total-byte-weight": { "id": "total-byte-weight", "title": "Avoids enormous network payloads", "score": 1, "numericValue": 1284331 },
+      "label": { "id": "label", "title": "Form elements do not have associated labels", "description": "Labels ensure that form controls are announced properly by assistive technologies.", "score": 0, "scoreDisplayMode": "binary" },
+      "image-alt": { "id": "image-alt", "title": "Image elements have `[alt]` attributes", "description": "Informative elements should aim for short, descriptive alternate text.", "score": 1, "scoreDisplayMode": "binary" },
+      "html-has-lang": { "id": "html-has-lang", "title": "`<html>` element has a `[lang]` attribute", "description": "Screen readers need a language.", "score": 1, "scoreDisplayMode": "binary" },
+      "video-caption": { "id": "video-caption", "title": "`<video>` elements contain a `<track>` element", "description": "Captions make video usable.", "score": null, "scoreDisplayMode": "notApplicable" },
+      "logical-tab-order": { "id": "logical-tab-order", "title": "The page has a logical tab order", "description": "Check by hand.", "score": null, "scoreDisplayMode": "manual" }
+    },
+    "categories": {
+      "performance": { "id": "performance", "score": 0.71 },
+      "accessibility": {
+        "id": "accessibility",
+        "score": 0.88,
+        "auditRefs": [
+          { "id": "label", "weight": 7 },
+          { "id": "image-alt", "weight": 10 },
+          { "id": "html-has-lang", "weight": 7 },
+          { "id": "video-caption", "weight": 0 },
+          { "id": "logical-tab-order", "weight": 0 }
+        ]
+      }
+    }
+  }
+}
