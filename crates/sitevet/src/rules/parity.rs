@@ -288,8 +288,9 @@ fn link_table_is_capped_with_the_true_total() {
 #[test]
 fn contributing_example_matches_the_source() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    let guide = std::fs::read_to_string(root.join("../../CONTRIBUTING.md")).unwrap();
-    let source = std::fs::read_to_string(root.join("src/rules/core_seo.rs")).unwrap();
+    // Windows checkouts may carry CRLF line endings.
+    let read = |p: &str| std::fs::read_to_string(root.join(p)).unwrap().replace("\r\n", "\n");
+    let (guide, source) = (read("../../CONTRIBUTING.md"), read("src/rules/core_seo.rs"));
     let blocks: Vec<&str> = guide.split("```rust\n").skip(1).map(|b| b.split("```").next().unwrap_or("")).collect();
     assert_eq!(blocks.len(), 3);
     for block in blocks {
