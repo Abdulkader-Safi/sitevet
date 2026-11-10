@@ -1,6 +1,6 @@
 //! `sitevet audit <url>`
 
-use std::io::Write;
+use std::io::{IsTerminal, Write};
 use std::process::ExitCode;
 
 use anstream::eprintln;
@@ -96,9 +96,17 @@ async fn audit(url: &str, options: sitevet::Options, quiet: bool) -> anyhow::Res
         eprintln!("crawling...");
     }
     let mut stream = sitevet::audit_stream(url, options);
+    let mut status = StatusLine { live: !quiet && std::io::stderr().is_terminal(), shown: false };
     while let Some(event) = stream.next().await {
         if quiet {
             continue;
+        }
+        match &event {
+            AuditEvent::PageFetched { url, index, .. } => status.set(&format!("crawled {index}  {url}")),
+            AuditEvent::PageRendered { url, index, pages, .. } => {
+                status.set(&format!("rendered {index}/{pages}  {url}"))
+            }
+            _ => status.clear(),
         }
         match event {
             AuditEvent::RenderComplete { provider, rendered, pages, .. } => {
@@ -117,7 +125,33 @@ async fn audit(url: &str, options: sitevet::Options, quiet: bool) -> anyhow::Res
             _ => {}
         }
     }
+    status.clear();
     Ok(stream.final_report().await?)
+}
+
+/// A progress line that rewrites itself, for the crawl and render stages, which otherwise
+/// print nothing for minutes. Terminal only: logs get the per-page lines alone.
+struct StatusLine {
+    live: bool,
+    shown: bool,
+}
+
+impl StatusLine {
+    fn set(&mut self, text: &str) {
+        if self.live {
+            // ponytail: fixed width, so a long URL never wraps and breaks the rewrite.
+            let text: String = text.chars().take(76).collect();
+            std::eprint!("\r\x1b[2K{text}");
+            self.shown = true;
+        }
+    }
+
+    fn clear(&mut self) {
+        if self.shown {
+            std::eprint!("\r\x1b[2K");
+            self.shown = false;
+        }
+    }
 }
 
 fn summary(report: &AuditReport, out: Option<&std::path::Path>, run_id: Option<i64>) {

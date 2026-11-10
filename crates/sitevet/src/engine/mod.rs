@@ -13,8 +13,8 @@ use tokio_util::sync::CancellationToken;
 use crate::report::{AuditReport, Status};
 use crate::{Error, Options, Result};
 
-/// Progress of one audit, in order: `AuditStart`, a `PageFetched` per page, `RenderComplete`
-/// when a rendering provider ran, `CrawlComplete`,
+/// Progress of one audit, in order: `AuditStart`, a `PageFetched` per page, a `PageRendered` per
+/// rendered page and `RenderComplete` when a rendering provider ran, `CrawlComplete`,
 /// then `CheckComplete` and `PageComplete` as pages finish, and `AuditComplete` with the report.
 /// Events after `CrawlComplete` count against a known total.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,6 +36,15 @@ pub enum AuditEvent {
         pages: u32,
         checks_total: u32,
         ms: u64,
+    },
+    /// One per page the browser or PageSpeed Insights finished, after the crawl and before
+    /// `RenderComplete`. `index` counts up to `pages`; after a browser restart it steps
+    /// back to the pages kept and counts the retried ones again.
+    PageRendered {
+        url: String,
+        ok: bool,
+        index: u32,
+        pages: u32,
     },
     /// After the crawl, when the browser or PageSpeed Insights ran. `provider` is "browser" or "psi".
     RenderComplete {
@@ -71,7 +80,7 @@ pub enum AuditEvent {
 
 /// Where the engine sends events. Bounded, so a slow reader slows the audit instead of
 /// growing memory. A reader that went away is ignored.
-pub(crate) struct Events(Option<async_channel::Sender<AuditEvent>>);
+pub(crate) struct Events(pub(crate) Option<async_channel::Sender<AuditEvent>>);
 
 impl Events {
     pub(crate) async fn send(&self, event: AuditEvent) {

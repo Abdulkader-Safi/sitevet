@@ -172,12 +172,13 @@ The extraction struct every post-DOM stage reads. Fields: url, final URL, status
 | AuditStart     | url, max_pages                                        |
 | PageFetched    | url, status, depth, index (1-based), ms               |
 | CrawlComplete  | pages, checks_total, ms                               |
+| PageRendered   | url, ok, index (1-based), pages                       |
 | RenderComplete | provider (browser or psi), rendered, pages, ms        |
 | CheckComplete  | url, rule_id, status, checks_done, checks_total       |
 | PageComplete   | url, index, pages_total, score, findings, metrics, ms |
 | AuditComplete  | score, pages, checks, ms, report (boxed)              |
 
-Same names and fields as the TS events, in snake_case. All variants are `Send + Clone + Serialize` (FR-EVENT-02).
+Same names and fields as the TS events, in snake_case. `PageRendered` is sitevet's own (added 2026-11-10 for 0.2.2): one per page the browser or PageSpeed Insights finished, so a long rendered stage shows progress. All variants are `Send + Clone + Serialize` (FR-EVENT-02).
 
 ### History run (SQLite)
 
@@ -324,7 +325,7 @@ sitevet has two visible surfaces: CLI terminal output and the HTML report.
 
 - Crawl: triggered by any entry point. Breadth-first queue, `concurrency` permits per host, delay per host. Emits `PageFetched` per page and `CrawlComplete` with totals. Retries: one retry on connection reset or 502/503/504 with a 1 s wait, none on 4xx. Failure on the start URL is an error, elsewhere a page result.
 - Link checking: HEAD first, GET on 405 or 501, at most `concurrency` per host, 10 redirects max, results cached per URL for the audit. External links share a global cap of 20 in flight.
-- Rendered stage: one browser per audit, one tab per page, up to 2 tabs at once (pages are heavy). Per-page timeout of 30 s. A crashed tab becomes a page finding, a crashed browser is restarted once, then the stage is marked failed and its rules are skipped with that reason. Emits `RenderComplete`.
+- Rendered stage: one browser per audit, one tab per page, up to 2 tabs at once (pages are heavy). Per-page timeout of 30 s. A crashed tab becomes a page finding, a crashed browser is restarted once, then the stage is marked failed and its rules are skipped with that reason. Emits `PageRendered` per page, then `RenderComplete`.
 - PSI: 4 requests in flight, 60 s timeout each, retry once after `Retry-After` on 429, then a skipped-with-reason result.
 - Media probes: ranged GET, 8 in flight, stop at `media_max_requests`.
 - Site-wide analysis: runs once after all pages finish. CPU-bound, so it runs in `spawn_blocking`.

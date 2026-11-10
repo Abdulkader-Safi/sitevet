@@ -76,11 +76,18 @@ rule!(
     "Update or remove external links that no longer resolve.",
     |cx| {
         let (n, bad) = broken(cx, |l| !l.internal && l.url.as_deref().is_some_and(is_http));
-        if bad.is_empty() {
+        // 999 is LinkedIn's answer to automated requests, not a dead link: report it, unscored.
+        let (refused, bad): (Vec<_>, Vec<_>) = bad.into_iter().partition(|(_, s)| *s == 999);
+        if bad.is_empty() && refused.is_empty() {
             return vec![R::pass(format!("All {n} external links OK"))];
         }
+        let refused = refused.into_iter().map(|(u, _)| {
+            R::new(Status::Info, "External link could not be checked (999: the site turns away automated requests)")
+                .with_evidence(u)
+        });
         bad.into_iter()
             .map(|(u, s)| R::new(Status::Warn, format!("Broken external link ({})", status_text(s))).with_evidence(u))
+            .chain(refused)
             .collect()
     }
 );
@@ -146,7 +153,7 @@ dom_rule!(
 
 #[cfg(test)]
 mod tests {
-    use crate::Status::{Fail, Pass, Warn};
+    use crate::Status::{Fail, Info, Pass, Warn};
     use crate::rules::testkit::page;
 
     #[test]
@@ -164,6 +171,10 @@ mod tests {
         let mut down = page(html);
         down.link_status = vec![("https://other.test/x".into(), 0)];
         assert_eq!(down.message("links/broken-external"), "Broken external link (no response)");
+        let mut linkedin = page(html);
+        linkedin.link_status = vec![("https://other.test/x".into(), 999)];
+        assert_eq!(linkedin.status("links/broken-external"), Info);
+        assert!(linkedin.message("links/broken-external").starts_with("External link could not be checked (999"));
     }
 
     #[test]

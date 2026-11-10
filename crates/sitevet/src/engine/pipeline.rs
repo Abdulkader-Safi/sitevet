@@ -154,7 +154,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
         Some(mut p) => {
             let render_started = Instant::now();
             let urls: Vec<String> = crawled.pages.iter().map(|(page, _)| page.url.clone()).collect();
-            let out = p.render(&urls).await;
+            let out = p.render(&urls, events).await;
             let name = p.name();
             p.close().await;
             events

@@ -137,7 +137,7 @@ Full tables in stage 5. Conventions: snake_case JSON, RFC 3339 UTC times, intege
 - Metric : ID, category, label, optional status, note, and a value (with unit) or a table (columns, rows capped at 25, total).
 - SiteResult : site findings (each with affected URLs) and site metrics.
 - PageData (internal) : everything extracted from one page's DOM, plus rendered data when that stage runs.
-- AuditEvent : AuditStart, PageFetched, CrawlComplete, RenderComplete, CheckComplete, PageComplete, AuditComplete (with the report). `Send + Clone + Serialize`.
+- AuditEvent : AuditStart, PageFetched, CrawlComplete, PageRendered, RenderComplete, CheckComplete, PageComplete, AuditComplete (with the report). `Send + Clone + Serialize`.
 - History run : SQLite `runs` table with integer ID, URL, origin, start time, duration, pages, score, versions, options JSON, zstd report blob. `PRAGMA user_version` for migrations.
 - ReportDiff : baseline reference, score change (overall, per category), new failures, fixed findings, pages added and removed.
 - Bundled data : fingerprint signatures, authoritative domain list, axe-core, report CSS.
