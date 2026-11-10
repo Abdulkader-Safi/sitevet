@@ -55,4 +55,6 @@ Commit after each step: each signed-off spec stage, each task card moved to `don
 
 ## Writing
 
+Keep `README.md` current as features land: it says what works today, and marks anything planned as planned. The GPUI desktop app is a separate, standalone repo: don't mention it in this repo's README or code.
+
 Use the `ai-writing-rules:anti-ai-writing` skill for every doc, the README, spec files and user-facing strings. Short version: no em dashes, straight quotes, sentence case headings, no filler vocabulary, specific over generic.
