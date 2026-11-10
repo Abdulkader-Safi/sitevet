@@ -1,0 +1,22 @@
+---
+id: "page-type-hint-2026-11-10"
+status: "todo"
+priority: "low"
+assignee: null
+dueDate: null
+created: "2026-11-10T08:20:43.000Z"
+modified: "2026-11-10T08:20:43.000Z"
+labels: ["m7"]
+order: 6
+---
+
+# Page-type hint
+
+Should.
+
+## Requirements
+
+- [ ] FR-AEO-07 [Should]: Page-type hint: the page purpose (article, product, local business, home, contact) inferred from schema and structure.
+  Acceptance: the article fixture is labelled article.
+
+Spec: `docs/spec/06-build-spec.md`, section 8.
