@@ -174,10 +174,10 @@ async fn main() {
         r = browser.new_page(slow_url) => checks.add("cancel", false, format!("slow page finished early: {:?}", r.is_ok())),
         _ = cancel.cancelled() => {
             let t = Instant::now();
-            // Polite close first, hard kill if it takes longer than 300 ms.
-            // SPIKE_HARD_KILL=1 skips the polite close to test the kill path.
-            let hard = std::env::var("SPIKE_HARD_KILL").is_ok();
-            let closed = !hard && tokio::time::timeout(Duration::from_millis(300), browser.close()).await.is_ok_and(|r| r.is_ok());
+            // Cancel policy: hard kill (the profile is throwaway). SPIKE_POLITE_CLOSE=1
+            // tries Browser.close for up to 300 ms first, for comparison.
+            let polite = std::env::var("SPIKE_POLITE_CLOSE").is_ok();
+            let closed = polite && tokio::time::timeout(Duration::from_millis(300), browser.close()).await.is_ok_and(|r| r.is_ok());
             if !closed {
                 browser.kill().await;
             } else {

@@ -33,13 +33,17 @@ jobs:
           esac
       - run: ./fetch-axe.sh
       - run: cargo build --release --bins
-      - name: browser spike (polite close)
+      - name: browser spike (hard kill, the cancel policy)
         run: cargo run --release --bin browser
-      - name: browser spike (hard kill)
-        run: SPIKE_HARD_KILL=1 cargo run --release --bin browser
+      - name: browser spike (polite close, for comparison)
+        if: always()
+        continue-on-error: true
+        run: SPIKE_POLITE_CLOSE=1 cargo run --release --bin browser
       - name: spawn spike
+        if: always()
         run: cargo run --release --bin spawn
       - name: memory spike
+        if: always()
         run: cargo run --release --bin memory -- 1000
       - uses: actions/upload-artifact@v4
         if: always()
