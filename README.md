@@ -19,13 +19,15 @@ The library and the `sitevet` command, built from this repo (not yet on crates.i
 - A shared link checker that requests each URL once per audit.
 - Private-network blocking when the start URL is public.
 - Three entry points: `audit()`, `audit_stream()` with typed progress events, and `spawn()` for apps that don't run tokio.
-- The 94 rules ported from the TypeScript package, with the same IDs, severities and scoring. 87 run today; the accessibility rule and 6 Core Web Vitals rules need the browser stage, which is planned.
+- The 94 rules ported from the TypeScript package, with the same IDs, severities and scoring.
+- Rendered checks with `--browser` (your installed Chrome or Chromium): an axe-core accessibility pass and Core Web Vitals per page. Without Chrome, a PageSpeed Insights key (`SITEVET_PSI_KEY`) fills the same checks for the first 5 pages. With neither, those 7 rules are listed as skipped and don't touch the score.
+- `--render-crawl` to find links that only exist after JavaScript runs.
 - Per-page measurements (title and description lengths, link and heading tables, Open Graph and Twitter tags, directives, dates) that never touch the score.
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
 
-Planned: release 0.1.0 on crates.io with prebuilt binaries, run history, the browser stage and everything listed below.
+Planned: release 0.1.0 on crates.io with prebuilt binaries, run history and everything listed below.
 
 ## Where it comes from
 
@@ -48,7 +50,7 @@ Every page gets two kinds of output. Findings are verdicts (pass, fail, warn) wi
 
 ## Usage
 
-As a library (works today):
+As a library (works today; enable the `browser` feature for rendered checks):
 
 ```rust
 let report = sitevet::audit("https://example.com", sitevet::Options::default()).await?;
@@ -60,6 +62,7 @@ From the terminal, after `cargo install --path crates/sitevet-cli` (crates.io an
 ```bash
 sitevet audit https://example.com --out report.html
 sitevet audit https://example.com --format json --fail-under 85 > report.json
+sitevet audit https://example.com --browser --out report.html   # needs Chrome or Chromium
 sitevet rules --category security
 sitevet init
 ```

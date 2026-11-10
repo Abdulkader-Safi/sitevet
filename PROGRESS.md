@@ -10,8 +10,40 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M1 engine core | Done. CI green on 2026-11-10 (run 42813274176). README in review |
 | M2 parity rules | Done. CI green (run 42827541672). CONTRIBUTING.md and the TS diff in review |
 | M3 reports, CLI | Built and tested. Release 0.1.0 held by Safi (2026-11-10); HTML, CLI and README in review |
-| M4 rendered stage | In progress |
+| M4 rendered stage | Done locally, CI pending |
 | M5 to M14      | Not started                              |
+
+## M4: rendered stage
+
+The `browser` feature (off in the library by default, on in the CLI) renders every page in the installed Chrome or Chromium and runs axe-core 4.14.0 and Core Web Vitals. Without a browser, a PageSpeed Insights key does the same for the first `psi_max_pages` pages. With neither, the 7 rendered-stage rules are listed as skipped. All 94 rules can now run.
+
+Tests: 3 Chrome tests in `tests/browser.rs` and 1 in `tests/browser_cancel.rs` (run with `SITEVET_TEST_CHROME=1`, and in a new Linux CI job with the runner's Chrome), the missing-Chrome test (always), the PSI test against a recorded response, the skipped-rules test, and a gzip test. Live: 6 pages of abdulkadersafi.com with `--browser` in 18 s, accessibility 100, LCP 1.04 s, CLS 0.005, no Chrome left running.
+
+### Acceptance boxes
+
+- [x] FR-RENDER-01: an unlabelled input gives a failing `accessibility/label`.
+- [x] FR-RENDER-02: `performance/lcp` and `performance/cls` report numbers for a rendered fixture.
+- [x] FR-RENDER-03: with a recorded PSI response the same rules fill in, and a 20-page audit sends 5 requests (plus one retry after a 429).
+- [x] FR-RENDER-04: a default audit lists the browser rules as "needs browser or psi_key", and they do not affect the score.
+- [x] FR-RENDER-05: `chrome_path` pointing nowhere fails before crawling, naming the option and how to install Chrome.
+- [x] FR-RENDER-06: CI fails if the default library's tree contains chromiumoxide.
+- [x] FR-API-03, the Chromium half: no Chrome process 1 s after cancelling mid-crawl.
+- [x] FR-CRAWL-10 (Should): `render_crawl` finds a link added by JavaScript.
+
+### Decisions made in M4
+
+- Event order follows the TS package: `RenderComplete` comes before `CrawlComplete`, because the check total in `CrawlComplete` depends on which pages rendered. Stage 5's event table lists them the other way round.
+- axe runs its default rule set, as the TS package's AxeBuilder did, not only the WCAG tags the M0 spike used.
+- Fixed a bug that the live run exposed: reqwest's decoder deletes `Content-Encoding`, so `performance/text-compression` warned on every page. sitevet now turns off reqwest's automatic decoding for the crawl, sends `Accept-Encoding` itself and decodes with `async-compression` (already in the tree through reqwest's tower-http). That adds one direct dependency the stack table does not list, and keeps the 10 MB cap applied to decoded bytes.
+- Two TS quirks fixed rather than ported: PSI pass IDs were prefixed twice (`accessibility/accessibility/...`), and PSI failures had the fix text "See " with no link. sitevet keeps the rule's own fix text when there is no link.
+- The PSI fixture is in the real v5 response shape but hand-trimmed, since no key was available to record a live response.
+- `SITEVET_PSI_ENDPOINT` (not in stage 5's list) points the library at a recorded PSI response in tests. Setting an environment variable is `unsafe` in edition 2024, so the workspace lint went from `forbid` to `deny(unsafe_code)`, with one documented `allow` in `tests/psi.rs`.
+- The cancel test lives in its own test binary: it counts Chrome processes by a profile name that carries the process ID, and other tests launching Chrome in the same process would be counted too.
+- Chrome is found from `chrome_path`, `SITEVET_CHROME`, `PATH` and the usual install folders. Microsoft Edge is not used, since the spec names Chrome and Chromium.
+
+### Open items for Safi
+
+None new. M3's open items (release, the overall score formula, reviews) still stand.
 
 ## M3: reports and CLI
 
