@@ -12,7 +12,38 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
-| M6 to M14      | Not started                              |
+| M6 text engine | Built on branch `m6/text-engine`, PR open, not merged |
+| M7 to M14      | Not started                              |
+
+## M6: text engine
+
+Built on the branch `m6/text-engine`. Every page now gets word counts and readability in its own language, with keyword tables, and `PageResult` carries a `language` field with the declared and detected language.
+
+### Acceptance boxes
+
+- [x] FR-TEXT-01: `text-ar.html` has no `lang` attribute and is detected as `ar`. `PageResult.language` holds the declared value, the detected one and the confidence.
+- [x] FR-TEXT-02: `boilerplate.html` repeats "pizza" 50 times in its footer, and "pizza" is not in the top keywords ("bread" is first).
+- [x] FR-TEXT-03: the English fixture gives 20 words and 3 stop words, the Arabic one 17 words and 4 stop words (23.5%), both hand-counted against the lists in use.
+- [x] FR-TEXT-04: the English fixture matches the hand-computed values exactly: 14 unique words (70%), 15% stop words, 15% water, 5 words per sentence, 97 characters.
+- [x] FR-TEXT-05: the English fixture gives Flesch 83.3 ("Easy"), Flesch-Kincaid 2.9 and Gunning Fog 4, worked out by hand with the TS syllable estimate. The Arabic and French fixtures show "Not available for this language" for all three, and the Chinese one counts 23 characters with every word metric marked not available.
+- [x] FR-TEXT-06: "garden soil" is first among the English fixture's 2-word phrases. The stop word table lists each stop word with its count.
+- [x] FR-TEXT-07: the relevance matrix marks each top keyword in the title, description and H1, and the heading spans are byte ranges (`0-6 7-11` for "Garden soil" in the title, `18-22` for "soil" in the description).
+- [x] FR-TEXT-08: `content/keyword-stuffing` reads the n-gram output. The stuffed test page warns and the varied one passes.
+
+### Decisions made in M6
+
+- English keeps the TS package's 201-word stop word list. The ISO English list from `stop-words` has 1,298 entries, including "home", "page", "website", "best" and "information", which would empty the keyword tables of real keywords. Every other language uses the `stop-words` ISO list. Logged in stage 4's landmines.
+- Snowball stems replace the TS plural-only lemma, for every language rust-stemmers covers. English keyword rows now group verb forms too ("composting" with "compost"). The row still shows the most written form.
+- The declared `lang` wins over detection, as FR-TEXT-01 says, even when whatlang disagrees. On the 9-word fixture pages whatlang says `fr` at 0.23 confidence while the page declares `en`; the report shows both.
+- Scripts without word spaces are decided by the text's script (whatlang), falling back to the language code when there is no text. Those pages get a character count only, and `content/keyword-stuffing` passes with "Word-based check not available for this language".
+- New metrics beyond the TS package: `content/detected-language` and `content/avg-word-length` (FR-TEXT-01 and FR-TEXT-05's neutral fallback).
+- Heading spans are byte offsets, as FR-TEXT-07 says. The TS package used UTF-16 offsets.
+- Each text collector and the stuffing rule analyse the page again: 4 passes of about a millisecond each. A cache on the rule context is the upgrade if profiling ever shows it.
+- `PageResult.language` has `#[serde(default)]`, so reports saved by 0.2.x still load from the history.
+
+### Open items for Safi
+
+- Character sets (from M1) still decode as UTF-8 only. Pages in Windows-1252 or Shift_JIS will show garbled text in these tables. Adding `encoding_rs` is a stack addition, so it needs your yes.
 
 ## M5: run history
 
@@ -157,7 +188,7 @@ At the end of M2 the TS repo's HEAD is still `de27aea`, with a clean working tre
 ### Open items for Safi
 
 - FR-RULE-02's acceptance test needs the JSON Schema that M3 generates. Fine to tick it in M3, or should the schema move into M2?
-- Phase 2 text collectors sit in M6 with the text engine. Agree?
+- Phase 2 text collectors sit in M6 with the text engine. Done in M6.
 - Character sets (from M1): still open.
 
 ## M1: engine core
