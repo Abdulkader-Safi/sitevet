@@ -7,6 +7,21 @@ use serde_json::Value;
 
 use crate::rules::kit::{all, collapse, text};
 
+/// LocalBusiness and the subtypes sites use most.
+pub(crate) const LOCAL_TYPES: [&str; 11] = [
+    "LocalBusiness",
+    "Restaurant",
+    "Store",
+    "FoodEstablishment",
+    "LodgingBusiness",
+    "ProfessionalService",
+    "MedicalBusiness",
+    "Dentist",
+    "LegalService",
+    "AutoRepair",
+    "HomeAndConstructionBusiness",
+];
+
 /// Which markup a top-level item came from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

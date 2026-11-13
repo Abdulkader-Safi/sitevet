@@ -1,0 +1,43 @@
+# Domains counted as authoritative citations (FR-TRUST-04). One per line; a domain also covers
+# its subdomains. Government, education and military suffixes (.gov, .edu, .mil, .int, .gov.xx,
+# .edu.xx, .ac.xx, .gob.xx, .govt.nz) count without being listed.
+#
+# Encyclopedias and reference
+wikipedia.org
+britannica.com
+wikidata.org
+# International bodies
+who.int
+un.org
+worldbank.org
+imf.org
+oecd.org
+europa.eu
+# Standards bodies
+w3.org
+whatwg.org
+ietf.org
+rfc-editor.org
+iso.org
+ieee.org
+unicode.org
+iana.org
+ecma-international.org
+# Science and medicine
+nature.com
+science.org
+thelancet.com
+nejm.org
+bmj.com
+cochranelibrary.com
+pubmed.ncbi.nlm.nih.gov
+arxiv.org
+doi.org
+mayoclinic.org
+clevelandclinic.org
+# Official developer documentation
+developer.mozilla.org
+developers.google.com
+learn.microsoft.com
+docs.python.org
+doc.rust-lang.org

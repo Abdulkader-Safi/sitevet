@@ -10,6 +10,7 @@ mod meta;
 mod page;
 mod schema_tree;
 mod text;
+mod trust;
 
 use std::sync::Arc;
 
@@ -28,6 +29,7 @@ pub(crate) fn all() -> Vec<Arc<dyn Collector>> {
         text::collectors(),
         answer::collectors(),
         schema_tree::collectors(),
+        trust::collectors(),
     ]
     .concat()
 }

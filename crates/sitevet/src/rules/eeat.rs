@@ -10,7 +10,15 @@ use crate::{Rule, RuleResult as R};
 const CATEGORY: &str = "eeat";
 
 pub(super) fn rules() -> Vec<Arc<dyn Rule>> {
-    vec![Arc::new(Author), Arc::new(Date), Arc::new(OutboundCitations), Arc::new(AboutPage)]
+    vec![
+        Arc::new(Author),
+        Arc::new(Date),
+        Arc::new(OutboundCitations),
+        Arc::new(AboutPage),
+        Arc::new(ContactDetails),
+        Arc::new(EditorialPolicy),
+        Arc::new(NapConsistency),
+    ]
 }
 
 dom_rule!(
@@ -74,6 +82,73 @@ dom_rule!(
             vec![R::pass("About page link found")]
         } else {
             vec![R::info("No about page link found")]
+        }
+    }
+);
+
+dom_rule!(
+    ContactDetails,
+    "eeat/contact-details",
+    "Phone number and address",
+    Info,
+    "Show a phone number and a physical address, in the footer or on a contact page linked from every page.",
+    |cx, dom, html| {
+        let phone = !crate::trust::page_phones(cx).is_empty();
+        let address = crate::trust::has_address(cx, dom);
+        match (phone, address) {
+            (true, true) => vec![R::pass("Phone number and address found")],
+            (true, false) => vec![R::warn("Phone number found, no address")],
+            (false, true) => vec![R::warn("Address found, no phone number")],
+            (false, false) => vec![R::info("No phone number or address on the page")],
+        }
+    }
+);
+
+dom_rule!(
+    EditorialPolicy,
+    "eeat/editorial-policy",
+    "Editorial policy",
+    Info,
+    "Publish an editorial policy (how you research, review and correct content) and link to it.",
+    |cx, dom, html| {
+        if super::legal::link_matches(&cx.page.links, crate::trust::EDITORIAL) {
+            vec![R::pass("Editorial policy link found")]
+        } else {
+            vec![R::info("No editorial policy link found")]
+        }
+    }
+);
+
+dom_rule!(
+    NapConsistency,
+    "eeat/nap-consistency",
+    "NAP consistency",
+    Warning,
+    "Show the same business name, address and phone in the page text as in the LocalBusiness schema.",
+    |cx, dom, html| {
+        let Some(business) = crate::trust::local_business(cx) else {
+            return vec![R::info("No LocalBusiness schema")];
+        };
+        let (compared, gaps) = crate::trust::nap_mismatches(cx, business);
+        let missing: Vec<&str> =
+            ["name", "street address", "phone"].into_iter().filter(|f| !compared.contains(f)).collect();
+        let unchecked = if missing.is_empty() {
+            String::new()
+        } else {
+            format!(" The schema has no {} to compare.", missing.join(" or "))
+        };
+        if !gaps.is_empty() {
+            vec![R::warn(format!("NAP mismatch: {}.{unchecked}", gaps.join("; ")))]
+        } else if compared.is_empty() {
+            vec![R::info("LocalBusiness schema has no name, street address or phone to compare")]
+        } else {
+            let mut checked = match compared.split_last() {
+                Some((last, rest)) if !rest.is_empty() => format!("{} and {last}", rest.join(", ")),
+                _ => compared.join(""),
+            };
+            checked[..1].make_ascii_uppercase();
+            let verb = if compared.len() == 1 { "matches" } else { "match" };
+            vec![R::pass(format!("{checked} {verb} the page text.{unchecked}"))]
         }
     }
 );

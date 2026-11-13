@@ -324,20 +324,6 @@ dom_collector!(AgentAccess, "answer-engine", "answer-engine/agent-access", |cx, 
 /// Page-level schema for pages that are none of the five types: listings, about pages, search.
 const OTHER_PAGES: [&str; 5] = ["CollectionPage", "AboutPage", "ItemList", "SearchResultsPage", "ProfilePage"];
 
-const LOCAL_TYPES: [&str; 11] = [
-    "LocalBusiness",
-    "Restaurant",
-    "Store",
-    "FoodEstablishment",
-    "LodgingBusiness",
-    "ProfessionalService",
-    "MedicalBusiness",
-    "Dentist",
-    "LegalService",
-    "AutoRepair",
-    "HomeAndConstructionBusiness",
-];
-
 /// FR-AEO-07: the page purpose and what gave it away.
 fn page_type(cx: &RuleCx<'_>, dom: &Html) -> (Option<&'static str>, String) {
     let nodes: Vec<&SchemaNode> = cx.page.schema.iter().flat_map(|i| i.node.walk()).collect();
@@ -382,7 +368,7 @@ fn page_type(cx: &RuleCx<'_>, dom: &Html) -> (Option<&'static str>, String) {
         return (Some("article"), "From the page structure: an H1, H2 sections and paragraphs".into());
     }
     // Business schema often sits on every page of a site, so it decides only this late.
-    match typed(&LOCAL_TYPES) {
+    match typed(&crate::schema::LOCAL_TYPES) {
         Some(t) => (Some("local business"), format!("From schema: {t}")),
         None => (None, "Could not tell from schema or structure".into()),
     }
