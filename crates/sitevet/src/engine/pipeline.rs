@@ -17,6 +17,7 @@ use crate::report::{
     AuditReport, CategoryScore, Finding, Metric, MetricBody, PageResult, SkippedRule, Status, ValueStatus,
 };
 use crate::rules::{self, Collector, Rule, RuleCx, RuleMeta, RuleResult, Stage};
+use crate::site::{self, SitePage};
 use crate::{Error, LinkStatusMap, Options, PageData, Result, extract, render_stage, score, time};
 
 const EVIDENCE_CAP: usize = 2_000;
@@ -183,7 +184,8 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
 
     let need_links = !enriched_rules.is_empty() || !enriched_collectors.is_empty();
     let (checks_done, pages_done) = (AtomicU32::new(0), AtomicU32::new(0));
-    let pages: Vec<PageResult> = futures::stream::iter(crawled.pages)
+    let (redirects, blocked) = (crawled.redirects, crawled.blocked);
+    let results: Vec<(PageResult, SitePage)> = futures::stream::iter(crawled.pages)
         .map(|(page, (mut outcomes, mut metrics))| {
             let (enriched_rules, enriched_collectors, site, links) =
                 (&enriched_rules, &enriched_collectors, &site, &links);
@@ -223,6 +225,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                         .await;
                     findings.extend(o.results.into_iter().map(|r| finding(&o.meta, r, &page.url)));
                 }
+                let summary = SitePage::new(&page);
                 let result = page_result(page, findings, metrics);
                 events
                     .send(AuditEvent::PageComplete {
@@ -235,14 +238,34 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                         ms: page_started.elapsed().as_millis() as u64,
                     })
                     .await;
-                result
+                (result, summary)
             }
         })
         .buffered(options.concurrency as usize)
         .collect()
         .await;
+    let (pages, summaries): (Vec<PageResult>, Vec<SitePage>) = results.into_iter().unzip();
 
-    let report = report(url, start, &options, started, pages, crawled.blocked, skipped);
+    // Site-wide checks compare every page: CPU only, so off the async threads.
+    let site_result = {
+        let (site, blocked, start, options) = (site.clone(), blocked.clone(), start.to_string(), options.clone());
+        tokio::task::spawn_blocking(move || {
+            let wanted = |category: &str| rules::wanted(&options, category);
+            site::analyze(&site::Input {
+                pages: &summaries,
+                redirects: &redirects,
+                blocked: &blocked,
+                site: &site,
+                start: &start,
+                click_depth_warn: options.click_depth_warn,
+                wanted: &wanted,
+            })
+        })
+        .await
+        .unwrap_or_default()
+    };
+
+    let report = report(url, start, &options, started, pages, site_result, blocked, skipped);
     events
         .send(AuditEvent::AuditComplete {
             score: report.score,
@@ -350,7 +373,7 @@ pub(crate) fn finding(meta: &RuleMeta, r: RuleResult, page_url: &str) -> Finding
 }
 
 /// FNV-1a, 64 bit: stable across Rust versions, unlike the std hasher.
-fn finding_key(rule_id: &str, page_url: &str, evidence: Option<&str>) -> String {
+pub(crate) fn finding_key(rule_id: &str, page_url: &str, evidence: Option<&str>) -> String {
     let mut h: u64 = 0xcbf2_9ce4_8422_2325;
     for part in [rule_id, "\n", page_url, "\n", evidence.unwrap_or("")] {
         for b in part.bytes() {
@@ -379,17 +402,20 @@ fn page_result(page: PageData, findings: Vec<Finding>, metrics: Vec<Metric>) -> 
     }
 }
 
+#[allow(clippy::too_many_arguments)] // one call site, each argument a distinct part of the report
 fn report(
     url: String,
     start: Url,
     options: &Options,
     started: Instant,
     pages: Vec<PageResult>,
+    site: crate::SiteResult,
     blocked: Vec<crate::BlockedUrl>,
     skipped_rules: Vec<SkippedRule>,
 ) -> AuditReport {
+    // Each site finding counts once in its category, next to the page findings.
     let mut by_category: BTreeMap<&str, Vec<&Finding>> = BTreeMap::new();
-    for f in pages.iter().flat_map(|p| &p.findings) {
+    for f in pages.iter().flat_map(|p| &p.findings).chain(site.findings.iter().map(|s| &s.finding)) {
         by_category.entry(&f.category).or_default().push(f);
     }
     let count = |fs: &[&Finding], s: Status| fs.iter().filter(|f| f.status == s).count() as u32;
@@ -415,9 +441,10 @@ fn report(
         generated_at: time::now_rfc3339(),
         duration_ms: started.elapsed().as_millis() as u64,
         options: summary,
-        score: score::compute_overall(&pages),
+        score: score::overall(&pages, &site.findings),
         categories,
         pages,
+        site,
         blocked,
         skipped_rules,
         changes: None,

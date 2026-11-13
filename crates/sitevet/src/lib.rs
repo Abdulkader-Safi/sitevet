@@ -30,6 +30,7 @@ mod render_stage;
 mod report;
 mod schema;
 mod score;
+mod site;
 mod text;
 mod time;
 
@@ -46,8 +47,8 @@ pub use options::Options;
 pub use options::unknown_key_reason;
 pub use report::{
     AuditReport, BaselineRef, BlockedUrl, CategoryChange, CategoryScore, Finding, FindingRef, Format, LanguageInfo,
-    Metric, MetricBody, MetricCell, PageResult, RenderOptions, ReportDiff, Severity, SkippedRule, Status, ValueStatus,
-    diff, render, render_with, report_schema,
+    Metric, MetricBody, MetricCell, PageResult, RenderOptions, ReportDiff, Severity, SiteFinding, SiteResult,
+    SkippedRule, Status, ValueStatus, diff, render, render_with, report_schema,
 };
 pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,

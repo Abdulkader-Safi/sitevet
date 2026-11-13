@@ -10,13 +10,13 @@ Overall score: **0/100** (Poor). 5 pages audited on 2026-01-01T00:00:00Z in 1.0 
 
 | Category | Score | Fail | Warn | Pass |
 | --- | --- | --- | --- | --- |
-| Core SEO | 52 | 11 | 26 | 18 |
-| Content | 91 | 0 | 6 | 24 |
-| Links | 90 | 1 | 0 | 24 |
+| Core SEO | 53 | 11 | 26 | 20 |
+| Content | 92 | 0 | 6 | 26 |
+| Links | 90 | 1 | 0 | 25 |
 | Images | 100 | 0 | 0 | 30 |
 | Structured data | 80 | 0 | 10 | 40 |
 | Security | 47 | 5 | 25 | 20 |
-| Crawlability | 88 | 0 | 5 | 25 |
+| Crawlability | 86 | 0 | 7 | 27 |
 | URL structure | 100 | 0 | 0 | 40 |
 | Social media | 38 | 0 | 10 | 5 |
 | Internationalization | 100 | 0 | 0 | 5 |
@@ -24,6 +24,63 @@ Overall score: **0/100** (Poor). 5 pages audited on 2026-01-01T00:00:00Z in 1.0 
 | Analytics | 63 | 0 | 5 | 5 |
 | E-E-A-T | 38 | 0 | 5 | 1 |
 | Performance | 69 | 0 | 10 | 20 |
+
+## Site-wide
+
+| Status | Rule | Message | Pages |
+| --- | --- | --- | --- |
+| WARN | crawlability/orphan-pages | 1 sitemap page has no internal links pointing at it | http://fixture.test/orphan.html |
+| WARN | crawlability/missing-from-sitemap | 1 indexable page is not in the sitemap | http://fixture.test/contact.html |
+
+7 other site-wide checks passed.
+
+**Duplicate groups**
+
+None found.
+
+**Near-duplicate pages**
+
+None found.
+
+**Internal link graph**
+
+| URL | Linked from | Links to | Click depth |
+| --- | --- | --- | --- |
+| http://fixture.test/ | 2 | 2 | 0 |
+| http://fixture.test/contact.html | 2 | 2 | 1 |
+| http://fixture.test/about.html | 1 | 2 | 1 |
+| http://fixture.test/missing.html | 1 | 0 | 2 |
+| http://fixture.test/orphan.html | 0 | 0 | not linked |
+
+**Pages by click depth**
+
+| Click depth | Pages |
+| --- | --- |
+| 0 | 1 |
+| 1 | 2 |
+| 2 | 1 |
+| not linked | 1 |
+
+**Redirect map**
+
+None found.
+
+**Orphan pages**
+
+| URL |
+| --- |
+| http://fixture.test/orphan.html |
+
+**In the sitemap, not indexable**
+
+None found.
+
+**Crawlable, not in the sitemap**
+
+| URL |
+| --- |
+| http://fixture.test/contact.html |
+
 
 ## Pages
 

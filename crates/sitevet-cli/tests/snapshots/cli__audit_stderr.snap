@@ -14,9 +14,9 @@ crawled 5 pages, running 445 checks
 
 Score  0/100  FAIL
   analytics              63  WARN  0 fail, 5 warn
-  content                91  PASS  0 fail, 6 warn
-  core-seo               52  WARN  11 fail, 26 warn
-  crawlability           88  WARN  0 fail, 5 warn
+  content                92  PASS  0 fail, 6 warn
+  core-seo               53  WARN  11 fail, 26 warn
+  crawlability           86  WARN  0 fail, 7 warn
   eeat                   38  FAIL  0 fail, 5 warn
   images                100  PASS  0 fail, 0 warn
   internationalization  100  PASS  0 fail, 0 warn
