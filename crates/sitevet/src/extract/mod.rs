@@ -35,6 +35,7 @@ pub struct PageData {
     pub stylesheets: Vec<String>,
     /// Body text without scripts and styles, whitespace collapsed.
     pub text: String,
+    pub language: crate::LanguageInfo,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -182,6 +183,7 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
     page.stylesheets =
         dom.select(&sel.stylesheets).filter_map(|l| attr(&l, "href").and_then(|h| abs(&h)).map(String::from)).collect();
     page.text = dom.select(&sel.body).next().map_or_else(|| visible_text(root), visible_text);
+    page.language = crate::text::language(dom, page.lang.as_deref());
 }
 
 /// Element text with whitespace collapsed, the way cheerio's `.text().trim()` reads it.

@@ -230,6 +230,42 @@ pub(crate) fn is_html(content_type: Option<&str>) -> bool {
     })
 }
 
+/// Decodes an HTML body the way browsers pick its encoding (WHATWG): a byte order mark, then the
+/// `Content-Type` charset, then a `<meta>` charset in the first 1024 bytes, then UTF-8, and
+/// windows-1252 when the bytes are not UTF-8.
+pub(crate) fn decode_html<'a>(body: &'a [u8], content_type: Option<&str>) -> std::borrow::Cow<'a, str> {
+    use encoding_rs::{Encoding, UTF_8, UTF_16BE, UTF_16LE, WINDOWS_1252};
+    let header = content_type.and_then(charset_param).and_then(|l| Encoding::for_label(l.as_bytes()));
+    // A page can't name UTF-16 from inside itself: its own bytes were just read as ASCII.
+    let meta = || {
+        meta_charset(body).and_then(Encoding::for_label).map(|e| if e == UTF_16LE || e == UTF_16BE { UTF_8 } else { e })
+    };
+    // A body cut at the size cap can end inside a character; that alone does not make it non-UTF-8.
+    let utf8 = || std::str::from_utf8(body).map_or_else(|e| e.error_len().is_none(), |_| true);
+    let encoding = header.or_else(meta).unwrap_or_else(|| if utf8() { UTF_8 } else { WINDOWS_1252 });
+    // decode() checks for a byte order mark first, which overrides everything else.
+    encoding.decode(body).0
+}
+
+fn charset_param(content_type: &str) -> Option<&str> {
+    content_type.split(';').find_map(|p| {
+        let (k, v) = p.split_once('=')?;
+        k.trim().eq_ignore_ascii_case("charset").then(|| v.trim().trim_matches(['"', '\'']))
+    })
+}
+
+static META_CHARSET: std::sync::LazyLock<regex::bytes::Regex> = std::sync::LazyLock::new(|| {
+    #[allow(clippy::expect_used)] // literal pattern, covered by tests
+    regex::bytes::Regex::new(r#"(?i)<meta[^>]*?charset\s*=\s*["']?\s*([a-z0-9_:.\-]+)"#).expect("valid regex")
+});
+
+// ponytail: one regex over the first 1024 bytes stands in for the WHATWG prescan state machine.
+// It reads both `<meta charset>` and `http-equiv` content. Swap in the full prescan if a real
+// page ever trips it.
+fn meta_charset(body: &[u8]) -> Option<&[u8]> {
+    META_CHARSET.captures(&body[..body.len().min(1024)]).and_then(|c| c.get(1)).map(|m| m.as_bytes())
+}
+
 /// Reads up to `cap` decoded bytes. Decoding happens before the cap, so a compressed bomb stops
 /// at the cap too.
 async fn read_capped(res: reqwest::Response, cap: usize) -> Result<(Vec<u8>, bool), String> {
@@ -267,4 +303,27 @@ fn redact(url: &Url) -> String {
     let mut u = url.clone();
     u.set_query(None);
     u.to_string()
+}
+
+#[cfg(test)]
+mod charset_tests {
+    use super::decode_html;
+
+    #[test]
+    fn picks_the_encoding_like_a_browser() {
+        // "café" in windows-1252: é is 0xE9.
+        let latin = b"<p>caf\xe9</p>";
+        assert_eq!(decode_html(latin, Some("text/html; charset=windows-1252")), "<p>caf\u{e9}</p>");
+        assert_eq!(decode_html(latin, Some("text/html")), "<p>caf\u{e9}</p>", "not UTF-8, so windows-1252");
+        let meta = b"<meta charset=\"iso-8859-1\"><p>caf\xe9</p>";
+        assert!(decode_html(meta, None).ends_with("caf\u{e9}</p>"));
+        let equiv = b"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=Shift_JIS\"><p>\x82\xa0</p>";
+        assert!(decode_html(equiv, None).ends_with("\u{3042}</p>"), "Shift_JIS a");
+        // The header beats the meta tag, and a byte order mark beats both.
+        assert!(decode_html(meta, Some("text/html; charset=utf-8")).ends_with("caf\u{fffd}</p>"));
+        assert_eq!(decode_html(b"\xef\xbb\xbfcaf\xc3\xa9", Some("text/html; charset=windows-1252")), "caf\u{e9}");
+        assert_eq!(decode_html("café".as_bytes(), None), "caf\u{e9}");
+        // A body cut inside "é" stays UTF-8.
+        assert_eq!(decode_html(b"caf\xc3", None), "caf\u{fffd}");
+    }
 }

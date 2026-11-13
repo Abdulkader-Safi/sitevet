@@ -105,9 +105,35 @@ pub struct PageResult {
     pub html_bytes: u64,
     /// True when the HTML went over 10 MB and was cut.
     pub truncated: bool,
+    /// Reports saved before 0.3.0 have none.
+    #[serde(default)]
+    pub language: LanguageInfo,
     pub score: u8,
     pub findings: Vec<Finding>,
     pub metrics: Vec<Metric>,
+}
+
+/// The page language: what `<html lang>` says and what the main content reads as.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[non_exhaustive]
+pub struct LanguageInfo {
+    /// The `lang` attribute of `<html>`, as written.
+    pub declared: Option<String>,
+    /// Detected from the main content: an ISO 639-1 code such as `ar`. None when there is too
+    /// little text.
+    pub detected: Option<String>,
+    /// How sure the detection is, 0 to 1. Below about 0.5, or on texts under 20 words, treat it
+    /// as a guess.
+    pub confidence: Option<f64>,
+}
+
+impl LanguageInfo {
+    /// The base language the text engine reads the page in: the declared one (`en-GB` gives
+    /// `en`), else the detected one.
+    pub fn code(&self) -> Option<String> {
+        let declared = self.declared.as_deref().and_then(|d| d.trim().split(['-', '_']).next());
+        declared.filter(|d| !d.is_empty()).map(str::to_lowercase).or_else(|| self.detected.clone())
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

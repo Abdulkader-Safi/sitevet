@@ -309,6 +309,39 @@
         "message"
       ]
     },
+    "LanguageInfo": {
+      "description": "The page language: what `<html lang>` says and what the main content reads as.",
+      "type": "object",
+      "properties": {
+        "confidence": {
+          "description": "How sure the detection is, 0 to 1. Below about 0.5, or on texts under 20 words, treat it\nas a guess.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "declared": {
+          "description": "The `lang` attribute of `<html>`, as written.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detected": {
+          "description": "Detected from the main content: an ISO 639-1 code such as `ar`. None when there is too\nlittle text.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "declared",
+        "detected",
+        "confidence"
+      ]
+    },
     "Metric": {
       "type": "object",
       "properties": {
@@ -639,6 +672,15 @@
           "format": "uint64",
           "minimum": 0
         },
+        "language": {
+          "description": "Reports saved before 0.3.0 have none.",
+          "$ref": "#/$defs/LanguageInfo",
+          "default": {
+            "confidence": null,
+            "declared": null,
+            "detected": null
+          }
+        },
         "metrics": {
           "type": "array",
           "items": {
@@ -689,6 +731,7 @@
         "response_ms",
         "html_bytes",
         "truncated",
+        "language",
         "score",
         "findings",
         "metrics"

@@ -727,6 +727,32 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
           
+          <tr><th scope="row">Detected language</th><td dir="auto">fr</td><td><span class="vs ok">ok</span></td><td dir="auto">Confidence 0.23, read from the main content</td></tr>
+          
+          <tr><th scope="row">Main content words</th><td dir="auto">9</td><td>-</td><td dir="auto">Read from &#60;body&#62;, nav, footer and hidden elements excluded</td></tr>
+          
+          <tr><th scope="row">Unique words</th><td dir="auto">9</td><td>-</td><td dir="auto">100% of words</td></tr>
+          
+          <tr><th scope="row">Unique words share</th><td dir="auto">100 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Stop words</th><td dir="auto">3</td><td>-</td><td dir="auto">33.3% of words</td></tr>
+          
+          <tr><th scope="row">Stop words share</th><td dir="auto">33.3 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Water</th><td dir="auto">33.3 %</td><td><span class="vs ok">ok</span></td><td dir="auto">Stop words and filler, the share of words carrying no meaning</td></tr>
+          
+          <tr><th scope="row">Average sentence length</th><td dir="auto">1.8 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Up to 20 reads comfortably</td></tr>
+          
+          <tr><th scope="row">Characters</th><td dir="auto">47</td><td>-</td><td dir="auto">Main content, spaces excluded</td></tr>
+          
+          <tr><th scope="row">Flesch reading ease</th><td dir="auto">73.4</td><td><span class="vs ok">ok</span></td><td dir="auto">Easy</td></tr>
+          
+          <tr><th scope="row">Flesch-Kincaid grade</th><td dir="auto">3.5</td><td><span class="vs ok">ok</span></td><td dir="auto">US school grade, 9 or lower suits a general audience</td></tr>
+          
+          <tr><th scope="row">Gunning Fog index</th><td dir="auto">0.7</td><td><span class="vs ok">ok</span></td><td dir="auto">Years of schooling to read it first time, 12 or lower</td></tr>
+          
+          <tr><th scope="row">Average word length</th><td dir="auto">5.1 characters</td><td>-</td><td dir="auto">Letters per word in the main content</td></tr>
+          
           </tbody>
         </table></div>
         
@@ -746,6 +772,15 @@ tbody th { font-weight: 500; }
           <tbody>
           
           <tr><td dir="auto">H1</td><td dir="auto">Home</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Stop words</caption>
+          <thead><tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">about</td><td dir="auto">1</td><td dir="auto">11.1</td></tr><tr><td dir="auto">the</td><td dir="auto">1</td><td dir="auto">11.1</td></tr><tr><td dir="auto">to</td><td dir="auto">1</td><td dir="auto">11.1</td></tr>
           </tbody>
         </table></div>
         
@@ -1405,6 +1440,32 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
           
+          <tr><th scope="row">Detected language</th><td dir="auto">fr</td><td><span class="vs ok">ok</span></td><td dir="auto">Confidence 0.03, read from the main content</td></tr>
+          
+          <tr><th scope="row">Main content words</th><td dir="auto">6</td><td>-</td><td dir="auto">Read from &#60;body&#62;, nav, footer and hidden elements excluded</td></tr>
+          
+          <tr><th scope="row">Unique words</th><td dir="auto">5</td><td>-</td><td dir="auto">83.3% of words</td></tr>
+          
+          <tr><th scope="row">Unique words share</th><td dir="auto">83.3 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Stop words</th><td dir="auto">3</td><td>-</td><td dir="auto">50% of words</td></tr>
+          
+          <tr><th scope="row">Stop words share</th><td dir="auto">50 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Water</th><td dir="auto">50 %</td><td><span class="vs ok">ok</span></td><td dir="auto">Stop words and filler, the share of words carrying no meaning</td></tr>
+          
+          <tr><th scope="row">Average sentence length</th><td dir="auto">2 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Up to 20 reads comfortably</td></tr>
+          
+          <tr><th scope="row">Characters</th><td dir="auto">30</td><td>-</td><td dir="auto">Main content, spaces excluded</td></tr>
+          
+          <tr><th scope="row">Flesch reading ease</th><td dir="auto">77.9</td><td><span class="vs ok">ok</span></td><td dir="auto">Easy</td></tr>
+          
+          <tr><th scope="row">Flesch-Kincaid grade</th><td dir="auto">2.9</td><td><span class="vs ok">ok</span></td><td dir="auto">US school grade, 9 or lower suits a general audience</td></tr>
+          
+          <tr><th scope="row">Gunning Fog index</th><td dir="auto">0.8</td><td><span class="vs ok">ok</span></td><td dir="auto">Years of schooling to read it first time, 12 or lower</td></tr>
+          
+          <tr><th scope="row">Average word length</th><td dir="auto">4.8 characters</td><td>-</td><td dir="auto">Letters per word in the main content</td></tr>
+          
           </tbody>
         </table></div>
         
@@ -1424,6 +1485,15 @@ tbody th { font-weight: 500; }
           <tbody>
           
           <tr><td dir="auto">H1</td><td dir="auto">About</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Stop words</caption>
+          <thead><tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">about</td><td dir="auto">2</td><td dir="auto">33.3</td></tr><tr><td dir="auto">this</td><td dir="auto">1</td><td dir="auto">16.7</td></tr>
           </tbody>
         </table></div>
         
@@ -2093,6 +2163,32 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
           
+          <tr><th scope="row">Detected language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">Confidence 1, read from the main content</td></tr>
+          
+          <tr><th scope="row">Main content words</th><td dir="auto">7</td><td>-</td><td dir="auto">Read from &#60;body&#62;, nav, footer and hidden elements excluded</td></tr>
+          
+          <tr><th scope="row">Unique words</th><td dir="auto">7</td><td>-</td><td dir="auto">100% of words</td></tr>
+          
+          <tr><th scope="row">Unique words share</th><td dir="auto">100 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Stop words</th><td dir="auto">3</td><td>-</td><td dir="auto">42.9% of words</td></tr>
+          
+          <tr><th scope="row">Stop words share</th><td dir="auto">42.9 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Water</th><td dir="auto">42.9 %</td><td><span class="vs ok">ok</span></td><td dir="auto">Stop words and filler, the share of words carrying no meaning</td></tr>
+          
+          <tr><th scope="row">Average sentence length</th><td dir="auto">3.5 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Up to 20 reads comfortably</td></tr>
+          
+          <tr><th scope="row">Characters</th><td dir="auto">34</td><td>-</td><td dir="auto">Main content, spaces excluded</td></tr>
+          
+          <tr><th scope="row">Flesch reading ease</th><td dir="auto">70.3</td><td><span class="vs ok">ok</span></td><td dir="auto">Easy</td></tr>
+          
+          <tr><th scope="row">Flesch-Kincaid grade</th><td dir="auto">4.3</td><td><span class="vs ok">ok</span></td><td dir="auto">US school grade, 9 or lower suits a general audience</td></tr>
+          
+          <tr><th scope="row">Gunning Fog index</th><td dir="auto">7.1</td><td><span class="vs ok">ok</span></td><td dir="auto">Years of schooling to read it first time, 12 or lower</td></tr>
+          
+          <tr><th scope="row">Average word length</th><td dir="auto">4.7 characters</td><td>-</td><td dir="auto">Letters per word in the main content</td></tr>
+          
           </tbody>
         </table></div>
         
@@ -2112,6 +2208,15 @@ tbody th { font-weight: 500; }
           <tbody>
           
           <tr><td dir="auto">H1</td><td dir="auto">Orphan</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Stop words</caption>
+          <thead><tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">only</td><td dir="auto">1</td><td dir="auto">14.3</td></tr><tr><td dir="auto">the</td><td dir="auto">1</td><td dir="auto">14.3</td></tr><tr><td dir="auto">this</td><td dir="auto">1</td><td dir="auto">14.3</td></tr>
           </tbody>
         </table></div>
         
@@ -2795,6 +2900,32 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
           
+          <tr><th scope="row">Detected language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">Confidence 0.48, read from the main content</td></tr>
+          
+          <tr><th scope="row">Main content words</th><td dir="auto">9</td><td>-</td><td dir="auto">Read from &#60;body&#62;, nav, footer and hidden elements excluded</td></tr>
+          
+          <tr><th scope="row">Unique words</th><td dir="auto">8</td><td>-</td><td dir="auto">88.9% of words</td></tr>
+          
+          <tr><th scope="row">Unique words share</th><td dir="auto">88.9 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Stop words</th><td dir="auto">3</td><td>-</td><td dir="auto">33.3% of words</td></tr>
+          
+          <tr><th scope="row">Stop words share</th><td dir="auto">33.3 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Water</th><td dir="auto">33.3 %</td><td><span class="vs ok">ok</span></td><td dir="auto">Stop words and filler, the share of words carrying no meaning</td></tr>
+          
+          <tr><th scope="row">Average sentence length</th><td dir="auto">3 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Up to 20 reads comfortably</td></tr>
+          
+          <tr><th scope="row">Characters</th><td dir="auto">36</td><td>-</td><td dir="auto">Main content, spaces excluded</td></tr>
+          
+          <tr><th scope="row">Flesch reading ease</th><td dir="auto">100.4</td><td><span class="vs ok">ok</span></td><td dir="auto">Easy</td></tr>
+          
+          <tr><th scope="row">Flesch-Kincaid grade</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">US school grade, 9 or lower suits a general audience</td></tr>
+          
+          <tr><th scope="row">Gunning Fog index</th><td dir="auto">1.2</td><td><span class="vs ok">ok</span></td><td dir="auto">Years of schooling to read it first time, 12 or lower</td></tr>
+          
+          <tr><th scope="row">Average word length</th><td dir="auto">3.9 characters</td><td>-</td><td dir="auto">Letters per word in the main content</td></tr>
+          
           </tbody>
         </table></div>
         
@@ -2814,6 +2945,42 @@ tbody th { font-weight: 500; }
           <tbody>
           
           <tr><td dir="auto">H1</td><td dir="auto">Contact</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Top 1-word phrases</caption>
+          <thead><tr><th scope="col">Phrase</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">page</td><td dir="auto">2</td><td dir="auto">22.2</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Stop words</caption>
+          <thead><tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">no</td><td dir="auto">1</td><td dir="auto">11.1</td></tr><tr><td dir="auto">on</td><td dir="auto">1</td><td dir="auto">11.1</td></tr><tr><td dir="auto">this</td><td dir="auto">1</td><td dir="auto">11.1</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Keyword relevance</caption>
+          <thead><tr><th scope="col">Keyword</th><th scope="col">Count</th><th scope="col">Title</th><th scope="col">Description</th><th scope="col">H1</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">page</td><td dir="auto">2</td><td dir="auto">no</td><td dir="auto">no</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Keywords in headings</caption>
+          <thead><tr><th scope="col">Element</th><th scope="col">Text</th><th scope="col">Keywords</th><th scope="col">Spans</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">H1</td><td dir="auto">Contact</td><td dir="auto">-</td><td dir="auto"></td></tr>
           </tbody>
         </table></div>
         
@@ -3515,6 +3682,32 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Headings</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0</td></tr>
           
+          <tr><th scope="row">Detected language</th><td dir="auto">en</td><td><span class="vs ok">ok</span></td><td dir="auto">Confidence 0.04, read from the main content</td></tr>
+          
+          <tr><th scope="row">Main content words</th><td dir="auto">2</td><td>-</td><td dir="auto">Read from &#60;body&#62;, nav, footer and hidden elements excluded</td></tr>
+          
+          <tr><th scope="row">Unique words</th><td dir="auto">2</td><td>-</td><td dir="auto">100% of words</td></tr>
+          
+          <tr><th scope="row">Unique words share</th><td dir="auto">100 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Stop words</th><td dir="auto">1</td><td>-</td><td dir="auto">50% of words</td></tr>
+          
+          <tr><th scope="row">Stop words share</th><td dir="auto">50 %</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Water</th><td dir="auto">50 %</td><td><span class="vs ok">ok</span></td><td dir="auto">Stop words and filler, the share of words carrying no meaning</td></tr>
+          
+          <tr><th scope="row">Average sentence length</th><td dir="auto">2 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Up to 20 reads comfortably</td></tr>
+          
+          <tr><th scope="row">Characters</th><td dir="auto">8</td><td>-</td><td dir="auto">Main content, spaces excluded</td></tr>
+          
+          <tr><th scope="row">Flesch reading ease</th><td dir="auto">120.2</td><td><span class="vs ok">ok</span></td><td dir="auto">Easy</td></tr>
+          
+          <tr><th scope="row">Flesch-Kincaid grade</th><td dir="auto">-3</td><td><span class="vs ok">ok</span></td><td dir="auto">US school grade, 9 or lower suits a general audience</td></tr>
+          
+          <tr><th scope="row">Gunning Fog index</th><td dir="auto">0.8</td><td><span class="vs ok">ok</span></td><td dir="auto">Years of schooling to read it first time, 12 or lower</td></tr>
+          
+          <tr><th scope="row">Average word length</th><td dir="auto">4 characters</td><td>-</td><td dir="auto">Letters per word in the main content</td></tr>
+          
           </tbody>
         </table></div>
         
@@ -3534,6 +3727,15 @@ tbody th { font-weight: 500; }
           <tbody>
           
           <tr><td dir="auto">H1</td><td dir="auto">Not found</td><td dir="auto">-</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>Stop words</caption>
+          <thead><tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">not</td><td dir="auto">1</td><td dir="auto">50</td></tr>
           </tbody>
         </table></div>
         

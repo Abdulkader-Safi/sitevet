@@ -105,6 +105,7 @@ mod tests {
             response_ms: 0,
             html_bytes: 0,
             truncated: false,
+            language: Default::default(),
             score: score_findings(&findings),
             findings,
             metrics: vec![],

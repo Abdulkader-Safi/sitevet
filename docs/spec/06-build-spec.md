@@ -2,7 +2,7 @@
 
 > **This is the hand-off document for Claude Code.** It is self-contained: build from this file alone. It pulls together stages 1 to 5 (product, users, requirements, tech decisions, tech requirements). Where it says "see Stage N", that is optional background.
 
-Status: signed off 2026-11-10. Sources: 01 to 05 as of that date.
+Status: signed off 2026-11-10. Sources: 01 to 05 as of that date, with the stage 4 stack change of 2026-11-13 (encoding_rs) carried over.
 
 ## 1. What we're building
 
@@ -16,7 +16,7 @@ sitevet is a website audit engine in Rust, shipped as a library crate (`sitevet`
 | Layout                                   | Cargo workspace: `crates/sitevet` (library), `crates/sitevet-cli` (binary `sitevet`)                                                  |
 | Async runtime                            | tokio 1.54, plus an owned 2-thread runtime for `spawn()`. Events on async-channel 2.5. Cancel with tokio-util 0.7 `CancellationToken` |
 | HTTP                                     | reqwest 0.13 with rustls, gzip, brotli, zstd, http2, manual redirects                                                                 |
-| HTML parsing                             | scraper 0.29 (html5ever 0.40)                                                                                                         |
+| HTML parsing                             | scraper 0.29 (html5ever 0.40), encoding_rs 0.8 for page charsets                                                                      |
 | Crawl inputs                             | url 2.5, texting_robots 0.2 (fallback robotstxt), quick-xml 0.42                                                                      |
 | Browser                                  | chromiumoxide 0.9 behind the `browser` feature, user's installed Chrome (fallback crate: chromey)                                     |
 | Accessibility                            | axe-core 4.14.0, bundled unmodified (MPL-2.0)                                                                                         |
