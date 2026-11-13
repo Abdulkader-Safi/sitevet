@@ -14,7 +14,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
 | M6 text engine | Done. Merged in PR #5, released in 0.3.0 on 2026-11-13 |
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
-| M8 site-wide   | Built on branch `m8/site-wide`, PR open, not merged. Report section in review |
+| M8 site-wide   | Built on branch `m8/site-wide`, PR #8 open, not merged. Report section in review |
 | M9 to M14      | Not started                              |
 
 ## M8: site-wide intelligence
