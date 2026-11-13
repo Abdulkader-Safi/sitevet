@@ -12,8 +12,35 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
-| M6 text engine | Built on branch `m6/text-engine`, PR open, not merged |
-| M7 to M14      | Not started                              |
+| M6 text engine | Built on branch `m6/text-engine`, PR #5 open, not merged |
+| M7 answer engine | Built on branch `m7/answer-engine` (stacked on M6), PR open, not merged |
+| M8 to M14      | Not started                              |
+
+## M7: answer engine and content structure
+
+Built on the branch `m7/answer-engine`, which starts from the M6 branch because it reads the same main-content boundary. The TS package lists phase 3 in its backlog without code, so the logic and thresholds here are sitevet's own. Every measurement is a metric in a new "Answer engine" category and never moves the score. The two new rules are `structured-data/faqpage-valid` and `structured-data/howto-valid`.
+
+### Acceptance boxes
+
+- [x] FR-AEO-01: `answers.html` has a 6-word paragraph, then a 40-word definition. The report says block 2, 40 words.
+- [x] FR-AEO-02: the same fixture has 4 question H2s, 3 followed by a short paragraph and one by a list. Coverage is 0.75.
+- [x] FR-AEO-03: hand-counted on that fixture: 1 list, 1 step list, 1 table, 2 definition blocks (a `<dl>` and a "Humus: ..." paragraph), 1 FAQ block, 5 H2 sections of 7, 11, 8, 7 and 20 words (average 10.6, outside the 100 to 300 band).
+- [x] FR-AEO-04: `topic.html` has links in three places outside the main content. Only the 3 main-content internal links count (2 unique). The aside's "Related articles" block is found with 2 links, there are 2 distinct H2s next to 1 H3, and 3 of 4 anchors are descriptive.
+- [x] FR-AEO-05: a robots.txt that disallows GPTBot reports GPTBot blocked and ClaudeBot, PerplexityBot, CCBot and Google-Extended allowed. `llms.txt` is fetched once per audit and parsed. A page whose raw HTML has no text but loads a script warns.
+- [x] FR-AEO-06: a microdata FAQPage and its JSON-LD twin give the same tree, and an RDFa Article matches its JSON-LD twin too. FAQPage and HowTo rules pass, warn or fail on fixtures in JSON-LD and microdata.
+- [x] FR-AEO-07 (Should): `article.html` is labelled article.
+
+### Decisions made in M7
+
+- The thresholds, each a named constant in `metrics/answer.rs`: an answer near the top is a paragraph of 15 to 80 words in the first 4 blocks, and on English pages it must read as a definition ("X is ...", "means", "refers to"). A short answer under a question heading is a paragraph of up to 60 words. The section band is 100 to 300 words. Under 50 raw words on a page with scripts suggests content that needs JavaScript.
+- Question headings end in a question mark (Latin, Arabic or full-width), or on English pages start with a question word.
+- Sections are read in document order: everything between one H2 and the next, however the markup nests. The first version read the H2's siblings, and the live run showed 0-word sections on abdulkadersafi.com, which wraps each H2 in its own `<div>`.
+- Page type checks run in this order: the site root is home, then Product, Article or ContactPage schema, then a contact URL or H1, then article structure, then business schema. Business schema often sits on every page of a site; checked first, it labelled every page of abdulkadersafi.com a local business.
+- AI crawler access is per page, checked against the page's own URL, like the other robots.txt metrics.
+- The schema tree marks a node "incomplete" when it lacks the key properties of a short per-type list (Article, Organization, LocalBusiness, Product, FAQPage, HowTo, and the types nested under them). Other types are listed without a check.
+- With `--render-crawl`, the DOM is the one Chrome built, so "content without JavaScript" says it was not measured. `PageData` gets `js_rendered`, `schema` and an `in_main` flag on each link, and `SiteData` gets `llms`.
+- With no FAQPage or HowTo on a page, the two new rules return info, which the score skips, so pages without that markup score as before.
+- A new `answer-engine` category gets the label "Answer engine" and sorts after the TS categories.
 
 ## M6: text engine
 
