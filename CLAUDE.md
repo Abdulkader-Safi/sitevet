@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The library (crawl, 96 rules: the 94 TS ones plus FAQPage and HowTo, collectors, scoring, JSON/Markdown/HTML reports) and the CLI (`audit`, `rules`, `init`) exist; the browser stage (M4), run history (M5), the text engine (M6) and the answer engine (M7) are built; 0.3.1 is on crates.io.
+This repo is `sitevet`: a Rust rewrite of a website audit engine, shipped as a library crate plus a CLI binary built on that crate. The spec is signed off and the build runs milestone by milestone (status in `PROGRESS.md`). The library (crawl, 101 rules: the 94 TS ones plus FAQPage, HowTo and five trust checks, nine site-wide checks, collectors, scoring, JSON/Markdown/HTML reports) and the CLI (`audit`, `rules`, `init`) exist; the browser stage (M4), run history (M5), the text engine (M6), the answer engine (M7), site-wide checks (M8) and trust signals (M9) are built; 0.4.0 is on crates.io.
 
 - The spec lives in `docs/spec/`, written one stage at a time with the `project-spec` skill: `01-product.md` through `06-build-spec.md`. Only files marked `Status: signed off` are decided. Treat drafts as open.
 - Once `06-build-spec.md` is signed off, build from it alone, milestone by milestone, starting with M0. Follow its section 13 (keep `PROGRESS.md` at the repo root, commit per milestone, never add features outside the spec).
