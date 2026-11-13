@@ -7,6 +7,9 @@ use crate::{Link, Rule, RuleCx, RuleResult as R, Status};
 
 const CATEGORY: &str = "links";
 
+/// Anchor text that says nothing about the destination.
+pub(crate) const GENERIC_ANCHOR: &str = r"(?i)^(click here|read more|here|learn more|more|link|this)$";
+
 pub(super) fn rules() -> Vec<Arc<dyn Rule>> {
     vec![
         Arc::new(BrokenInternal),
@@ -115,7 +118,7 @@ dom_rule!(
     Info,
     "Replace generic anchors like 'click here' with text that describes the destination.",
     |cx, dom, html| {
-        let weak = re(r"(?i)^(click here|read more|here|learn more|more|link|this)$");
+        let weak = re(GENERIC_ANCHOR);
         let bad: Vec<&Link> = cx.page.links.iter().filter(|l| weak.is_match(l.text.trim())).collect();
         if bad.is_empty() {
             return vec![R::pass("No generic anchor text")];

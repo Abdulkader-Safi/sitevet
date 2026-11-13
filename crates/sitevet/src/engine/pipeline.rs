@@ -112,6 +112,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                 // The DOM is not Send: it is built, read and dropped inside this one blocking call.
                 let job = tokio::task::spawn_blocking(move || {
                     let mut page = page;
+                    page.js_rendered = rendered.is_some();
                     let content_type = page.headers.iter().find(|(k, _)| k == "content-type").map(|(_, v)| v.as_str());
                     let html = match &rendered {
                         Some(r) => std::borrow::Cow::Borrowed(r.as_str()),

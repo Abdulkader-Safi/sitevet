@@ -29,10 +29,11 @@ fn findings(p: &Page, only: &[&str]) -> Vec<crate::Finding> {
 }
 
 #[test]
-fn registry_has_94_unique_rules() {
+fn registry_has_the_94_ts_rules_plus_new_ones() {
+    // 94 from the TS package, then structured-data/faqpage-valid and howto-valid (M7).
     let rules = super::all_rules();
-    assert_eq!(rules.len(), 94);
-    assert_eq!(rules.iter().map(|r| r.meta().id).collect::<HashSet<_>>().len(), 94);
+    assert_eq!(rules.len(), 96);
+    assert_eq!(rules.iter().map(|r| r.meta().id).collect::<HashSet<_>>().len(), 96);
     // Every rule ID sits under its own category.
     assert!(rules.iter().all(|r| r.meta().id.starts_with(&format!("{}/", r.meta().category))));
 }

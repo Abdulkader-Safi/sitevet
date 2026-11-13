@@ -65,6 +65,8 @@ All 6 checks passed.
 | WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
 | WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
 | INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+| INFO | structured-data/faqpage-valid | No FAQPage schema |  |
+| INFO | structured-data/howto-valid | No HowTo schema |  |
 
 8 other checks passed.
 
@@ -252,6 +254,12 @@ All 8 checks passed.
 | Missing alt | 0 | ok |  |
 | Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
 
+##### Structured data
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Structured data items | 0 | missing | JSON-LD 0, microdata 0, RDFa 0 |
+
 ##### Crawlability
 
 | Metric | Value | Status | Note |
@@ -302,6 +310,48 @@ All 8 checks passed.
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
 
+##### Answer engine
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Answer near the top | - | warn | No definition of 15 to 80 words in the first 4 blocks |
+| Answer length | - | - |  |
+| Question headings | 0 | - | H2s phrased as a question |
+| Answered questions | 0 | - | Followed directly by a paragraph of up to 60 words |
+| Question coverage | - | missing | Answered questions over question headings |
+| H2 sections | 0 | - |  |
+| Words per H2 section | - | missing | No H2 sections |
+| Internal links in main content | 3 | - | 3 unique. Nav, aside, header and footer links excluded |
+| Unique internal links in main content | 3 | - |  |
+| Related reading section | - | missing | No related-reading block found |
+| Distinct H2 topics | 0 | - |  |
+| H3 headings | 0 | - |  |
+| Descriptive anchors | 1 | ok | 3 of 3 main-content links say where they go |
+| AI crawlers blocked | 0 | ok | None of the 5 |
+| llms.txt | - | missing | Not found |
+| Content without JavaScript | 9 words | ok | Main content words in the HTML as served |
+| Page type | home | ok | From the URL: the site root |
+
+**Answer formats**
+
+| Format | Count |
+| --- | --- |
+| Lists | 0 |
+| Step lists | 0 |
+| Tables | 0 |
+| Definition blocks | 0 |
+| FAQ blocks | 0 |
+
+**AI crawler access**
+
+| Crawler | This page |
+| --- | --- |
+| GPTBot | allowed |
+| ClaudeBot | allowed |
+| PerplexityBot | allowed |
+| CCBot | allowed |
+| Google-Extended | allowed |
+
 ### http://fixture.test/about.html (score 73/100)
 
 #### Core SEO
@@ -341,6 +391,8 @@ All 6 checks passed.
 | WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
 | WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
 | INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+| INFO | structured-data/faqpage-valid | No FAQPage schema |  |
+| INFO | structured-data/howto-valid | No HowTo schema |  |
 
 8 other checks passed.
 
@@ -525,6 +577,12 @@ All 8 checks passed.
 | Missing alt | 0 | ok |  |
 | Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
 
+##### Structured data
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Structured data items | 0 | missing | JSON-LD 0, microdata 0, RDFa 0 |
+
 ##### Crawlability
 
 | Metric | Value | Status | Note |
@@ -575,6 +633,48 @@ All 8 checks passed.
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
 
+##### Answer engine
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Answer near the top | - | warn | No definition of 15 to 80 words in the first 4 blocks |
+| Answer length | - | - |  |
+| Question headings | 0 | - | H2s phrased as a question |
+| Answered questions | 0 | - | Followed directly by a paragraph of up to 60 words |
+| Question coverage | - | missing | Answered questions over question headings |
+| H2 sections | 0 | - |  |
+| Words per H2 section | - | missing | No H2 sections |
+| Internal links in main content | 2 | - | 2 unique. Nav, aside, header and footer links excluded |
+| Unique internal links in main content | 2 | - |  |
+| Related reading section | - | missing | No related-reading block found |
+| Distinct H2 topics | 0 | - |  |
+| H3 headings | 0 | - |  |
+| Descriptive anchors | 1 | ok | 2 of 2 main-content links say where they go |
+| AI crawlers blocked | 0 | ok | None of the 5 |
+| llms.txt | - | missing | Not found |
+| Content without JavaScript | 6 words | ok | Main content words in the HTML as served |
+| Page type | - | missing | Could not tell from schema or structure |
+
+**Answer formats**
+
+| Format | Count |
+| --- | --- |
+| Lists | 0 |
+| Step lists | 0 |
+| Tables | 0 |
+| Definition blocks | 0 |
+| FAQ blocks | 0 |
+
+**AI crawler access**
+
+| Crawler | This page |
+| --- | --- |
+| GPTBot | allowed |
+| ClaudeBot | allowed |
+| PerplexityBot | allowed |
+| CCBot | allowed |
+| Google-Extended | allowed |
+
 ### http://fixture.test/orphan.html (score 73/100)
 
 #### Core SEO
@@ -614,6 +714,8 @@ All 6 checks passed.
 | WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
 | WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
 | INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+| INFO | structured-data/faqpage-valid | No FAQPage schema |  |
+| INFO | structured-data/howto-valid | No HowTo schema |  |
 
 8 other checks passed.
 
@@ -791,6 +893,12 @@ All 8 checks passed.
 | Missing alt | 0 | ok |  |
 | Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
 
+##### Structured data
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Structured data items | 0 | missing | JSON-LD 0, microdata 0, RDFa 0 |
+
 ##### Crawlability
 
 | Metric | Value | Status | Note |
@@ -841,6 +949,48 @@ All 8 checks passed.
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
 
+##### Answer engine
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Answer near the top | - | warn | No definition of 15 to 80 words in the first 4 blocks |
+| Answer length | - | - |  |
+| Question headings | 0 | - | H2s phrased as a question |
+| Answered questions | 0 | - | Followed directly by a paragraph of up to 60 words |
+| Question coverage | - | missing | Answered questions over question headings |
+| H2 sections | 0 | - |  |
+| Words per H2 section | - | missing | No H2 sections |
+| Internal links in main content | 0 | - | 0 unique. Nav, aside, header and footer links excluded |
+| Unique internal links in main content | 0 | - |  |
+| Related reading section | - | missing | No related-reading block found |
+| Distinct H2 topics | 0 | - |  |
+| H3 headings | 0 | - |  |
+| Descriptive anchors | - | missing | 0 of 0 main-content links say where they go |
+| AI crawlers blocked | 0 | ok | None of the 5 |
+| llms.txt | - | missing | Not found |
+| Content without JavaScript | 7 words | ok | Main content words in the HTML as served |
+| Page type | - | missing | Could not tell from schema or structure |
+
+**Answer formats**
+
+| Format | Count |
+| --- | --- |
+| Lists | 0 |
+| Step lists | 0 |
+| Tables | 0 |
+| Definition blocks | 0 |
+| FAQ blocks | 0 |
+
+**AI crawler access**
+
+| Crawler | This page |
+| --- | --- |
+| GPTBot | allowed |
+| ClaudeBot | allowed |
+| PerplexityBot | allowed |
+| CCBot | allowed |
+| Google-Extended | allowed |
+
 ### http://fixture.test/contact.html (score 64/100)
 
 #### Core SEO
@@ -885,6 +1035,8 @@ All 6 checks passed.
 | WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
 | WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
 | INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+| INFO | structured-data/faqpage-valid | No FAQPage schema |  |
+| INFO | structured-data/howto-valid | No HowTo schema |  |
 
 8 other checks passed.
 
@@ -1087,6 +1239,12 @@ All 8 checks passed.
 | Missing alt | 0 | ok |  |
 | Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
 
+##### Structured data
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Structured data items | 0 | missing | JSON-LD 0, microdata 0, RDFa 0 |
+
 ##### Crawlability
 
 | Metric | Value | Status | Note |
@@ -1137,6 +1295,48 @@ All 8 checks passed.
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
 
+##### Answer engine
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Answer near the top | - | warn | No definition of 15 to 80 words in the first 4 blocks |
+| Answer length | - | - |  |
+| Question headings | 0 | - | H2s phrased as a question |
+| Answered questions | 0 | - | Followed directly by a paragraph of up to 60 words |
+| Question coverage | - | missing | Answered questions over question headings |
+| H2 sections | 0 | - |  |
+| Words per H2 section | - | missing | No H2 sections |
+| Internal links in main content | 2 | - | 2 unique. Nav, aside, header and footer links excluded |
+| Unique internal links in main content | 2 | - |  |
+| Related reading section | - | missing | No related-reading block found |
+| Distinct H2 topics | 0 | - |  |
+| H3 headings | 0 | - |  |
+| Descriptive anchors | 1 | ok | 2 of 2 main-content links say where they go |
+| AI crawlers blocked | 0 | ok | None of the 5 |
+| llms.txt | - | missing | Not found |
+| Content without JavaScript | 9 words | ok | Main content words in the HTML as served |
+| Page type | contact | ok | From the URL or H1 |
+
+**Answer formats**
+
+| Format | Count |
+| --- | --- |
+| Lists | 0 |
+| Step lists | 0 |
+| Tables | 0 |
+| Definition blocks | 0 |
+| FAQ blocks | 0 |
+
+**AI crawler access**
+
+| Crawler | This page |
+| --- | --- |
+| GPTBot | allowed |
+| ClaudeBot | allowed |
+| PerplexityBot | allowed |
+| CCBot | allowed |
+| Google-Extended | allowed |
+
 ### http://fixture.test/missing.html (score 66/100)
 
 HTTP status 404.
@@ -1181,6 +1381,8 @@ All 6 checks passed.
 | WARN | structured-data/org-or-website | No Organization or WebSite schema |  |
 | WARN | structured-data/jsonld-present | No JSON-LD structured data |  |
 | INFO | structured-data/breadcrumb-valid | No breadcrumb schema |  |
+| INFO | structured-data/faqpage-valid | No FAQPage schema |  |
+| INFO | structured-data/howto-valid | No HowTo schema |  |
 
 8 other checks passed.
 
@@ -1356,6 +1558,12 @@ All 8 checks passed.
 | Missing alt | 0 | ok |  |
 | Loaded over HTTP | 0 | ok | Insecure images break the padlock on an HTTPS page |
 
+##### Structured data
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Structured data items | 0 | missing | JSON-LD 0, microdata 0, RDFa 0 |
+
 ##### Crawlability
 
 | Metric | Value | Status | Note |
@@ -1405,6 +1613,48 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+
+##### Answer engine
+
+| Metric | Value | Status | Note |
+| --- | --- | --- | --- |
+| Answer near the top | - | warn | No definition of 15 to 80 words in the first 4 blocks |
+| Answer length | - | - |  |
+| Question headings | 0 | - | H2s phrased as a question |
+| Answered questions | 0 | - | Followed directly by a paragraph of up to 60 words |
+| Question coverage | - | missing | Answered questions over question headings |
+| H2 sections | 0 | - |  |
+| Words per H2 section | - | missing | No H2 sections |
+| Internal links in main content | 0 | - | 0 unique. Nav, aside, header and footer links excluded |
+| Unique internal links in main content | 0 | - |  |
+| Related reading section | - | missing | No related-reading block found |
+| Distinct H2 topics | 0 | - |  |
+| H3 headings | 0 | - |  |
+| Descriptive anchors | - | missing | 0 of 0 main-content links say where they go |
+| AI crawlers blocked | 0 | ok | None of the 5 |
+| llms.txt | - | missing | Not found |
+| Content without JavaScript | 2 words | ok | Main content words in the HTML as served |
+| Page type | - | missing | Could not tell from schema or structure |
+
+**Answer formats**
+
+| Format | Count |
+| --- | --- |
+| Lists | 0 |
+| Step lists | 0 |
+| Tables | 0 |
+| Definition blocks | 0 |
+| FAQ blocks | 0 |
+
+**AI crawler access**
+
+| Crawler | This page |
+| --- | --- |
+| GPTBot | allowed |
+| ClaudeBot | allowed |
+| PerplexityBot | allowed |
+| CCBot | allowed |
+| Google-Extended | allowed |
 
 ## Skipped rules
 

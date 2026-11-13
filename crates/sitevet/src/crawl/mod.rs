@@ -2,6 +2,7 @@
 
 mod fetch;
 mod links;
+mod llms;
 mod robots;
 mod sitemap;
 mod ssrf;
@@ -19,6 +20,7 @@ pub(crate) use fetch::{Fetcher, decode_html};
 pub(crate) use links::LinkChecker;
 pub(crate) use links::ROBOTS_BLOCKED;
 pub use links::{LinkStatus, LinkStatusMap};
+pub use llms::LlmsInfo;
 pub(crate) use robots::RobotsGuard;
 pub use robots::RobotsInfo;
 pub use sitemap::SitemapInfo;
@@ -37,6 +39,7 @@ pub struct SiteData {
     pub start_url: String,
     pub robots: RobotsInfo,
     pub sitemap: SitemapInfo,
+    pub llms: LlmsInfo,
 }
 
 /// Drops the fragment. `/a` and `/a/` stay distinct here; the crawl merges them when one
@@ -47,7 +50,8 @@ pub(crate) fn normalize(url: &Url) -> Url {
     u
 }
 
-/// Fetches robots.txt and every sitemap it lists (or `/sitemap.xml`), each file once.
+/// Fetches robots.txt, `/llms.txt` and every sitemap robots.txt lists (or `/sitemap.xml`), each
+/// file once.
 pub(crate) async fn load_site(fetcher: &Fetcher, start: &Url) -> SiteData {
     let mut site =
         SiteData { origin: start.origin().ascii_serialization(), start_url: start.to_string(), ..Default::default() };
@@ -65,6 +69,16 @@ pub(crate) async fn load_site(fetcher: &Fetcher, start: &Url) -> SiteData {
                 site.robots = RobotsInfo { exists: true, status: f.status, content, sitemaps: site.robots.sitemaps };
             }
             Ok(f) => site.robots.status = f.status,
+            Err(_) => {}
+        }
+    }
+
+    if let Ok(llms_url) = start.join("/llms.txt") {
+        match fetcher.fetch(&llms_url, Method::GET, Body::Read(ROBOTS_CAP)).await {
+            Ok(f) if (200..300).contains(&f.status) => {
+                site.llms = LlmsInfo::parse(f.status, &String::from_utf8_lossy(&f.body));
+            }
+            Ok(f) => site.llms.status = f.status,
             Err(_) => {}
         }
     }

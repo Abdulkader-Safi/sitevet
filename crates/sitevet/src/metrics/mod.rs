@@ -1,12 +1,14 @@
 //! Collectors, ported from the TS package's `src/metrics/*.ts`. Metrics are values and tables
 //! with their own status; they never touch the score.
 
+mod answer;
 mod directives;
 mod headings;
 mod links;
 mod markup;
 mod meta;
 mod page;
+mod schema_tree;
 mod text;
 
 use std::sync::Arc;
@@ -24,6 +26,8 @@ pub(crate) fn all() -> Vec<Arc<dyn Collector>> {
         headings::collectors(),
         meta::collectors(),
         text::collectors(),
+        answer::collectors(),
+        schema_tree::collectors(),
     ]
     .concat()
 }

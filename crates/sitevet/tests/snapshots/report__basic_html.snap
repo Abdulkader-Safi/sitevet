@@ -380,6 +380,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">FAQPage schema <code class="rule">structured-data/faqpage-valid</code></p>
+            <p dir="auto">No FAQPage schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">HowTo schema <code class="rule">structured-data/howto-valid</code></p>
+            <p dir="auto">No HowTo schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">8 other checks passed.</p>
       
@@ -836,6 +856,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Structured data</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Structured data items</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto">JSON-LD 0, microdata 0, RDFa 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
         <h4>Crawlability</h4>
         
         <div class="table-wrap"><table>
@@ -926,6 +959,69 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Answer engine</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Answer near the top</th><td dir="auto">-</td><td><span class="vs warn">warn</span></td><td dir="auto">No definition of 15 to 80 words in the first 4 blocks</td></tr>
+          
+          <tr><th scope="row">Answer length</th><td dir="auto">-</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Question headings</th><td dir="auto">0</td><td>-</td><td dir="auto">H2s phrased as a question</td></tr>
+          
+          <tr><th scope="row">Answered questions</th><td dir="auto">0</td><td>-</td><td dir="auto">Followed directly by a paragraph of up to 60 words</td></tr>
+          
+          <tr><th scope="row">Question coverage</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Answered questions over question headings</td></tr>
+          
+          <tr><th scope="row">H2 sections</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Words per H2 section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No H2 sections</td></tr>
+          
+          <tr><th scope="row">Internal links in main content</th><td dir="auto">3</td><td>-</td><td dir="auto">3 unique. Nav, aside, header and footer links excluded</td></tr>
+          
+          <tr><th scope="row">Unique internal links in main content</th><td dir="auto">3</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Related reading section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No related-reading block found</td></tr>
+          
+          <tr><th scope="row">Distinct H2 topics</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">H3 headings</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Descriptive anchors</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">3 of 3 main-content links say where they go</td></tr>
+          
+          <tr><th scope="row">AI crawlers blocked</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">None of the 5</td></tr>
+          
+          <tr><th scope="row">llms.txt</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Not found</td></tr>
+          
+          <tr><th scope="row">Content without JavaScript</th><td dir="auto">9 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Main content words in the HTML as served</td></tr>
+          
+          <tr><th scope="row">Page type</th><td dir="auto">home</td><td><span class="vs ok">ok</span></td><td dir="auto">From the URL: the site root</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Answer formats</caption>
+          <thead><tr><th scope="col">Format</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Step lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Tables</td><td dir="auto">0</td></tr><tr><td dir="auto">Definition blocks</td><td dir="auto">0</td></tr><tr><td dir="auto">FAQ blocks</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>AI crawler access</caption>
+          <thead><tr><th scope="col">Crawler</th><th scope="col">This page</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">GPTBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">ClaudeBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">PerplexityBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">CCBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">Google-Extended</td><td dir="auto">allowed</td></tr>
+          </tbody>
+        </table></div>
         
         
       </details>
@@ -1080,6 +1176,26 @@ tbody th { font-weight: 500; }
             <p dir="auto">No breadcrumb schema</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">FAQPage schema <code class="rule">structured-data/faqpage-valid</code></p>
+            <p dir="auto">No FAQPage schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">HowTo schema <code class="rule">structured-data/howto-valid</code></p>
+            <p dir="auto">No HowTo schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.</p>
           </div>
         </li>
         
@@ -1549,6 +1665,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Structured data</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Structured data items</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto">JSON-LD 0, microdata 0, RDFa 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
         <h4>Crawlability</h4>
         
         <div class="table-wrap"><table>
@@ -1639,6 +1768,69 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Answer engine</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Answer near the top</th><td dir="auto">-</td><td><span class="vs warn">warn</span></td><td dir="auto">No definition of 15 to 80 words in the first 4 blocks</td></tr>
+          
+          <tr><th scope="row">Answer length</th><td dir="auto">-</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Question headings</th><td dir="auto">0</td><td>-</td><td dir="auto">H2s phrased as a question</td></tr>
+          
+          <tr><th scope="row">Answered questions</th><td dir="auto">0</td><td>-</td><td dir="auto">Followed directly by a paragraph of up to 60 words</td></tr>
+          
+          <tr><th scope="row">Question coverage</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Answered questions over question headings</td></tr>
+          
+          <tr><th scope="row">H2 sections</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Words per H2 section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No H2 sections</td></tr>
+          
+          <tr><th scope="row">Internal links in main content</th><td dir="auto">2</td><td>-</td><td dir="auto">2 unique. Nav, aside, header and footer links excluded</td></tr>
+          
+          <tr><th scope="row">Unique internal links in main content</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Related reading section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No related-reading block found</td></tr>
+          
+          <tr><th scope="row">Distinct H2 topics</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">H3 headings</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Descriptive anchors</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">2 of 2 main-content links say where they go</td></tr>
+          
+          <tr><th scope="row">AI crawlers blocked</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">None of the 5</td></tr>
+          
+          <tr><th scope="row">llms.txt</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Not found</td></tr>
+          
+          <tr><th scope="row">Content without JavaScript</th><td dir="auto">6 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Main content words in the HTML as served</td></tr>
+          
+          <tr><th scope="row">Page type</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Could not tell from schema or structure</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Answer formats</caption>
+          <thead><tr><th scope="col">Format</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Step lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Tables</td><td dir="auto">0</td></tr><tr><td dir="auto">Definition blocks</td><td dir="auto">0</td></tr><tr><td dir="auto">FAQ blocks</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>AI crawler access</caption>
+          <thead><tr><th scope="col">Crawler</th><th scope="col">This page</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">GPTBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">ClaudeBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">PerplexityBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">CCBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">Google-Extended</td><td dir="auto">allowed</td></tr>
+          </tbody>
+        </table></div>
         
         
       </details>
@@ -1793,6 +1985,26 @@ tbody th { font-weight: 500; }
             <p dir="auto">No breadcrumb schema</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">FAQPage schema <code class="rule">structured-data/faqpage-valid</code></p>
+            <p dir="auto">No FAQPage schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">HowTo schema <code class="rule">structured-data/howto-valid</code></p>
+            <p dir="auto">No HowTo schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.</p>
           </div>
         </li>
         
@@ -2263,6 +2475,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Structured data</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Structured data items</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto">JSON-LD 0, microdata 0, RDFa 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
         <h4>Crawlability</h4>
         
         <div class="table-wrap"><table>
@@ -2353,6 +2578,69 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Answer engine</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Answer near the top</th><td dir="auto">-</td><td><span class="vs warn">warn</span></td><td dir="auto">No definition of 15 to 80 words in the first 4 blocks</td></tr>
+          
+          <tr><th scope="row">Answer length</th><td dir="auto">-</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Question headings</th><td dir="auto">0</td><td>-</td><td dir="auto">H2s phrased as a question</td></tr>
+          
+          <tr><th scope="row">Answered questions</th><td dir="auto">0</td><td>-</td><td dir="auto">Followed directly by a paragraph of up to 60 words</td></tr>
+          
+          <tr><th scope="row">Question coverage</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Answered questions over question headings</td></tr>
+          
+          <tr><th scope="row">H2 sections</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Words per H2 section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No H2 sections</td></tr>
+          
+          <tr><th scope="row">Internal links in main content</th><td dir="auto">0</td><td>-</td><td dir="auto">0 unique. Nav, aside, header and footer links excluded</td></tr>
+          
+          <tr><th scope="row">Unique internal links in main content</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Related reading section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No related-reading block found</td></tr>
+          
+          <tr><th scope="row">Distinct H2 topics</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">H3 headings</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Descriptive anchors</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 main-content links say where they go</td></tr>
+          
+          <tr><th scope="row">AI crawlers blocked</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">None of the 5</td></tr>
+          
+          <tr><th scope="row">llms.txt</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Not found</td></tr>
+          
+          <tr><th scope="row">Content without JavaScript</th><td dir="auto">7 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Main content words in the HTML as served</td></tr>
+          
+          <tr><th scope="row">Page type</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Could not tell from schema or structure</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Answer formats</caption>
+          <thead><tr><th scope="col">Format</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Step lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Tables</td><td dir="auto">0</td></tr><tr><td dir="auto">Definition blocks</td><td dir="auto">0</td></tr><tr><td dir="auto">FAQ blocks</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>AI crawler access</caption>
+          <thead><tr><th scope="col">Crawler</th><th scope="col">This page</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">GPTBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">ClaudeBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">PerplexityBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">CCBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">Google-Extended</td><td dir="auto">allowed</td></tr>
+          </tbody>
+        </table></div>
         
         
       </details>
@@ -2530,6 +2818,26 @@ tbody th { font-weight: 500; }
             <p dir="auto">No breadcrumb schema</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">FAQPage schema <code class="rule">structured-data/faqpage-valid</code></p>
+            <p dir="auto">No FAQPage schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">HowTo schema <code class="rule">structured-data/howto-valid</code></p>
+            <p dir="auto">No HowTo schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.</p>
           </div>
         </li>
         
@@ -3036,6 +3344,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Structured data</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Structured data items</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto">JSON-LD 0, microdata 0, RDFa 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
         <h4>Crawlability</h4>
         
         <div class="table-wrap"><table>
@@ -3126,6 +3447,69 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Answer engine</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Answer near the top</th><td dir="auto">-</td><td><span class="vs warn">warn</span></td><td dir="auto">No definition of 15 to 80 words in the first 4 blocks</td></tr>
+          
+          <tr><th scope="row">Answer length</th><td dir="auto">-</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Question headings</th><td dir="auto">0</td><td>-</td><td dir="auto">H2s phrased as a question</td></tr>
+          
+          <tr><th scope="row">Answered questions</th><td dir="auto">0</td><td>-</td><td dir="auto">Followed directly by a paragraph of up to 60 words</td></tr>
+          
+          <tr><th scope="row">Question coverage</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Answered questions over question headings</td></tr>
+          
+          <tr><th scope="row">H2 sections</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Words per H2 section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No H2 sections</td></tr>
+          
+          <tr><th scope="row">Internal links in main content</th><td dir="auto">2</td><td>-</td><td dir="auto">2 unique. Nav, aside, header and footer links excluded</td></tr>
+          
+          <tr><th scope="row">Unique internal links in main content</th><td dir="auto">2</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Related reading section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No related-reading block found</td></tr>
+          
+          <tr><th scope="row">Distinct H2 topics</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">H3 headings</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Descriptive anchors</th><td dir="auto">1</td><td><span class="vs ok">ok</span></td><td dir="auto">2 of 2 main-content links say where they go</td></tr>
+          
+          <tr><th scope="row">AI crawlers blocked</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">None of the 5</td></tr>
+          
+          <tr><th scope="row">llms.txt</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Not found</td></tr>
+          
+          <tr><th scope="row">Content without JavaScript</th><td dir="auto">9 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Main content words in the HTML as served</td></tr>
+          
+          <tr><th scope="row">Page type</th><td dir="auto">contact</td><td><span class="vs ok">ok</span></td><td dir="auto">From the URL or H1</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Answer formats</caption>
+          <thead><tr><th scope="col">Format</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Step lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Tables</td><td dir="auto">0</td></tr><tr><td dir="auto">Definition blocks</td><td dir="auto">0</td></tr><tr><td dir="auto">FAQ blocks</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>AI crawler access</caption>
+          <thead><tr><th scope="col">Crawler</th><th scope="col">This page</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">GPTBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">ClaudeBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">PerplexityBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">CCBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">Google-Extended</td><td dir="auto">allowed</td></tr>
+          </tbody>
+        </table></div>
         
         
       </details>
@@ -3312,6 +3696,26 @@ tbody th { font-weight: 500; }
             <p dir="auto">No breadcrumb schema</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Add BreadcrumbList structured data to show the page&#39;s position in the site.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">FAQPage schema <code class="rule">structured-data/faqpage-valid</code></p>
+            <p dir="auto">No FAQPage schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">HowTo schema <code class="rule">structured-data/howto-valid</code></p>
+            <p dir="auto">No HowTo schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.</p>
           </div>
         </li>
         
@@ -3782,6 +4186,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Structured data</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Structured data items</th><td dir="auto">0</td><td><span class="vs missing">missing</span></td><td dir="auto">JSON-LD 0, microdata 0, RDFa 0</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        
         <h4>Crawlability</h4>
         
         <div class="table-wrap"><table>
@@ -3872,6 +4289,69 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Answer engine</h4>
+        
+        <div class="table-wrap"><table>
+          <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          
+          <tr><th scope="row">Answer near the top</th><td dir="auto">-</td><td><span class="vs warn">warn</span></td><td dir="auto">No definition of 15 to 80 words in the first 4 blocks</td></tr>
+          
+          <tr><th scope="row">Answer length</th><td dir="auto">-</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Question headings</th><td dir="auto">0</td><td>-</td><td dir="auto">H2s phrased as a question</td></tr>
+          
+          <tr><th scope="row">Answered questions</th><td dir="auto">0</td><td>-</td><td dir="auto">Followed directly by a paragraph of up to 60 words</td></tr>
+          
+          <tr><th scope="row">Question coverage</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Answered questions over question headings</td></tr>
+          
+          <tr><th scope="row">H2 sections</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Words per H2 section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No H2 sections</td></tr>
+          
+          <tr><th scope="row">Internal links in main content</th><td dir="auto">0</td><td>-</td><td dir="auto">0 unique. Nav, aside, header and footer links excluded</td></tr>
+          
+          <tr><th scope="row">Unique internal links in main content</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Related reading section</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">No related-reading block found</td></tr>
+          
+          <tr><th scope="row">Distinct H2 topics</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">H3 headings</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Descriptive anchors</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 main-content links say where they go</td></tr>
+          
+          <tr><th scope="row">AI crawlers blocked</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">None of the 5</td></tr>
+          
+          <tr><th scope="row">llms.txt</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Not found</td></tr>
+          
+          <tr><th scope="row">Content without JavaScript</th><td dir="auto">2 words</td><td><span class="vs ok">ok</span></td><td dir="auto">Main content words in the HTML as served</td></tr>
+          
+          <tr><th scope="row">Page type</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">Could not tell from schema or structure</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Answer formats</caption>
+          <thead><tr><th scope="col">Format</th><th scope="col">Count</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Step lists</td><td dir="auto">0</td></tr><tr><td dir="auto">Tables</td><td dir="auto">0</td></tr><tr><td dir="auto">Definition blocks</td><td dir="auto">0</td></tr><tr><td dir="auto">FAQ blocks</td><td dir="auto">0</td></tr>
+          </tbody>
+        </table></div>
+        
+        <div class="table-wrap"><table>
+          <caption>AI crawler access</caption>
+          <thead><tr><th scope="col">Crawler</th><th scope="col">This page</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">GPTBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">ClaudeBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">PerplexityBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">CCBot</td><td dir="auto">allowed</td></tr><tr><td dir="auto">Google-Extended</td><td dir="auto">allowed</td></tr>
+          </tbody>
+        </table></div>
         
         
       </details>

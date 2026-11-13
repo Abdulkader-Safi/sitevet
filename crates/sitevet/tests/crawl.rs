@@ -48,16 +48,22 @@ async fn defaults_crawl_100_pages_within_depth_5() {
 }
 
 /// FR-CRAWL-03: robots.txt and sitemap.xml are requested once each, even with link checks on.
+/// So is llms.txt (FR-AEO-05).
 #[tokio::test]
 async fn robots_and_sitemap_fetched_once() {
     let robots = Route::html("User-agent: *\nAllow: /\n").content_type("text/plain");
     let sitemap = Route::html("<urlset><url><loc>{{origin}}/p3</loc></url></urlset>").content_type("application/xml");
-    let site = chain_site(20, Duration::ZERO).route("/robots.txt", robots).route("/sitemap.xml", sitemap);
+    let llms = Route::html("# Fixture site\n\n- [Home]({{origin}}/)\n").content_type("text/plain");
+    let site = chain_site(20, Duration::ZERO)
+        .route("/robots.txt", robots)
+        .route("/sitemap.xml", sitemap)
+        .route("/llms.txt", llms);
     let fx = Fixture::start(site).await;
     let report = audit(&fx.url("/"), test_options()).await.unwrap();
     assert_eq!(report.pages.len(), 20);
     assert_eq!(fx.count("/robots.txt"), 1);
     assert_eq!(fx.count("/sitemap.xml"), 1);
+    assert_eq!(fx.count("/llms.txt"), 1);
 }
 
 /// FR-CRAWL-04: a disallowed path is not requested, is listed as blocked, and is requested

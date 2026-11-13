@@ -52,8 +52,8 @@ pub fn report_schema() -> &'static str {
 
 const CSS: &str = include_str!("../../assets/report.css");
 
-/// The TS package's category names and order.
-const CATEGORIES: [(&str, &str); 15] = [
+/// The TS package's category names and order, then sitevet's own.
+const CATEGORIES: [(&str, &str); 16] = [
     ("core-seo", "Core SEO"),
     ("content", "Content"),
     ("links", "Links"),
@@ -69,6 +69,7 @@ const CATEGORIES: [(&str, &str); 15] = [
     ("eeat", "E-E-A-T"),
     ("accessibility", "Accessibility"),
     ("performance", "Performance"),
+    ("answer-engine", "Answer engine"),
 ];
 
 fn category_name(id: &str) -> String {

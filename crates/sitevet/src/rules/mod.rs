@@ -23,6 +23,7 @@ pub(crate) mod testkit;
 mod url_structure;
 
 pub(crate) use internationalization::HREFLANG;
+pub(crate) use links::GENERIC_ANCHOR;
 pub(crate) use structured_data::JSON_LD;
 
 use std::sync::Arc;

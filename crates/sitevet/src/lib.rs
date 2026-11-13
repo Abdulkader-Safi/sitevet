@@ -28,11 +28,12 @@ mod metrics;
 mod options;
 mod render_stage;
 mod report;
+mod schema;
 mod score;
 mod text;
 mod time;
 
-pub use crawl::{LinkStatus, LinkStatusMap, RobotsInfo, SiteData, SitemapInfo};
+pub use crawl::{LinkStatus, LinkStatusMap, LlmsInfo, RobotsInfo, SiteData, SitemapInfo};
 pub use engine::{
     AuditEvent, AuditHandle, AuditStream, audit, audit_score, audit_stream, audit_to_html, audit_to_markdown, spawn,
 };
@@ -52,6 +53,7 @@ pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,
     RuleMeta, RuleResult, Stage, all_collectors, all_rules, select_rules,
 };
+pub use schema::{SchemaItem, SchemaNode, SchemaProperty, SchemaSource, SchemaValue};
 pub use score::{compute_overall, score_findings};
 
 /// The HTML parser rules see in the [`Stage::Dom`] stage.
