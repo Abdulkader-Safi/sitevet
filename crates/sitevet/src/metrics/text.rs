@@ -256,7 +256,7 @@ mod tests {
 
     // Hand-counted. Words: garden soil guide / good soil feeds the garden / compost makes soil
     // rich and dark / water the garden soil every morning: 20 words, 4 sentences. Stop words:
-    // the, the, and. 14 distinct stems. 97 non-space characters, 94 of them in words.
+    // the, the, and, every. 14 distinct stems. 97 non-space characters, 94 of them in words.
     // Syllables (the TS estimate) 28, one complex word ("every"):
     // ease = 206.835 - 1.015 * 5 - 84.6 * 1.4 = 83.3, grade = 0.39 * 5 + 11.8 * 1.4 - 15.59 = 2.9,
     // fog = 0.4 * (5 + 100 / 20) = 4.
@@ -267,15 +267,19 @@ mod tests {
         assert_eq!(v(&p, "content/main-words"), n(20.0));
         assert_eq!(v(&p, "content/unique-words"), n(14.0));
         assert_eq!(v(&p, "content/unique-words-percent"), n(70.0));
-        assert_eq!(v(&p, "content/stop-words"), n(3.0));
-        assert_eq!(v(&p, "content/stop-words-percent"), n(15.0));
-        assert_eq!(v(&p, "content/water-percent"), n(15.0));
+        assert_eq!(v(&p, "content/stop-words"), n(4.0));
+        assert_eq!(v(&p, "content/stop-words-percent"), n(20.0));
+        assert_eq!(v(&p, "content/water-percent"), n(20.0));
         assert_eq!(v(&p, "content/avg-sentence-length"), n(5.0));
         assert_eq!(v(&p, "content/chars-no-spaces"), n(97.0));
         assert_eq!(v(&p, "content/avg-word-length"), n(4.7));
         let ease = value(&p.metric("content/flesch-reading-ease"));
         assert_eq!((ease.0, ease.1, ease.2.as_deref()), (n(83.3), Some(Ok), Some("Easy")));
         assert_eq!(v(&p, "content/flesch-kincaid-grade"), n(2.9));
+        // "just" is a stop word and a filler word: water counts it once.
+        let just = page(r#"<html lang="en"><p>It is just fine. Really just fine.</p></html>"#);
+        assert_eq!(v(&just, "content/stop-words"), n(4.0));
+        assert_eq!(v(&just, "content/water-percent"), n(71.4));
         assert_eq!(v(&p, "content/gunning-fog"), n(4.0));
     }
 

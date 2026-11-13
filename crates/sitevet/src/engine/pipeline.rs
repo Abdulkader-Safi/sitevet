@@ -103,17 +103,20 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
             let provider = provider.as_ref();
             async move {
                 // render_crawl: read links and content from the DOM after scripts ran.
-                let body = match provider {
-                    Some(p) if render_crawl && page.error.is_none() => {
-                        p.rendered_html(&page.final_url).await.map_or(body, String::into_bytes)
-                    }
-                    _ => body,
+                // Chrome hands back UTF-8 whatever the page declared, so only fetched bytes are decoded.
+                let rendered = match provider {
+                    Some(p) if render_crawl && page.error.is_none() => p.rendered_html(&page.final_url).await,
+                    _ => None,
                 };
                 let fallback = page.clone();
                 // The DOM is not Send: it is built, read and dropped inside this one blocking call.
                 let job = tokio::task::spawn_blocking(move || {
                     let mut page = page;
-                    let html = String::from_utf8_lossy(&body);
+                    let content_type = page.headers.iter().find(|(k, _)| k == "content-type").map(|(_, v)| v.as_str());
+                    let html = match &rendered {
+                        Some(r) => std::borrow::Cow::Borrowed(r.as_str()),
+                        None => crate::crawl::decode_html(&body, content_type),
+                    };
                     let dom = Html::parse_document(&html);
                     extract::extract(&dom, &mut page, &origin);
                     let no_links = LinkStatusMap::new();

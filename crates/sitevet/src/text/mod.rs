@@ -19,7 +19,9 @@ use whatlang::Script;
 use crate::report::LanguageInfo;
 use crate::rules::kit::sel;
 
-// The TS package's English stop word list.
+// The TS package's English stop word list, then the NLTK words it lacks (mostly contraction
+// pieces), then function words from the ISO list: pronouns, prepositions and connectors. ISO
+// content words ("home", "page", "best", "work") stay out, so they can still be keywords.
 const EN_STOP: &str = "a about above after again against all also am an and any are aren't as at be because been \
 before being below between both but by can can't cannot could couldn't did didn't do does doesn't doing don't down \
 during each even ever few for from further get gets got had hadn't has hasn't have haven't having he he'd he'll he's \
@@ -29,7 +31,18 @@ other ought our ours ourselves out over own per same shall shan't she she'd she'
 such than that that's the their theirs them themselves then there there's these they they'd they'll they're \
 they've this those through thus to too under until up upon us very via was wasn't we we'd we'll we're we've were \
 weren't what what's when when's where where's whether which while who who's whom why why's will with within without \
-won't would wouldn't yet you you'd you'll you're you've your yours yourself yourselves";
+won't would wouldn't yet you you'd you'll you're you've your yours yourself yourselves \
+ain aren couldn d didn doesn don hadn hasn haven isn it'd it'll ll m ma mightn mightn't mustn needn needn't o re s \
+shan should've shouldn t that'll ve wasn weren won wouldn y \
+across afterwards ago ahead almost alone along alongside already although always amid amidst among amongst another \
+anybody anyhow anymore anyone anything anyway anyways anywhere apart around aside away became become becomes \
+becoming beforehand behind beside besides beyond despite either else elsewhere enough etc every everybody everyone \
+everything everywhere except hence hereafter hereby herein hereupon indeed inside instead lest likewise maybe \
+meanwhile moreover namely neither nevertheless nobody none nonetheless nothing notwithstanding nowhere often onto \
+otherwise perhaps quite rather since somebody somehow someone something sometime sometimes somewhat somewhere soon \
+still thence thereafter thereby therefore therein thereof thereupon though throughout thru till together toward \
+towards unless unlike unto versus whatever whence whenever whereas whereby wherein whereupon wherever whichever \
+whilst whoever whomever whose";
 
 /// Words that pad a sentence without adding meaning. With stop words they make up "water".
 const EN_FILLER: &str = "actually absolutely basically certainly clearly completely definitely essentially \
@@ -383,7 +396,9 @@ pub(crate) fn analyze(dom: &Html, language: &LanguageInfo) -> TextAnalysis {
     let english = lang.is_english();
     let stop_hits: Vec<&String> = words.iter().filter(|w| lang.is_stop(w)).collect();
     let stop_words = lang.has_stop_words().then_some(stop_hits.len());
-    let filler = if english { words.iter().filter(|w| FILLER_EN.contains(w.as_str())).count() } else { 0 };
+    // A word on both lists ("just", "quite") counts once. The TS package counted it twice.
+    let filler =
+        if english { words.iter().filter(|w| FILLER_EN.contains(w.as_str()) && !lang.is_stop(w)).count() } else { 0 };
     TextAnalysis {
         source,
         spaced,

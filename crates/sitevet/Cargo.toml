@@ -45,6 +45,7 @@ unicode-segmentation.workspace = true
 whatlang.workspace = true
 stop-words.workspace = true
 rust-stemmers.workspace = true
+encoding_rs.workspace = true
 url.workspace = true
 
 [dev-dependencies]

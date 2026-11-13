@@ -260,3 +260,24 @@ async fn head_error_falls_back_to_get() {
         .collect();
     assert_eq!(broken, [format!("{base}/gone")]);
 }
+
+/// A windows-1252 page reads as the browser shows it, not as UTF-8 replacement characters.
+#[tokio::test]
+async fn legacy_charset_pages_decode() {
+    use wiremock::matchers::path;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+    let server = MockServer::start().await;
+    let html = "<html lang=\"fr\"><head><title>Caf\u{e9} cr\u{e8}me</title></head>\
+                <body><p>Le caf\u{e9} cr\u{e8}me du caf\u{e9}.</p></body></html>";
+    let latin1: Vec<u8> = html.chars().map(|c| u8::try_from(u32::from(c)).unwrap()).collect();
+    Mock::given(path("/"))
+        .respond_with(ResponseTemplate::new(200).set_body_raw(latin1, "text/html; charset=windows-1252"))
+        .mount(&server)
+        .await;
+    let mut options = Options::default();
+    options.only = vec!["content".into()];
+    let report = audit(&format!("{}/", server.uri()), options).await.unwrap();
+    let table = report.pages[0].metrics.iter().find(|m| m.id == "content/top-words-1").unwrap();
+    let sitevet::MetricBody::Table { rows, .. } = &table.body else { panic!("not a table") };
+    assert_eq!(rows[0][0], sitevet::MetricCell::Text("caf\u{e9}".into()));
+}

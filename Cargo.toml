@@ -37,6 +37,7 @@ unicode-segmentation = "1.13"
 whatlang = "0.18"
 stop-words = "0.10"
 rust-stemmers = "1.2"
+encoding_rs = "0.8"
 anyhow = "1"
 clap = { version = "4.6", features = ["derive", "env"] }
 askama = "0.16"
