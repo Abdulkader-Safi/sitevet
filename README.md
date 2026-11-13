@@ -8,7 +8,7 @@ It ships two ways from one codebase:
 - A CLI. `sitevet audit https://example.com` for a quick check in the terminal, or with `--fail-under 85` as a CI step that fails when the score drops.
 
 > [!NOTE]
-> sitevet 0.2.3 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
+> sitevet 0.3.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
 
 ## Install
 
@@ -45,9 +45,9 @@ The library and the `sitevet` command:
 - Rendered checks with `--browser` (your installed Chrome or Chromium): an axe-core accessibility pass and Core Web Vitals per page. Without Chrome, a PageSpeed Insights key (`SITEVET_PSI_KEY`) fills the same checks for the first 5 pages. With neither, those 7 rules are listed as skipped and don't touch the score.
 - `--render-crawl` to find links that only exist after JavaScript runs.
 - Per-page measurements (title and description lengths, link and heading tables, Open Graph and Twitter tags, directives, dates) that never touch the score.
-- Word counts and readability per page, with keyword tables, in the page's language. The language comes from `<html lang>`, or is detected from the text when that is missing. Stop words and word stems cover every language the ISO stop word lists and the Snowball stemmers do (English and Arabic are tested). English pages get Flesch reading ease, Flesch-Kincaid and Gunning Fog. Other languages get average sentence and word length instead, and pages in Chinese, Japanese, Thai or Khmer get a character count. On `main`, not released yet.
-- Answer engine measurements per page: a definition or short answer near the top, question headings and how many get a direct answer, answer formats (lists, steps, tables, definitions, FAQ blocks), words per H2 section, internal links in the main content, AI crawler access from robots.txt, `llms.txt`, how much content is there without JavaScript, and a page-type hint. They never touch the score. On `main`, not released yet.
-- A structured data tree read from JSON-LD, microdata and RDFa alike, with the key properties each item lacks, plus FAQPage and HowTo checks. On `main`, not released yet.
+- Word counts and readability per page, with keyword tables, in the page's language. The language comes from `<html lang>`, or is detected from the text when that is missing. Stop words and word stems cover every language the ISO stop word lists and the Snowball stemmers do (English and Arabic are tested). English pages get Flesch reading ease, Flesch-Kincaid and Gunning Fog. Other languages get average sentence and word length instead, and pages in Chinese, Japanese, Thai or Khmer get a character count.
+- Answer engine measurements per page: a definition or short answer near the top, question headings and how many get a direct answer, answer formats (lists, steps, tables, definitions, FAQ blocks), words per H2 section, internal links in the main content, AI crawler access from robots.txt, `llms.txt`, how much content is there without JavaScript, and a page-type hint. They never touch the score.
+- A structured data tree read from JSON-LD, microdata and RDFa alike, with the key properties each item lacks, plus FAQPage and HowTo checks.
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
