@@ -80,7 +80,10 @@ dom_rule!(
     Info,
     "Reduce the repetition of the flagged word and write naturally.",
     |cx, dom, html| {
-        let a = crate::text::analyze(dom);
+        let a = crate::text::analyze(dom, &cx.page.language);
+        if !a.spaced {
+            return vec![R::pass("Word-based check not available for this language")];
+        }
         if a.words.len() < MIN_WORDS_FOR_STUFFING {
             return vec![R::pass("Not enough text to flag stuffing")];
         }

@@ -369,6 +369,7 @@ fn page_result(page: PageData, findings: Vec<Finding>, metrics: Vec<Metric>) -> 
         response_ms: page.response_ms,
         html_bytes: page.html_bytes,
         truncated: page.truncated,
+        language: page.language,
         findings,
         metrics,
     }

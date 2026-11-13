@@ -185,6 +185,19 @@ All 8 checks passed.
 | HTML comments | 0 | ok | Comments ship to every visitor |
 | Placeholder links | 0 | ok | href="\#" or empty |
 | Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+| Detected language | fr | ok | Confidence 0.23, read from the main content |
+| Main content words | 9 | - | Read from \<body\>, nav, footer and hidden elements excluded |
+| Unique words | 9 | - | 100% of words |
+| Unique words share | 100 % | - |  |
+| Stop words | 3 | - | 33.3% of words |
+| Stop words share | 33.3 % | - |  |
+| Water | 33.3 % | ok | Stop words and filler, the share of words carrying no meaning |
+| Average sentence length | 1.8 words | ok | Up to 20 reads comfortably |
+| Characters | 47 | - | Main content, spaces excluded |
+| Flesch reading ease | 73.4 | ok | Easy |
+| Flesch-Kincaid grade | 3.5 | ok | US school grade, 9 or lower suits a general audience |
+| Gunning Fog index | 0.7 | ok | Years of schooling to read it first time, 12 or lower |
+| Average word length | 5.1 characters | - | Letters per word in the main content |
 
 **Headings per level**
 
@@ -202,6 +215,14 @@ All 8 checks passed.
 | Level | Heading | Contains |
 | --- | --- | --- |
 | H1 | Home | - |
+
+**Stop words**
+
+| Word | Count | % |
+| --- | --- | --- |
+| about | 1 | 11.1 |
+| the | 1 | 11.1 |
+| to | 1 | 11.1 |
 
 ##### Links
 
@@ -439,6 +460,19 @@ All 8 checks passed.
 | HTML comments | 0 | ok | Comments ship to every visitor |
 | Placeholder links | 0 | ok | href="\#" or empty |
 | Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+| Detected language | fr | ok | Confidence 0.03, read from the main content |
+| Main content words | 6 | - | Read from \<body\>, nav, footer and hidden elements excluded |
+| Unique words | 5 | - | 83.3% of words |
+| Unique words share | 83.3 % | - |  |
+| Stop words | 3 | - | 50% of words |
+| Stop words share | 50 % | - |  |
+| Water | 50 % | ok | Stop words and filler, the share of words carrying no meaning |
+| Average sentence length | 2 words | ok | Up to 20 reads comfortably |
+| Characters | 30 | - | Main content, spaces excluded |
+| Flesch reading ease | 77.9 | ok | Easy |
+| Flesch-Kincaid grade | 2.9 | ok | US school grade, 9 or lower suits a general audience |
+| Gunning Fog index | 0.8 | ok | Years of schooling to read it first time, 12 or lower |
+| Average word length | 4.8 characters | - | Letters per word in the main content |
 
 **Headings per level**
 
@@ -456,6 +490,13 @@ All 8 checks passed.
 | Level | Heading | Contains |
 | --- | --- | --- |
 | H1 | About | - |
+
+**Stop words**
+
+| Word | Count | % |
+| --- | --- | --- |
+| about | 2 | 33.3 |
+| this | 1 | 16.7 |
 
 ##### Links
 
@@ -691,6 +732,19 @@ All 8 checks passed.
 | HTML comments | 0 | ok | Comments ship to every visitor |
 | Placeholder links | 0 | ok | href="\#" or empty |
 | Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+| Detected language | en | ok | Confidence 1, read from the main content |
+| Main content words | 7 | - | Read from \<body\>, nav, footer and hidden elements excluded |
+| Unique words | 7 | - | 100% of words |
+| Unique words share | 100 % | - |  |
+| Stop words | 3 | - | 42.9% of words |
+| Stop words share | 42.9 % | - |  |
+| Water | 42.9 % | ok | Stop words and filler, the share of words carrying no meaning |
+| Average sentence length | 3.5 words | ok | Up to 20 reads comfortably |
+| Characters | 34 | - | Main content, spaces excluded |
+| Flesch reading ease | 70.3 | ok | Easy |
+| Flesch-Kincaid grade | 4.3 | ok | US school grade, 9 or lower suits a general audience |
+| Gunning Fog index | 7.1 | ok | Years of schooling to read it first time, 12 or lower |
+| Average word length | 4.7 characters | - | Letters per word in the main content |
 
 **Headings per level**
 
@@ -708,6 +762,14 @@ All 8 checks passed.
 | Level | Heading | Contains |
 | --- | --- | --- |
 | H1 | Orphan | - |
+
+**Stop words**
+
+| Word | Count | % |
+| --- | --- | --- |
+| only | 1 | 14.3 |
+| the | 1 | 14.3 |
+| this | 1 | 14.3 |
 
 ##### Links
 
@@ -941,6 +1003,19 @@ All 8 checks passed.
 | HTML comments | 0 | ok | Comments ship to every visitor |
 | Placeholder links | 0 | ok | href="\#" or empty |
 | Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+| Detected language | en | ok | Confidence 0.48, read from the main content |
+| Main content words | 9 | - | Read from \<body\>, nav, footer and hidden elements excluded |
+| Unique words | 8 | - | 88.9% of words |
+| Unique words share | 88.9 % | - |  |
+| Stop words | 3 | - | 33.3% of words |
+| Stop words share | 33.3 % | - |  |
+| Water | 33.3 % | ok | Stop words and filler, the share of words carrying no meaning |
+| Average sentence length | 3 words | ok | Up to 20 reads comfortably |
+| Characters | 36 | - | Main content, spaces excluded |
+| Flesch reading ease | 100.4 | ok | Easy |
+| Flesch-Kincaid grade | 0 | ok | US school grade, 9 or lower suits a general audience |
+| Gunning Fog index | 1.2 | ok | Years of schooling to read it first time, 12 or lower |
+| Average word length | 3.9 characters | - | Letters per word in the main content |
 
 **Headings per level**
 
@@ -958,6 +1033,32 @@ All 8 checks passed.
 | Level | Heading | Contains |
 | --- | --- | --- |
 | H1 | Contact | - |
+
+**Top 1-word phrases**
+
+| Phrase | Count | % |
+| --- | --- | --- |
+| page | 2 | 22.2 |
+
+**Stop words**
+
+| Word | Count | % |
+| --- | --- | --- |
+| no | 1 | 11.1 |
+| on | 1 | 11.1 |
+| this | 1 | 11.1 |
+
+**Keyword relevance**
+
+| Keyword | Count | Title | Description | H1 |
+| --- | --- | --- | --- | --- |
+| page | 2 | no | no | no |
+
+**Keywords in headings**
+
+| Element | Text | Keywords | Spans |
+| --- | --- | --- | --- |
+| H1 | Contact | - |  |
 
 ##### Links
 
@@ -1198,6 +1299,19 @@ All 8 checks passed.
 | HTML comments | 0 | ok | Comments ship to every visitor |
 | Placeholder links | 0 | ok | href="\#" or empty |
 | Headings | 1 | ok | H1 1 · H2 0 · H3 0 · H4 0 · H5 0 · H6 0 |
+| Detected language | en | ok | Confidence 0.04, read from the main content |
+| Main content words | 2 | - | Read from \<body\>, nav, footer and hidden elements excluded |
+| Unique words | 2 | - | 100% of words |
+| Unique words share | 100 % | - |  |
+| Stop words | 1 | - | 50% of words |
+| Stop words share | 50 % | - |  |
+| Water | 50 % | ok | Stop words and filler, the share of words carrying no meaning |
+| Average sentence length | 2 words | ok | Up to 20 reads comfortably |
+| Characters | 8 | - | Main content, spaces excluded |
+| Flesch reading ease | 120.2 | ok | Easy |
+| Flesch-Kincaid grade | -3 | ok | US school grade, 9 or lower suits a general audience |
+| Gunning Fog index | 0.8 | ok | Years of schooling to read it first time, 12 or lower |
+| Average word length | 4 characters | - | Letters per word in the main content |
 
 **Headings per level**
 
@@ -1215,6 +1329,12 @@ All 8 checks passed.
 | Level | Heading | Contains |
 | --- | --- | --- |
 | H1 | Not found | - |
+
+**Stop words**
+
+| Word | Count | % |
+| --- | --- | --- |
+| not | 1 | 50 |
 
 ##### Links
 

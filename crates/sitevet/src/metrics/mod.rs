@@ -1,6 +1,5 @@
 //! Collectors, ported from the TS package's `src/metrics/*.ts`. Metrics are values and tables
-//! with their own status; they never touch the score. The phase 2 text collectors arrive with
-//! the text engine in M6.
+//! with their own status; they never touch the score.
 
 mod directives;
 mod headings;
@@ -8,6 +7,7 @@ mod links;
 mod markup;
 mod meta;
 mod page;
+mod text;
 
 use std::sync::Arc;
 
@@ -23,6 +23,7 @@ pub(crate) fn all() -> Vec<Arc<dyn Collector>> {
         links::collectors(),
         headings::collectors(),
         meta::collectors(),
+        text::collectors(),
     ]
     .concat()
 }

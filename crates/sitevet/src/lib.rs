@@ -44,9 +44,9 @@ pub use options::Options;
 #[doc(hidden)] // shared with the CLI for its own config keys
 pub use options::unknown_key_reason;
 pub use report::{
-    AuditReport, BaselineRef, BlockedUrl, CategoryChange, CategoryScore, Finding, FindingRef, Format, Metric,
-    MetricBody, MetricCell, PageResult, RenderOptions, ReportDiff, Severity, SkippedRule, Status, ValueStatus, diff,
-    render, render_with, report_schema,
+    AuditReport, BaselineRef, BlockedUrl, CategoryChange, CategoryScore, Finding, FindingRef, Format, LanguageInfo,
+    Metric, MetricBody, MetricCell, PageResult, RenderOptions, ReportDiff, Severity, SkippedRule, Status, ValueStatus,
+    diff, render, render_with, report_schema,
 };
 pub use rules::{
     AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,
