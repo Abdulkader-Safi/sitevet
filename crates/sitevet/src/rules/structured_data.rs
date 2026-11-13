@@ -26,6 +26,8 @@ pub(super) fn rules() -> Vec<Arc<dyn Rule>> {
         Arc::new(JsonldType),
         Arc::new(BreadcrumbValid),
         Arc::new(DuplicateJsonld),
+        Arc::new(FaqpageValid),
+        Arc::new(HowtoValid),
     ]
 }
 
@@ -261,6 +263,64 @@ dom_rule!(
     }
 );
 
+/// Every node of a type on the page, from any format.
+fn typed<'a>(cx: &'a crate::RuleCx<'_>, ty: &'a str) -> impl Iterator<Item = &'a crate::SchemaNode> + 'a {
+    cx.page.schema.iter().flat_map(|i| i.node.walk()).filter(move |n| n.is(ty))
+}
+
+dom_rule!(
+    FaqpageValid,
+    "structured-data/faqpage-valid",
+    "FAQPage schema",
+    Warning,
+    "Give FAQPage a mainEntity list of Question items, each with a name and an acceptedAnswer holding the answer text.",
+    |cx, dom, html| {
+        let pages: Vec<_> = typed(cx, "FAQPage").collect();
+        if pages.is_empty() {
+            return vec![R::info("No FAQPage schema")];
+        }
+        let questions: Vec<_> = pages.iter().flat_map(|p| p.nodes("mainEntity")).filter(|q| q.is("Question")).collect();
+        if questions.is_empty() {
+            return vec![R::fail("FAQPage has no Question in mainEntity")];
+        }
+        let bad =
+            questions.iter().filter(|q| !q.has("name") || !q.nodes("acceptedAnswer").any(|a| a.has("text"))).count();
+        if bad == 0 {
+            vec![R::pass(format!("FAQPage with {} answered questions", questions.len()))]
+        } else {
+            vec![R::warn(format!("{bad} of {} FAQ questions lack a name or answer text", questions.len()))]
+        }
+    }
+);
+
+dom_rule!(
+    HowtoValid,
+    "structured-data/howto-valid",
+    "HowTo schema",
+    Warning,
+    "Give HowTo a name and a step list of HowToStep items (or HowToSection items holding them), each with text.",
+    |cx, dom, html| {
+        let howtos: Vec<_> = typed(cx, "HowTo").collect();
+        if howtos.is_empty() {
+            return vec![R::info("No HowTo schema")];
+        }
+        let steps: Vec<_> = howtos
+            .iter()
+            .flat_map(|h| h.nodes("step"))
+            .flat_map(|s| if s.is("HowToSection") { s.nodes("itemListElement").collect() } else { vec![s] })
+            .collect();
+        let unnamed = howtos.iter().filter(|h| !h.has("name")).count();
+        let empty = steps.iter().filter(|s| !s.has("text") && !s.has("name")).count();
+        if steps.is_empty() {
+            vec![R::fail("HowTo has no steps")]
+        } else if unnamed + empty > 0 {
+            vec![R::warn(format!("HowTo: {unnamed} without a name, {empty} of {} steps without text", steps.len()))]
+        } else {
+            vec![R::pass(format!("HowTo with {} steps", steps.len()))]
+        }
+    }
+);
+
 #[cfg(test)]
 mod tests {
     use crate::Status::{Fail, Info, Pass, Warn};
@@ -319,5 +379,36 @@ mod tests {
         let dup = page(&(ld(r#"{"@type":"Article"}"#) + &ld(r#"[{"@type":"Article"},{"@type":"Person"}]"#)));
         assert_eq!(dup.message("structured-data/duplicate-jsonld"), "Duplicate schema type(s): Article");
         assert_eq!(page(&ld(r#"{"@type":"Article"}"#)).status("structured-data/duplicate-jsonld"), Pass);
+    }
+
+    #[test]
+    fn faqpage_and_howto() {
+        let none = page("<p>x</p>");
+        assert_eq!(none.status("structured-data/faqpage-valid"), Info);
+        assert_eq!(none.status("structured-data/howto-valid"), Info);
+        let q = |name: &str, answer: &str| {
+            format!(r#"{{"@type":"Question","name":"{name}","acceptedAnswer":{{"@type":"Answer","text":"{answer}"}}}}"#)
+        };
+        let good =
+            page(&ld(&format!(r#"{{"@type":"FAQPage","mainEntity":[{},{}]}}"#, q("A?", "Yes."), q("B?", "No."))));
+        assert_eq!(good.message("structured-data/faqpage-valid"), "FAQPage with 2 answered questions");
+        let half = page(&ld(&format!(r#"{{"@type":"FAQPage","mainEntity":[{},{}]}}"#, q("A?", "Yes."), q("B?", ""))));
+        assert_eq!(half.message("structured-data/faqpage-valid"), "1 of 2 FAQ questions lack a name or answer text");
+        assert_eq!(page(&ld(r#"{"@type":"FAQPage"}"#)).status("structured-data/faqpage-valid"), Fail);
+        // Microdata counts too.
+        let micro = page(
+            r#"<div itemscope itemtype="https://schema.org/FAQPage"><div itemprop="mainEntity" itemscope
+            itemtype="https://schema.org/Question"><b itemprop="name">A?</b><div itemprop="acceptedAnswer" itemscope
+            itemtype="https://schema.org/Answer"><p itemprop="text">Yes.</p></div></div></div>"#,
+        );
+        assert_eq!(micro.status("structured-data/faqpage-valid"), Pass);
+
+        let howto =
+            page(&ld(r#"{"@type":"HowTo","name":"Start a pile","step":[{"@type":"HowToStep","text":"Pick a spot."},
+            {"@type":"HowToSection","itemListElement":[{"@type":"HowToStep","text":"Layer."}]}]}"#));
+        assert_eq!(howto.message("structured-data/howto-valid"), "HowTo with 2 steps");
+        assert_eq!(page(&ld(r#"{"@type":"HowTo","name":"x"}"#)).status("structured-data/howto-valid"), Fail);
+        let gaps = page(&ld(r#"{"@type":"HowTo","step":[{"@type":"HowToStep"}]}"#));
+        assert_eq!(gaps.message("structured-data/howto-valid"), "HowTo: 1 without a name, 1 of 1 steps without text");
     }
 }

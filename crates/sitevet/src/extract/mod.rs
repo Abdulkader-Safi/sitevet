@@ -36,6 +36,10 @@ pub struct PageData {
     /// Body text without scripts and styles, whitespace collapsed.
     pub text: String,
     pub language: crate::LanguageInfo,
+    /// Structured data from JSON-LD, microdata and RDFa.
+    pub schema: Vec<crate::SchemaItem>,
+    /// True when the DOM came from Chrome after scripts ran (`render_crawl`), not from the raw HTML.
+    pub js_rendered: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -65,6 +69,8 @@ pub struct Link {
     pub rel: String,
     /// Same origin as the start URL.
     pub internal: bool,
+    /// Inside the main content, not in nav, aside, header or footer chrome.
+    pub in_main: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -142,6 +148,7 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
         .select(&sel.headings)
         .map(|h| Heading { level: h.value().name().as_bytes()[1] - b'0', text: text_of(h) })
         .collect();
+    let main_links: std::collections::HashSet<_> = crate::text::in_main(dom, "a").into_iter().map(|a| a.id()).collect();
     page.links = dom
         .select(&sel.links)
         .map(|a| {
@@ -152,6 +159,7 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
                 url: url.map(String::from),
                 text: a.text().collect::<String>().trim().to_string(),
                 rel: attr(&a, "rel").unwrap_or_default().to_lowercase(),
+                in_main: main_links.contains(&a.id()),
                 href,
             }
         })
@@ -184,6 +192,7 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
         dom.select(&sel.stylesheets).filter_map(|l| attr(&l, "href").and_then(|h| abs(&h)).map(String::from)).collect();
     page.text = dom.select(&sel.body).next().map_or_else(|| visible_text(root), visible_text);
     page.language = crate::text::language(dom, page.lang.as_deref());
+    page.schema = crate::schema::extract(dom);
 }
 
 /// Element text with whitespace collapsed, the way cheerio's `.text().trim()` reads it.

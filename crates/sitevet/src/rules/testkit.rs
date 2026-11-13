@@ -39,6 +39,7 @@ pub(crate) fn page(html: &str) -> Page {
                 sitemaps: vec!["https://example.com/sitemap.xml".into()],
             },
             sitemap: SitemapInfo { exists: true, status: 200, urls: vec!["https://example.com/".into()] },
+            llms: Default::default(),
         },
         links_ok: true,
         link_status: Vec::new(),

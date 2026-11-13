@@ -270,23 +270,107 @@ fn iso1(code3: &str) -> String {
     ISO3_TO_1.iter().find(|(three, _)| *three == code3).map_or(code3, |(_, one)| one).to_string()
 }
 
-/// The main content as text, with a newline after every block element, and where it came from.
-pub(crate) fn main_text(dom: &Html) -> (String, &'static str) {
+/// The element holding the main content, and where it came from: a single `<main>`,
+/// `[role=main]` or `<article>`, else `<body>`.
+pub(crate) fn main_root(dom: &Html) -> (Option<ElementRef<'_>>, &'static str) {
     let pick = ["main", "[role=main]", "article"].into_iter().find(|s| dom.select(&sel(s)).count() == 1);
-    let root = match pick {
-        Some(s) => dom.select(&sel(s)).next(),
-        None => dom.select(&sel("body")).next(),
-    };
     let source = match pick {
         Some("article") => "article",
         Some(_) => "main",
         None => "body",
     };
+    (dom.select(&sel(pick.unwrap_or("body"))).next(), source)
+}
+
+fn skip_for(source: &str) -> Skip {
+    Skip { noise: sel(NOISE), chrome: (source == "body").then(|| sel(CHROME)), blocks: sel(BLOCKS) }
+}
+
+impl Skip {
+    fn skips(&self, el: &ElementRef) -> bool {
+        let hidden = el.value().attr("style").is_some_and(|s| HIDDEN_STYLE.is_match(s));
+        hidden || self.noise.matches(el) || self.chrome.as_ref().is_some_and(|c| c.matches(el))
+    }
+}
+
+/// Elements inside the main content that are not boilerplate (nav, aside, header and footer
+/// chrome, hidden), matching `css`, in document order. The same boundary the text statistics use.
+pub(crate) fn in_main<'a>(dom: &'a Html, css: &str) -> Vec<ElementRef<'a>> {
+    let (Some(root), source) = main_root(dom) else { return Vec::new() };
+    let skip = skip_for(source);
+    let want = sel(css);
+    let mut out = Vec::new();
+    let mut stack = vec![root];
+    while let Some(el) = stack.pop() {
+        if el != root && skip.skips(&el) {
+            continue;
+        }
+        if want.matches(&el) {
+            out.push(el);
+        }
+        let mut kids: Vec<ElementRef> = el.children().filter_map(ElementRef::wrap).collect();
+        kids.reverse();
+        stack.extend(kids);
+    }
+    out
+}
+
+/// The main content as text, with a newline after every block element, and where it came from.
+pub(crate) fn main_text(dom: &Html) -> (String, &'static str) {
+    let (root, source) = main_root(dom);
     let Some(root) = root else { return (String::new(), source) };
-    let skip = Skip { noise: sel(NOISE), chrome: pick.is_none().then(|| sel(CHROME)), blocks: sel(BLOCKS) };
     let mut out = String::new();
-    walk(root, &skip, &mut out);
+    walk(root, &skip_for(source), &mut out);
     (out, source)
+}
+
+/// One H2 section of the main content: its heading, its text and its first block.
+pub(crate) struct Section<'a> {
+    pub(crate) heading: ElementRef<'a>,
+    pub(crate) text: String,
+    /// The first paragraph-level element after the heading, however deeply either is nested.
+    pub(crate) first_block: Option<ElementRef<'a>>,
+}
+
+/// The main content split at each H2, in document order, so a heading wrapped in its own `<div>`
+/// still owns the text that follows it. An H1 ends a section without starting one.
+pub(crate) fn h2_sections(dom: &Html) -> Vec<Section<'_>> {
+    let (Some(root), source) = main_root(dom) else { return Vec::new() };
+    let skip = skip_for(source);
+    let blocks = sel("p,ul,ol,dl,table,blockquote,pre");
+    let mut out: Vec<Section> = Vec::new();
+    let mut open = false;
+    let mut stack = vec![root];
+    while let Some(el) = stack.pop() {
+        if el != root && skip.skips(&el) {
+            continue;
+        }
+        match el.value().name() {
+            "h2" => {
+                out.push(Section { heading: el, text: String::new(), first_block: None });
+                open = true;
+                continue;
+            }
+            "h1" => {
+                open = false;
+                continue;
+            }
+            _ => {}
+        }
+        if open && let Some(s) = out.last_mut() {
+            if s.first_block.is_none() && blocks.matches(&el) {
+                s.first_block = Some(el);
+            }
+            for t in el.children().filter_map(|c| c.value().as_text()) {
+                s.text.push_str(t);
+                s.text.push(' ');
+            }
+        }
+        let mut kids: Vec<ElementRef> = el.children().filter_map(ElementRef::wrap).collect();
+        kids.reverse();
+        stack.extend(kids);
+    }
+    out
 }
 
 struct Skip {
@@ -299,11 +383,9 @@ fn walk(el: ElementRef, skip: &Skip, out: &mut String) {
     for child in el.children() {
         match child.value() {
             Node::Text(t) => out.push_str(t),
-            Node::Element(e) => {
+            Node::Element(_) => {
                 let Some(child_el) = ElementRef::wrap(child) else { continue };
-                let hidden = e.attr("style").is_some_and(|s| HIDDEN_STYLE.is_match(s));
-                if skip.noise.matches(&child_el) || hidden || skip.chrome.as_ref().is_some_and(|c| c.matches(&child_el))
-                {
+                if skip.skips(&child_el) {
                     continue;
                 }
                 walk(child_el, skip, out);

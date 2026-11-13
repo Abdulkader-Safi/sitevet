@@ -5,7 +5,7 @@ expression: text
 sitevet <version>  http://fixture.test
 up to 100 pages, depth 5
 crawling...
-crawled 5 pages, running 435 checks
+crawled 5 pages, running 445 checks
 1/5  http://fixture.test/  77/100  WARN
 2/5  http://fixture.test/about.html  73/100  WARN
 3/5  http://fixture.test/orphan.html  73/100  WARN
