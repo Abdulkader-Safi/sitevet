@@ -86,12 +86,11 @@ impl LinkChecker {
                             error: Some(ROBOTS_BLOCKED.into()),
                         };
                     }
-                    // HEAD first, GET when the server does not allow HEAD.
+                    // HEAD first, GET when HEAD answers with an error: some servers (the VS Code
+                    // marketplace, Figma) return 404 to HEAD for pages that load fine.
                     let head = fetcher.fetch(&url, Method::HEAD, Body::Skip).await;
                     let res = match &head {
-                        Ok(f) if f.status == 405 || f.status == 501 => {
-                            fetcher.fetch(&url, Method::GET, Body::Skip).await
-                        }
+                        Ok(f) if f.status >= 400 => fetcher.fetch(&url, Method::GET, Body::Skip).await,
                         _ => head,
                     };
                     LinkStatus::from_fetch(&res)
