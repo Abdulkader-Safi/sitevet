@@ -13,7 +13,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
 | M6 text engine | Built on branch `m6/text-engine`, PR #5 open, not merged |
-| M7 answer engine | Built on branch `m7/answer-engine` (stacked on M6), PR open, not merged |
+| M7 answer engine | Built on branch `m7/answer-engine` (stacked on M6), PR #6 open, not merged |
 | M8 to M14      | Not started                              |
 
 ## M7: answer engine and content structure
