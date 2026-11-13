@@ -5,7 +5,7 @@ priority: "medium"
 assignee: null
 dueDate: null
 created: "2026-11-10T08:20:43.000Z"
-modified: "2026-11-13T13:17:08.000Z"
+modified: "2026-11-13T13:36:26.000Z"
 labels: ["m6"]
 order: 2
 ---
@@ -23,5 +23,6 @@ Spec: `docs/spec/06-build-spec.md`, section 8.
 
 ## Done
 
-- Stop words from the stop-words ISO lists, stems from the Snowball stemmers, for every language they cover. English keeps the TS 201-word list (the ISO one drops words like "page" and "website").
-- Hand-counted fixtures: English 20 words and 3 stop words, Arabic 17 and 4, French 13 and 5, Chinese 23 characters.
+- Stop words from the stop-words ISO lists, stems from the Snowball stemmers, for every language they cover. English uses a 355-word list: the TS words, the NLTK extras and the ISO function words (the full ISO list drops keywords like "page" and "website").
+- Page bodies are decoded with `encoding_rs` the way browsers pick a charset, so windows-1252 and Shift_JIS pages read correctly.
+- Hand-counted fixtures: English 20 words and 4 stop words, Arabic 17 and 4, French 13 and 5, Chinese 23 characters.

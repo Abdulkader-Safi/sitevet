@@ -5,7 +5,7 @@ Status: signed off 2026-11-10
 For each decision: what was chosen, what else was considered, and why, traced to a requirement (Stage 3) or the mission and users (Stages 1 and 2). Versions are the latest stable on crates.io as of 2026-11-10. Pin minor versions in `Cargo.toml` and let Dependabot raise them.
 
 > **Constraints going in:** Rust only, MIT licence, open source with no budget for paid services. One developer (Safi). The first consumer is a GPUI desktop app in another repo, which runs its own executor. The TS package is the behaviour reference and is never modified. Local toolchain is rustc 1.97.1.
-> **Changes:** 2026-11-10: workspace split and the `spawn` entry point were decided here, so FR-DIST-01 and FR-API-06 in stage 3 were updated.
+> **Changes:** 2026-11-10: workspace split and the `spawn` entry point were decided here, so FR-DIST-01 and FR-API-06 in stage 3 were updated. 2026-11-13 (M6): `encoding_rs` added for page charsets, and the English stop word list settled.
 
 ## Overall architecture
 
@@ -38,7 +38,7 @@ For each decision: what was chosen, what else was considered, and why, traced to
 
 ## HTML parsing
 
-- **Choice:** scraper 0.29 (html5ever 0.40 underneath, CSS selectors). It is the closest match to cheerio, which the TS rules use, so rule logic ports with the fewest changes (FR-RULE-01).
+- **Choice:** scraper 0.29 (html5ever 0.40 underneath, CSS selectors). It is the closest match to cheerio, which the TS rules use, so rule logic ports with the fewest changes (FR-RULE-01). Bytes are decoded to text first with `encoding_rs` 0.8 (the decoder Firefox uses), picking the charset the way browsers do: byte order mark, then the `Content-Type` charset, then a `<meta>` charset in the first 1024 bytes, then UTF-8, with windows-1252 when the bytes are not UTF-8. Without it, pages in windows-1252 or Shift_JIS read as garbled text in the text engine (FR-TEXT-03).
 - **Considered:** lol_html 3.0 (streaming rewriter, fast, but no random DOM access, so most rules would need rewriting). tl (fast, but not spec-compliant on broken HTML, which is what audits meet).
 - **Why:** FR-RULE-01, FR-MET-01.
 - **Landmines:** `scraper::Html` is not `Send`. Parse and run DOM rules inside one synchronous block (`spawn_blocking`), extract everything rules and site-wide checks need into plain `Send` structs, then drop the DOM. Never hold `Html` across an `.await`. This also keeps memory flat for NFR-02: no page keeps its DOM after its rules run.
@@ -76,7 +76,7 @@ For each decision: what was chosen, what else was considered, and why, traced to
 - **Choice:** `unicode-segmentation` 1.13 for word and sentence boundaries in any script. `whatlang` 0.18 for language detection when `<html lang>` is missing (FR-TEXT-01). `stop-words` 0.10 for stop word lists (ISO lists, many languages) (FR-TEXT-03). `rust-stemmers` 1.2 (Snowball, 18 languages including Arabic) for word grouping. Readability formulas written in-crate (FR-TEXT-05). N-grams and keyword spans written in-crate (FR-TEXT-06, FR-TEXT-07).
 - **Considered:** lingua 1.8 for detection (more accurate on short text, but its language models add tens of MB to the binary, against NFR-08). Per-language lemmatizers (rejected: no maintained Rust option covering many languages, and stemming is enough for keyword grouping).
 - **Why:** FR-TEXT-01 to FR-TEXT-08, stage 2 "audits any language".
-- **Landmines:** rust-stemmers has not been released since 2019. The Snowball algorithms are stable, so this is acceptable, but vendor it if a bug appears. whatlang is weak on texts under about 20 words, so prefer `<html lang>` and report the detection confidence. Scripts such as Chinese and Thai have no spaces between words, and `unicode-segmentation` does not split them into words. For those, count characters and mark word-based metrics "not available for this language" (see open question 1). The ISO English stop word list has 1,298 entries, including "home", "page", "website" and "information", which would empty the keyword tables of real keywords. English keeps the TS package's 201-word list (found in M6); every other language uses the stop-words list.
+- **Landmines:** rust-stemmers has not been released since 2019. The Snowball algorithms are stable, so this is acceptable, but vendor it if a bug appears. whatlang is weak on texts under about 20 words, so prefer `<html lang>` and report the detection confidence. Scripts such as Chinese and Thai have no spaces between words, and `unicode-segmentation` does not split them into words. For those, count characters and mark word-based metrics "not available for this language" (see open question 1). The ISO English stop word list has 1,298 entries, including "home", "page", "website" and "information", which would empty the keyword tables of real keywords. English uses a 355-word list instead (found in M6): the TS package's 201 words, the NLTK words it lacks, and the function words from the ISO list (pronouns, prepositions, connectors such as "although" and "therefore"), with its content words left out. Every other language uses the stop-words ISO list.
 
 ## Structured data
 
@@ -168,6 +168,7 @@ sitevet is MIT. Dependencies checked for MIT compatibility:
 | chromiumoxide                                                                                                                    | MIT/Apache-2.0                                                   |
 | whatlang                                                                                                                         | MIT                                                              |
 | stop-words, rust-stemmers, unicode-segmentation, imagesize, directories                                                          | MIT or MIT/Apache-2.0                                            |
+| encoding_rs                                                                                                                      | (Apache-2.0 or MIT) and BSD-3-Clause                             |
 | texting_robots                                                                                                                   | MIT/Apache-2.0                                                   |
 | axe-core (bundled JS)                                                                                                            | MPL-2.0, shipped as an unmodified separate file with its notices |
 
