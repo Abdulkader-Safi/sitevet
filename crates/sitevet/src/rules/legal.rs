@@ -8,7 +8,14 @@ use crate::{Link, Rule, RuleResult as R};
 const CATEGORY: &str = "legal";
 
 pub(super) fn rules() -> Vec<Arc<dyn Rule>> {
-    vec![Arc::new(PrivacyPolicy), Arc::new(Terms), Arc::new(CookieConsent), Arc::new(Contact)]
+    vec![
+        Arc::new(PrivacyPolicy),
+        Arc::new(Terms),
+        Arc::new(CookieConsent),
+        Arc::new(Contact),
+        Arc::new(RefundPolicy),
+        Arc::new(AdDisclosure),
+    ]
 }
 
 /// A link whose text or raw href matches.
@@ -75,6 +82,36 @@ dom_rule!(
             vec![R::pass("Contact link found")]
         } else {
             vec![R::info("No contact link found")]
+        }
+    }
+);
+
+dom_rule!(
+    RefundPolicy,
+    "legal/refund-policy",
+    "Refund or returns page",
+    Info,
+    "If you sell anything, link to a refund or returns policy from every page, usually in the footer.",
+    |cx, dom, html| {
+        if link_matches(&cx.page.links, crate::trust::REFUND) {
+            vec![R::pass("Refund or returns page link found")]
+        } else {
+            vec![R::info("No refund or returns page link found")]
+        }
+    }
+);
+
+dom_rule!(
+    AdDisclosure,
+    "legal/ad-disclosure",
+    "Ads or affiliate disclosure",
+    Info,
+    "Pages with affiliate links or ads should say so near the top, for example \"This post contains affiliate links\".",
+    |cx, dom, html| {
+        match crate::trust::disclosure(cx, html) {
+            crate::trust::Disclosure::Disclosed => vec![R::pass("Ads or affiliate disclosure found")],
+            crate::trust::Disclosure::Missing => vec![R::warn("Affiliate links or ads without a disclosure")],
+            crate::trust::Disclosure::NotNeeded => vec![R::info("No affiliate links or ads detected")],
         }
     }
 );

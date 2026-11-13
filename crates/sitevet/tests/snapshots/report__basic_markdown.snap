@@ -179,6 +179,8 @@ All 8 checks passed.
 | WARN | legal/privacy-policy | No privacy policy link found |  |
 | INFO | legal/terms | No terms of service link found |  |
 | INFO | legal/cookie-consent | No cookie consent banner detected |  |
+| INFO | legal/refund-policy | No refund or returns page link found |  |
+| INFO | legal/ad-disclosure | No affiliate links or ads detected |  |
 
 1 other check passed.
 
@@ -197,6 +199,9 @@ All 8 checks passed.
 | WARN | eeat/author | No author attribution found |  |
 | INFO | eeat/date | No published or updated date found |  |
 | INFO | eeat/outbound-citations | No outbound citations |  |
+| INFO | eeat/contact-details | No phone number or address on the page |  |
+| INFO | eeat/editorial-policy | No editorial policy link found |  |
+| INFO | eeat/nap-consistency | No LocalBusiness schema |  |
 
 1 other check passed.
 
@@ -359,6 +364,23 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | Published | - | missing |  |
 | Updated | - | missing |  |
+| Author | - | missing | From metadata only, no byline on the page |
+| Author page link | - | missing |  |
+| Author bio | no | missing |  |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+| Authoritative citations | - | missing | 0 of 0 outbound links in the main content go to government, education, standards or reference sites |
+
+**Structured data trust signals**
+
+| Signal | Present |
+| --- | --- |
+| Article | no |
+| BlogPosting | no |
+| Organization | no |
+| author | no |
+| datePublished | no |
+| dateModified | no |
 
 ##### Performance
 
@@ -505,6 +527,8 @@ All 8 checks passed.
 | WARN | legal/privacy-policy | No privacy policy link found |  |
 | INFO | legal/terms | No terms of service link found |  |
 | INFO | legal/cookie-consent | No cookie consent banner detected |  |
+| INFO | legal/refund-policy | No refund or returns page link found |  |
+| INFO | legal/ad-disclosure | No affiliate links or ads detected |  |
 
 1 other check passed.
 
@@ -524,6 +548,9 @@ All 8 checks passed.
 | INFO | eeat/date | No published or updated date found |  |
 | INFO | eeat/outbound-citations | No outbound citations |  |
 | INFO | eeat/about-page | No about page link found |  |
+| INFO | eeat/contact-details | No phone number or address on the page |  |
+| INFO | eeat/editorial-policy | No editorial policy link found |  |
+| INFO | eeat/nap-consistency | No LocalBusiness schema |  |
 
 #### Performance
 
@@ -682,6 +709,23 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | Published | - | missing |  |
 | Updated | - | missing |  |
+| Author | - | missing | From metadata only, no byline on the page |
+| Author page link | - | missing |  |
+| Author bio | no | missing |  |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+| Authoritative citations | - | missing | 0 of 0 outbound links in the main content go to government, education, standards or reference sites |
+
+**Structured data trust signals**
+
+| Signal | Present |
+| --- | --- |
+| Article | no |
+| BlogPosting | no |
+| Organization | no |
+| author | no |
+| datePublished | no |
+| dateModified | no |
 
 ##### Performance
 
@@ -829,6 +873,8 @@ All 8 checks passed.
 | INFO | legal/terms | No terms of service link found |  |
 | INFO | legal/cookie-consent | No cookie consent banner detected |  |
 | INFO | legal/contact | No contact link found |  |
+| INFO | legal/refund-policy | No refund or returns page link found |  |
+| INFO | legal/ad-disclosure | No affiliate links or ads detected |  |
 
 #### Analytics
 
@@ -846,6 +892,9 @@ All 8 checks passed.
 | INFO | eeat/date | No published or updated date found |  |
 | INFO | eeat/outbound-citations | No outbound citations |  |
 | INFO | eeat/about-page | No about page link found |  |
+| INFO | eeat/contact-details | No phone number or address on the page |  |
+| INFO | eeat/editorial-policy | No editorial policy link found |  |
+| INFO | eeat/nap-consistency | No LocalBusiness schema |  |
 
 #### Performance
 
@@ -998,6 +1047,23 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | Published | - | missing |  |
 | Updated | - | missing |  |
+| Author | - | missing | From metadata only, no byline on the page |
+| Author page link | - | missing |  |
+| Author bio | no | missing |  |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+| Authoritative citations | - | missing | 0 of 0 outbound links in the main content go to government, education, standards or reference sites |
+
+**Structured data trust signals**
+
+| Signal | Present |
+| --- | --- |
+| Article | no |
+| BlogPosting | no |
+| Organization | no |
+| author | no |
+| datePublished | no |
+| dateModified | no |
 
 ##### Performance
 
@@ -1150,6 +1216,8 @@ All 8 checks passed.
 | INFO | legal/terms | No terms of service link found |  |
 | INFO | legal/cookie-consent | No cookie consent banner detected |  |
 | INFO | legal/contact | No contact link found |  |
+| INFO | legal/refund-policy | No refund or returns page link found |  |
+| INFO | legal/ad-disclosure | No affiliate links or ads detected |  |
 
 #### Analytics
 
@@ -1167,6 +1235,9 @@ All 8 checks passed.
 | INFO | eeat/date | No published or updated date found |  |
 | INFO | eeat/outbound-citations | No outbound citations |  |
 | INFO | eeat/about-page | No about page link found |  |
+| INFO | eeat/contact-details | No phone number or address on the page |  |
+| INFO | eeat/editorial-policy | No editorial policy link found |  |
+| INFO | eeat/nap-consistency | No LocalBusiness schema |  |
 
 #### Performance
 
@@ -1344,6 +1415,23 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | Published | - | missing |  |
 | Updated | - | missing |  |
+| Author | - | missing | From metadata only, no byline on the page |
+| Author page link | - | missing |  |
+| Author bio | no | missing |  |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+| Authoritative citations | - | missing | 0 of 0 outbound links in the main content go to government, education, standards or reference sites |
+
+**Structured data trust signals**
+
+| Signal | Present |
+| --- | --- |
+| Article | no |
+| BlogPosting | no |
+| Organization | no |
+| author | no |
+| datePublished | no |
+| dateModified | no |
 
 ##### Performance
 
@@ -1496,6 +1584,8 @@ All 8 checks passed.
 | INFO | legal/terms | No terms of service link found |  |
 | INFO | legal/cookie-consent | No cookie consent banner detected |  |
 | INFO | legal/contact | No contact link found |  |
+| INFO | legal/refund-policy | No refund or returns page link found |  |
+| INFO | legal/ad-disclosure | No affiliate links or ads detected |  |
 
 #### Analytics
 
@@ -1513,6 +1603,9 @@ All 8 checks passed.
 | INFO | eeat/date | No published or updated date found |  |
 | INFO | eeat/outbound-citations | No outbound citations |  |
 | INFO | eeat/about-page | No about page link found |  |
+| INFO | eeat/contact-details | No phone number or address on the page |  |
+| INFO | eeat/editorial-policy | No editorial policy link found |  |
+| INFO | eeat/nap-consistency | No LocalBusiness schema |  |
 
 #### Performance
 
@@ -1663,6 +1756,23 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | Published | - | missing |  |
 | Updated | - | missing |  |
+| Author | - | missing | From metadata only, no byline on the page |
+| Author page link | - | missing |  |
+| Author bio | no | missing |  |
+| Published | - | missing |  |
+| Updated | - | missing |  |
+| Authoritative citations | - | missing | 0 of 0 outbound links in the main content go to government, education, standards or reference sites |
+
+**Structured data trust signals**
+
+| Signal | Present |
+| --- | --- |
+| Article | no |
+| BlogPosting | no |
+| Organization | no |
+| author | no |
+| datePublished | no |
+| dateModified | no |
 
 ##### Performance
 

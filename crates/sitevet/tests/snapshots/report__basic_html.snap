@@ -717,6 +717,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Refund or returns page <code class="rule">legal/refund-policy</code></p>
+            <p dir="auto">No refund or returns page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you sell anything, link to a refund or returns policy from every page, usually in the footer.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Ads or affiliate disclosure <code class="rule">legal/ad-disclosure</code></p>
+            <p dir="auto">No affiliate links or ads detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Pages with affiliate links or ads should say so near the top, for example &#34;This post contains affiliate links&#34;.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">1 other check passed.</p>
       
@@ -770,6 +790,36 @@ tbody th { font-weight: 500; }
             <p dir="auto">No outbound citations</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Cite authoritative external sources. Outbound links to reputable sites support your claims.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Phone number and address <code class="rule">eeat/contact-details</code></p>
+            <p dir="auto">No phone number or address on the page</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a phone number and a physical address, in the footer or on a contact page linked from every page.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Editorial policy <code class="rule">eeat/editorial-policy</code></p>
+            <p dir="auto">No editorial policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Publish an editorial policy (how you research, review and correct content) and link to it.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">NAP consistency <code class="rule">eeat/nap-consistency</code></p>
+            <p dir="auto">No LocalBusiness schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show the same business name, address and phone in the page text as in the LocalBusiness schema.</p>
           </div>
         </li>
         
@@ -1053,9 +1103,30 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
           
+          <tr><th scope="row">Author</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">From metadata only, no byline on the page</td></tr>
+          
+          <tr><th scope="row">Author page link</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Author bio</th><td dir="auto">no</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Authoritative citations</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 outbound links in the main content go to government, education, standards or reference sites</td></tr>
+          
           </tbody>
         </table></div>
         
+        
+        <div class="table-wrap"><table>
+          <caption>Structured data trust signals</caption>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Present</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Article</td><td dir="auto">no</td></tr><tr><td dir="auto">BlogPosting</td><td dir="auto">no</td></tr><tr><td dir="auto">Organization</td><td dir="auto">no</td></tr><tr><td dir="auto">author</td><td dir="auto">no</td></tr><tr><td dir="auto">datePublished</td><td dir="auto">no</td></tr><tr><td dir="auto">dateModified</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
         
         
         <h4>Performance</h4>
@@ -1516,6 +1587,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Refund or returns page <code class="rule">legal/refund-policy</code></p>
+            <p dir="auto">No refund or returns page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you sell anything, link to a refund or returns policy from every page, usually in the footer.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Ads or affiliate disclosure <code class="rule">legal/ad-disclosure</code></p>
+            <p dir="auto">No affiliate links or ads detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Pages with affiliate links or ads should say so near the top, for example &#34;This post contains affiliate links&#34;.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">1 other check passed.</p>
       
@@ -1579,6 +1670,36 @@ tbody th { font-weight: 500; }
             <p dir="auto">No about page link found</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Phone number and address <code class="rule">eeat/contact-details</code></p>
+            <p dir="auto">No phone number or address on the page</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a phone number and a physical address, in the footer or on a contact page linked from every page.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Editorial policy <code class="rule">eeat/editorial-policy</code></p>
+            <p dir="auto">No editorial policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Publish an editorial policy (how you research, review and correct content) and link to it.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">NAP consistency <code class="rule">eeat/nap-consistency</code></p>
+            <p dir="auto">No LocalBusiness schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show the same business name, address and phone in the page text as in the LocalBusiness schema.</p>
           </div>
         </li>
         
@@ -1862,9 +1983,30 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
           
+          <tr><th scope="row">Author</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">From metadata only, no byline on the page</td></tr>
+          
+          <tr><th scope="row">Author page link</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Author bio</th><td dir="auto">no</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Authoritative citations</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 outbound links in the main content go to government, education, standards or reference sites</td></tr>
+          
           </tbody>
         </table></div>
         
+        
+        <div class="table-wrap"><table>
+          <caption>Structured data trust signals</caption>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Present</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Article</td><td dir="auto">no</td></tr><tr><td dir="auto">BlogPosting</td><td dir="auto">no</td></tr><tr><td dir="auto">Organization</td><td dir="auto">no</td></tr><tr><td dir="auto">author</td><td dir="auto">no</td></tr><tr><td dir="auto">datePublished</td><td dir="auto">no</td></tr><tr><td dir="auto">dateModified</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
         
         
         <h4>Performance</h4>
@@ -2335,6 +2477,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Refund or returns page <code class="rule">legal/refund-policy</code></p>
+            <p dir="auto">No refund or returns page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you sell anything, link to a refund or returns policy from every page, usually in the footer.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Ads or affiliate disclosure <code class="rule">legal/ad-disclosure</code></p>
+            <p dir="auto">No affiliate links or ads detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Pages with affiliate links or ads should say so near the top, for example &#34;This post contains affiliate links&#34;.</p>
+          </div>
+        </li>
+        
       </ul>
       
       
@@ -2398,6 +2560,36 @@ tbody th { font-weight: 500; }
             <p dir="auto">No about page link found</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Phone number and address <code class="rule">eeat/contact-details</code></p>
+            <p dir="auto">No phone number or address on the page</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a phone number and a physical address, in the footer or on a contact page linked from every page.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Editorial policy <code class="rule">eeat/editorial-policy</code></p>
+            <p dir="auto">No editorial policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Publish an editorial policy (how you research, review and correct content) and link to it.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">NAP consistency <code class="rule">eeat/nap-consistency</code></p>
+            <p dir="auto">No LocalBusiness schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show the same business name, address and phone in the page text as in the LocalBusiness schema.</p>
           </div>
         </li>
         
@@ -2672,9 +2864,30 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
           
+          <tr><th scope="row">Author</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">From metadata only, no byline on the page</td></tr>
+          
+          <tr><th scope="row">Author page link</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Author bio</th><td dir="auto">no</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Authoritative citations</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 outbound links in the main content go to government, education, standards or reference sites</td></tr>
+          
           </tbody>
         </table></div>
         
+        
+        <div class="table-wrap"><table>
+          <caption>Structured data trust signals</caption>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Present</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Article</td><td dir="auto">no</td></tr><tr><td dir="auto">BlogPosting</td><td dir="auto">no</td></tr><tr><td dir="auto">Organization</td><td dir="auto">no</td></tr><tr><td dir="auto">author</td><td dir="auto">no</td></tr><tr><td dir="auto">datePublished</td><td dir="auto">no</td></tr><tr><td dir="auto">dateModified</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
         
         
         <h4>Performance</h4>
@@ -3168,6 +3381,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Refund or returns page <code class="rule">legal/refund-policy</code></p>
+            <p dir="auto">No refund or returns page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you sell anything, link to a refund or returns policy from every page, usually in the footer.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Ads or affiliate disclosure <code class="rule">legal/ad-disclosure</code></p>
+            <p dir="auto">No affiliate links or ads detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Pages with affiliate links or ads should say so near the top, for example &#34;This post contains affiliate links&#34;.</p>
+          </div>
+        </li>
+        
       </ul>
       
       
@@ -3231,6 +3464,36 @@ tbody th { font-weight: 500; }
             <p dir="auto">No about page link found</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Phone number and address <code class="rule">eeat/contact-details</code></p>
+            <p dir="auto">No phone number or address on the page</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a phone number and a physical address, in the footer or on a contact page linked from every page.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Editorial policy <code class="rule">eeat/editorial-policy</code></p>
+            <p dir="auto">No editorial policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Publish an editorial policy (how you research, review and correct content) and link to it.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">NAP consistency <code class="rule">eeat/nap-consistency</code></p>
+            <p dir="auto">No LocalBusiness schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show the same business name, address and phone in the page text as in the LocalBusiness schema.</p>
           </div>
         </li>
         
@@ -3541,9 +3804,30 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
           
+          <tr><th scope="row">Author</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">From metadata only, no byline on the page</td></tr>
+          
+          <tr><th scope="row">Author page link</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Author bio</th><td dir="auto">no</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Authoritative citations</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 outbound links in the main content go to government, education, standards or reference sites</td></tr>
+          
           </tbody>
         </table></div>
         
+        
+        <div class="table-wrap"><table>
+          <caption>Structured data trust signals</caption>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Present</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Article</td><td dir="auto">no</td></tr><tr><td dir="auto">BlogPosting</td><td dir="auto">no</td></tr><tr><td dir="auto">Organization</td><td dir="auto">no</td></tr><tr><td dir="auto">author</td><td dir="auto">no</td></tr><tr><td dir="auto">datePublished</td><td dir="auto">no</td></tr><tr><td dir="auto">dateModified</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
         
         
         <h4>Performance</h4>
@@ -4046,6 +4330,26 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Refund or returns page <code class="rule">legal/refund-policy</code></p>
+            <p dir="auto">No refund or returns page link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> If you sell anything, link to a refund or returns policy from every page, usually in the footer.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Ads or affiliate disclosure <code class="rule">legal/ad-disclosure</code></p>
+            <p dir="auto">No affiliate links or ads detected</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Pages with affiliate links or ads should say so near the top, for example &#34;This post contains affiliate links&#34;.</p>
+          </div>
+        </li>
+        
       </ul>
       
       
@@ -4109,6 +4413,36 @@ tbody th { font-weight: 500; }
             <p dir="auto">No about page link found</p>
             
             <p class="fix"><span class="fix-label">Fix:</span> Link to an about page that explains who is behind the site. It is a core trust signal.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Phone number and address <code class="rule">eeat/contact-details</code></p>
+            <p dir="auto">No phone number or address on the page</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show a phone number and a physical address, in the footer or on a contact page linked from every page.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Editorial policy <code class="rule">eeat/editorial-policy</code></p>
+            <p dir="auto">No editorial policy link found</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Publish an editorial policy (how you research, review and correct content) and link to it.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">NAP consistency <code class="rule">eeat/nap-consistency</code></p>
+            <p dir="auto">No LocalBusiness schema</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Show the same business name, address and phone in the page text as in the LocalBusiness schema.</p>
           </div>
         </li>
         
@@ -4383,9 +4717,30 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
           
+          <tr><th scope="row">Author</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">From metadata only, no byline on the page</td></tr>
+          
+          <tr><th scope="row">Author page link</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Author bio</th><td dir="auto">no</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Published</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Updated</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">Authoritative citations</th><td dir="auto">-</td><td><span class="vs missing">missing</span></td><td dir="auto">0 of 0 outbound links in the main content go to government, education, standards or reference sites</td></tr>
+          
           </tbody>
         </table></div>
         
+        
+        <div class="table-wrap"><table>
+          <caption>Structured data trust signals</caption>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Present</th></tr></thead>
+          <tbody>
+          
+          <tr><td dir="auto">Article</td><td dir="auto">no</td></tr><tr><td dir="auto">BlogPosting</td><td dir="auto">no</td></tr><tr><td dir="auto">Organization</td><td dir="auto">no</td></tr><tr><td dir="auto">author</td><td dir="auto">no</td></tr><tr><td dir="auto">datePublished</td><td dir="auto">no</td></tr><tr><td dir="auto">dateModified</td><td dir="auto">no</td></tr>
+          </tbody>
+        </table></div>
         
         
         <h4>Performance</h4>

@@ -14,12 +14,36 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
 | M6 text engine | Done. Merged in PR #5, released in 0.3.0 on 2026-11-13 |
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
-| M8 site-wide   | Built on branch `m8/site-wide`, PR #8 open, not merged. Report section in review |
-| M9 to M14      | Not started                              |
+| M8 site-wide   | Done. Merged in PR #8 on 2026-11-13. Report section in review |
+| M9 trust       | Done. Merged in PR #9 on 2026-11-13 |
+| M10 to M14     | Not started                              |
+
+## M9: trust and compliance
+
+Merged in PR #9 on 2026-11-13. It does not need the M8 site stage; the two were built on separate branches. The TS package lists phase 5 in its backlog with only the pass or fail author and date checks built, so the patterns here are sitevet's own, in `src/trust.rs`, shared by the rules and the measurements.
+
+### Acceptance boxes
+
+- [x] FR-TRUST-01: `trust.html` reports author Ana Lopez from a byline box, the author link `/team/ana`, a bio, published 2026-03-02 and updated 2026-09-14.
+- [x] FR-TRUST-02: the trust signals table on that fixture reads Article yes, BlogPosting no, Organization yes, author yes, datePublished yes, dateModified yes.
+- [x] FR-TRUST-03: a `/refund-policy` link passes `legal/refund-policy`, and a French "Retours" link passes too. Contact details, the ads or affiliate disclosure and the editorial policy each have a rule.
+- [x] FR-TRUST-04 (Should): citing `who.int` and a gardening blog gives 50%.
+- [x] FR-TRUST-05: `local.html` shows +965 2222 9999 in its text and +965 2222 1111 in its LocalBusiness schema, and `eeat/nap-consistency` reports the mismatch. Its completeness table finds the missing geo coordinates, and the Google Maps link is found.
+
+### Decisions made in M9
+
+- Five new rules: `legal/refund-policy`, `legal/ad-disclosure`, `eeat/contact-details`, `eeat/editorial-policy` (all info severity, info when nothing is found, so pages without them score as before) and `eeat/nap-consistency` (warning severity, info without LocalBusiness schema). The registry has 101 rules.
+- The ads or affiliate disclosure is needed only where the page has `rel="sponsored"` links, affiliate parameters or networks, or ad scripts. Without them the rule gives info.
+- Refund pages and editorial policy pages are matched in English plus common words in French, German, Spanish, Italian, Dutch and Arabic.
+- An address counts as shown when visitors can see it: an `<address>` element, microdata or RDFa (both mark up visible text), or a street pattern in the text. JSON-LD alone does not count. A live run on abdulkadersafi.com caught this: its JSON-LD address made every page claim an address.
+- NAP compares only what the schema gives, and says what it could not compare. Phones match on their last 8 digits, so a country code or a leading 0 on one side does not count as a mismatch.
+- Organization in the trust signals table counts LocalBusiness and its subtypes (ProfessionalService, Restaurant), and other common Organization subtypes.
+- Citation quality reads distinct outbound links in the main content. `data/authoritative-domains.txt` lists 34 domains; .gov, .edu, .mil, .int and second-level government and academic suffixes (.gov.uk, .ac.uk, .gob.mx) count without being listed.
+- The local SEO tables appear only on pages with LocalBusiness schema.
 
 ## M8: site-wide intelligence
 
-Built on the branch `m8/site-wide`. After the crawl, a site stage compares pages in `spawn_blocking` and adds `site` to the report: findings, each with the URLs it affects, and site metrics. Site findings count once in their category score and lower the overall score by their TS overall weight times the share of crawled pages they touch (stage 5's resolved question 4).
+Merged in PR #8 on 2026-11-13. After the crawl, a site stage compares pages in `spawn_blocking` and adds `site` to the report: findings, each with the URLs it affects, and site metrics. Site findings count once in their category score and lower the overall score by their TS overall weight times the share of crawled pages they touch (stage 5's resolved question 4).
 
 ### Acceptance boxes
 
