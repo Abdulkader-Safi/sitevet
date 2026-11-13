@@ -321,6 +321,9 @@ dom_collector!(AgentAccess, "answer-engine", "answer-engine/agent-access", |cx, 
     out
 });
 
+/// Page-level schema for pages that are none of the five types: listings, about pages, search.
+const OTHER_PAGES: [&str; 5] = ["CollectionPage", "AboutPage", "ItemList", "SearchResultsPage", "ProfilePage"];
+
 const LOCAL_TYPES: [&str; 11] = [
     "LocalBusiness",
     "Restaurant",
@@ -336,45 +339,61 @@ const LOCAL_TYPES: [&str; 11] = [
 ];
 
 /// FR-AEO-07: the page purpose and what gave it away.
-fn page_type(cx: &RuleCx<'_>, dom: &Html) -> Option<(&'static str, String)> {
+fn page_type(cx: &RuleCx<'_>, dom: &Html) -> (Option<&'static str>, String) {
     let nodes: Vec<&SchemaNode> = cx.page.schema.iter().flat_map(|i| i.node.walk()).collect();
     let typed = |names: &[&str]| nodes.iter().flat_map(|n| &n.types).find(|t| names.contains(&t.as_str())).cloned();
-    // The site root is home, whatever it lists. Then page-specific schema. Business schema often
-    // sits on every page of a site, so it only decides when the URL and the structure say nothing.
+    let top = |names: &[&str]| {
+        cx.page.schema.iter().flat_map(|i| &i.node.types).find(|t| names.contains(&t.as_str())).cloned()
+    };
+    // The site root is home, whatever it lists.
     let path = url::Url::parse(&cx.page.final_url).map(|u| u.path().to_lowercase()).unwrap_or_default();
     if path.is_empty() || path == "/" {
-        return Some(("home", "From the URL: the site root".into()));
+        return (Some("home"), "From the URL: the site root".into());
+    }
+    // A listing or about page says so at the top level, often with article items nested inside,
+    // so this runs before the article check.
+    if let Some(t) = top(&OTHER_PAGES) {
+        return (None, format!("From schema: {t}, which is none of home, article, product, contact or local business"));
+    }
+    // A page that offers a service is the business's own page.
+    if let Some(t) = top(&["Service"]) {
+        return (Some("local business"), format!("From schema: {t}"));
     }
     let from_schema = [
         ("product", &["Product"][..]),
-        ("article", &["Article", "NewsArticle", "BlogPosting", "TechArticle", "Report"][..]),
+        ("article", &["Article", "NewsArticle", "BlogPosting", "TechArticle", "Report", "CreativeWork"][..]),
         ("contact", &["ContactPage"][..]),
     ];
     for (label, names) in from_schema {
         if let Some(t) = typed(names) {
-            return Some((label, format!("From schema: {t}")));
+            return (Some(label), format!("From schema: {t}"));
         }
     }
     let h1 = all(dom, "h1").first().map(|h| collapse(&text(*h)).to_lowercase()).unwrap_or_default();
     if path.contains("contact") || h1.contains("contact") {
-        return Some(("contact", "From the URL or H1".into()));
+        return (Some("contact"), "From the URL or H1".into());
     }
+    if all(dom, "article").len() == 1 {
+        return (Some("article"), "From the page structure: one <article> element".into());
+    }
+    // ponytail: the loosest signal, kept for pages with no schema that names their purpose.
     let prose = in_main(dom, "p").len() >= 2 && !in_main(dom, "h2").is_empty() && !h1.is_empty();
-    if !all(dom, "article").is_empty() || !all(dom, "time[datetime]").is_empty() || prose {
-        return Some(("article", "From the page structure: an H1, H2 sections and paragraphs".into()));
+    if prose {
+        return (Some("article"), "From the page structure: an H1, H2 sections and paragraphs".into());
     }
-    if let Some(t) = typed(&LOCAL_TYPES) {
-        return Some(("local business", format!("From schema: {t}")));
+    // Business schema often sits on every page of a site, so it decides only this late.
+    match typed(&LOCAL_TYPES) {
+        Some(t) => (Some("local business"), format!("From schema: {t}")),
+        None => (None, "Could not tell from schema or structure".into()),
     }
-    None
 }
 
 dom_collector!(PageType, "answer-engine", "answer-engine/page-type", |cx, dom, html| {
-    let hint = page_type(cx, dom);
+    let (hint, why) = page_type(cx, dom);
     vec![
-        value("answer-engine/page-type", "Page type", hint.as_ref().and_then(|(t, _)| txt(*t)))
+        value("answer-engine/page-type", "Page type", hint.and_then(txt))
             .with_status(if hint.is_some() { ValueStatus::Ok } else { ValueStatus::Missing })
-            .with_note(hint.map_or_else(|| "Could not tell from schema or structure".to_string(), |(_, why)| why)),
+            .with_note(why),
     ]
 });
 
@@ -476,6 +495,34 @@ mod tests {
         let m = value(&product.metric("answer-engine/page-type"));
         assert_eq!((m.0, m.2.as_deref()), (t("product"), Some("From schema: Product")));
         assert_eq!(v(&page("<p>x</p>"), "answer-engine/page-type"), None);
+    }
+
+    #[test]
+    fn listings_and_case_studies() {
+        let ld = |json: &str| format!(r#"<script type="application/ld+json">{json}</script>"#);
+        // A blog index nests BlogPosting items, and is still not an article.
+        let listing = page(&format!(
+            "{}{}",
+            ld(r#"{"@type":"CollectionPage","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"BlogPosting"}]}}"#),
+            fixture("article.html")
+        ))
+        .url("https://example.com/blog");
+        let m = value(&listing.metric("answer-engine/page-type"));
+        assert_eq!((m.0, m.1), (None, Some(Missing)));
+        assert!(m.2.unwrap().starts_with("From schema: CollectionPage, which is none of"));
+        let service =
+            page(&format!("{}{}", ld(r#"{"@type":"Service","name":"Figma plugins"}"#), fixture("article.html")))
+                .url("https://example.com/services/figma");
+        assert_eq!(v(&service, "answer-engine/page-type"), t("local business"));
+        let case_study = page(&ld(r#"{"@type":"CreativeWork","name":"Vouch"}"#)).url("https://example.com/work/vouch");
+        assert_eq!(v(&case_study, "answer-engine/page-type"), t("article"));
+        let single = page("<article><h1>Terms</h1><p>Text.</p></article>").url("https://example.com/terms");
+        let m = value(&single.metric("answer-engine/page-type"));
+        assert_eq!((m.0, m.2.as_deref()), (t("article"), Some("From the page structure: one <article> element")));
+        // Many <article> cards are a listing, not an article.
+        let cards = page("<main><h1>Work</h1><article><p>A</p></article><article><p>B</p></article></main>")
+            .url("https://example.com/work");
+        assert_eq!(v(&cards, "answer-engine/page-type"), None);
     }
 
     #[test]
