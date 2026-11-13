@@ -130,6 +130,9 @@ pub(crate) struct Crawl<'a> {
 pub(crate) struct Crawled<T> {
     pub(crate) pages: Vec<(PageData, T)>,
     pub(crate) blocked: Vec<BlockedUrl>,
+    /// Every crawled URL that redirected, and where it ended, including ones whose target was
+    /// already audited.
+    pub(crate) redirects: Vec<(String, String)>,
 }
 
 enum Outcome<T> {
@@ -183,6 +186,7 @@ impl Crawl<'_> {
 
         let mut pages: Vec<(PageData, T)> = Vec::new();
         let mut audited = HashSet::new();
+        let mut redirects = Vec::new();
         while !frontier.queue.is_empty() && pages.len() < self.max_pages {
             let take = (self.max_pages - pages.len()).min(frontier.queue.len());
             let batch: Vec<(Url, u32)> = frontier.queue.drain(..take).collect();
@@ -204,6 +208,9 @@ impl Crawl<'_> {
                 }
                 let final_key =
                     Url::parse(&page.final_url).map_or_else(|_| page.final_url.clone(), |u| normalize(&u).into());
+                if !page.redirect_chain.is_empty() && page.error.is_none() {
+                    redirects.push((page.url.clone(), final_key.clone()));
+                }
                 if !audited.insert(final_key.clone()) {
                     continue; // reached through a redirect from another URL already audited
                 }
@@ -227,7 +234,7 @@ impl Crawl<'_> {
                 pages.push((page, extra));
             }
         }
-        Ok(Crawled { pages, blocked: frontier.blocked })
+        Ok(Crawled { pages, blocked: frontier.blocked, redirects })
     }
 
     async fn fetch_page<T, F, Fut>(&self, url: Url, depth: u32, handle: &F) -> Outcome<T>

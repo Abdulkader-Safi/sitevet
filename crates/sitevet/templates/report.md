@@ -48,6 +48,35 @@ No checks ran.
 | {{ c.name }} | {{ c.score }} | {{ c.fail }} | {{ c.warn }} | {{ c.pass }} |
 {%- endfor %}
 {% endif %}
+{%- if let Some(site) = v.site %}
+## Site-wide
+{% if site.issues.is_empty() %}
+All {{ site.passed }} site-wide checks passed.
+{% else %}
+| Status | Rule | Message | Pages |
+| --- | --- | --- | --- |
+{%- for f in site.issues %}
+| {{ f.word }} | {{ f.rule_id }} | {{ f.message }} | {% for u in f.urls %}{{ u }}{% if !loop.last %}<br>{% endif %}{% endfor %} |
+{%- endfor %}
+{% if site.passed > 0 %}
+{{ site.passed }} other site-wide {% if site.passed == 1 %}check{% else %}checks{% endif %} passed.
+{% endif -%}
+{% endif -%}
+{% for g in site.metric_groups %}
+{%- for t in g.tables %}
+**{{ t.label }}**{% if !t.caption.is_empty() %} ({{ t.caption }}){% endif %}
+{% if t.rows.is_empty() %}
+None found.
+{% else %}
+|{% for c in t.columns %} {{ c }} |{% endfor %}
+|{% for c in t.columns %} --- |{% endfor %}
+{%- for r in t.rows %}
+|{% for cell in r %} {{ cell }} |{% endfor %}
+{%- endfor %}
+{% endif -%}
+{% endfor -%}
+{% endfor %}
+{% endif %}
 ## Pages
 {% for p in v.pages %}
 ### {{ p.url }} (score {{ p.score }}/100)

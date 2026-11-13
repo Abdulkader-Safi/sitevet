@@ -65,6 +65,14 @@
       "maximum": 255,
       "minimum": 0
     },
+    "site": {
+      "description": "Findings and metrics across pages: duplicates, orphans, the link graph. Reports saved\nbefore 0.4.0 have none.",
+      "$ref": "#/$defs/SiteResult",
+      "default": {
+        "findings": [],
+        "metrics": []
+      }
+    },
     "sitevet_version": {
       "type": "string"
     },
@@ -91,6 +99,7 @@
     "score",
     "categories",
     "pages",
+    "site",
     "blocked",
     "skipped_rules",
     "changes"
@@ -809,6 +818,95 @@
         "error",
         "warning",
         "info"
+      ]
+    },
+    "SiteFinding": {
+      "description": "A finding about the site, with the pages it affects.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "details": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "description": "Offending markup, header or value, at most 2,000 characters.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fix": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "key": {
+          "description": "Stable identity for diffs: a hash of rule ID, page URL and evidence.",
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "title": {
+          "type": "string"
+        },
+        "urls": {
+          "description": "The pages in a duplicate group, the orphans, the redirecting links. Empty on a pass.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "rule_id",
+        "category",
+        "title",
+        "status",
+        "severity",
+        "message",
+        "details",
+        "evidence",
+        "fix",
+        "key",
+        "urls"
+      ]
+    },
+    "SiteResult": {
+      "description": "Site-wide findings and metrics, from comparing pages after the crawl.",
+      "type": "object",
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SiteFinding"
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Metric"
+          }
+        }
+      },
+      "required": [
+        "findings",
+        "metrics"
       ]
     },
     "SkippedRule": {

@@ -40,6 +40,8 @@ pub struct PageData {
     pub schema: Vec<crate::SchemaItem>,
     /// True when the DOM came from Chrome after scripts ran (`render_crawl`), not from the raw HTML.
     pub js_rendered: bool,
+    /// 256-bit SimHash of the main content's word 5-shingles. None under 50 words.
+    pub simhash: Option<[u64; 4]>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -193,6 +195,7 @@ pub(crate) fn extract(dom: &Html, page: &mut PageData, origin: &url::Origin) {
     page.text = dom.select(&sel.body).next().map_or_else(|| visible_text(root), visible_text);
     page.language = crate::text::language(dom, page.lang.as_deref());
     page.schema = crate::schema::extract(dom);
+    page.simhash = crate::text::simhash(&crate::text::tokenize(&crate::text::main_text(dom).0));
 }
 
 /// Element text with whitespace collapsed, the way cheerio's `.text().trim()` reads it.

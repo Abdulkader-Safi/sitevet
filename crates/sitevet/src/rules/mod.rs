@@ -305,7 +305,7 @@ pub(crate) fn select_collectors(options: &Options) -> Vec<Arc<dyn Collector>> {
     collectors.into_iter().filter(|c| wanted(options, c.meta().category)).collect()
 }
 
-fn wanted(options: &Options, category: &str) -> bool {
+pub(crate) fn wanted(options: &Options, category: &str) -> bool {
     (options.only.is_empty() || options.only.iter().any(|c| c == category))
         && !options.skip.iter().any(|c| c == category)
 }

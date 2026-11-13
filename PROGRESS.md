@@ -14,13 +14,13 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
 | M6 text engine | Done. Merged in PR #5, released in 0.3.0 on 2026-11-13 |
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
-| M8 site-wide   | Built on branch `m8/site-wide`, PR #8 open, not merged |
-| M9 trust       | Built on branch `m9/trust`, PR #9 open, not merged |
+| M8 site-wide   | Done. Merged in PR #8 on 2026-11-13. Report section in review |
+| M9 trust       | Done. Merged in PR #9 on 2026-11-13 |
 | M10 to M14     | Not started                              |
 
 ## M9: trust and compliance
 
-Built on the branch `m9/trust`, from `main` (it does not need the M8 site stage, which is on its own branch in PR #8). The TS package lists phase 5 in its backlog with only the pass or fail author and date checks built, so the patterns here are sitevet's own, in `src/trust.rs`, shared by the rules and the measurements.
+Merged in PR #9 on 2026-11-13. It does not need the M8 site stage; the two were built on separate branches. The TS package lists phase 5 in its backlog with only the pass or fail author and date checks built, so the patterns here are sitevet's own, in `src/trust.rs`, shared by the rules and the measurements.
 
 ### Acceptance boxes
 
@@ -40,6 +40,35 @@ Built on the branch `m9/trust`, from `main` (it does not need the M8 site stage,
 - Organization in the trust signals table counts LocalBusiness and its subtypes (ProfessionalService, Restaurant), and other common Organization subtypes.
 - Citation quality reads distinct outbound links in the main content. `data/authoritative-domains.txt` lists 34 domains; .gov, .edu, .mil, .int and second-level government and academic suffixes (.gov.uk, .ac.uk, .gob.mx) count without being listed.
 - The local SEO tables appear only on pages with LocalBusiness schema.
+
+## M8: site-wide intelligence
+
+Merged in PR #8 on 2026-11-13. After the crawl, a site stage compares pages in `spawn_blocking` and adds `site` to the report: findings, each with the URLs it affects, and site metrics. Site findings count once in their category score and lower the overall score by their TS overall weight times the share of crawled pages they touch (stage 5's resolved question 4).
+
+### Acceptance boxes
+
+- [x] FR-SITE-01: on the fixture site, 3 pages share "Shared title" and give one `core-seo/duplicate-title` group of 3. Descriptions and H1s are grouped the same way.
+- [x] FR-SITE-02: two pages differing by one paragraph in twelve are flagged as 86% similar. An unrelated page with 60 words is not.
+- [x] FR-SITE-03: `/orphan`, listed only in the sitemap, is the one orphan.
+- [x] FR-SITE-04: inbound counts and click depth match the known graph (`/` linked from 1 page, `/a` and `/b` from 2, `/deep3` at depth 4, `/orphan` not linked), and only `/deep3` warns past the default of 3.
+- [x] FR-SITE-05: the link to `/old` appears in the redirect map with `/new` and one linking page.
+- [x] FR-SITE-06: `/old` is the one sitemap URL that can't be indexed (it redirects), and `/c` the one crawlable page missing from the sitemap.
+
+### Decisions made in M8
+
+- Near-duplicates use a 256-bit SimHash, not stage 4's 64-bit. 64 bits put a one-paragraph edit 15 bits apart and unrelated pages 33 to 38, too close to separate. 256 bits gives 36 and 134; the cut is 80% similar (51 bits). Pages under 50 main-content words are not compared. Every pair is compared rather than bucketed. Stage 4 is updated.
+- Nine site checks, each one finding per issue with its URLs: `core-seo/duplicate-title`, `core-seo/duplicate-description`, `content/duplicate-h1` (info severity), `content/near-duplicate`, `crawlability/orphan-pages`, `crawlability/click-depth`, `links/internal-redirects` (info severity), `crawlability/sitemap-not-crawlable`, `crawlability/missing-from-sitemap` (info severity). A clean check gives one pass. Without a sitemap, the three sitemap checks give info.
+- Click depth comes from a BFS over the crawled link graph, with redirects followed, not from the crawl's own depth, which counts sitemap seeds as depth 1.
+- The crawler records every redirect it follows, including ones whose target was already audited, so the redirect map is complete.
+- "In the sitemap, not indexable" covers sitemap URLs blocked by robots.txt, redirecting, answering an error, or carrying noindex or a canonical pointing elsewhere. Sitemap URLs the crawl never reached (past `max_pages`) are left out, since nothing is known about them.
+- Site checks run whatever `rules` and `collectors` hold. `only` and `skip` filter them by category, and site metrics sit in a `site` category. The first version dropped them when a caller passed their own `rules`, which would have hidden them from anyone extending `all_rules()`; the engine test that checks extended registries caught it.
+- `PageData` gets `simhash`. The report gets `site` with `#[serde(default)]`, so older history entries still load.
+
+### Open items for Safi
+
+- The site-wide report section needs a visual check (card in review).
+- `sitevet diff` and the changes panel compare page findings only. Site findings are not in the diff yet.
+- `sitevet rules` and `docs/rules.md` list the registry rules. The nine site checks are listed here and in the report, not there.
 
 ## M7: answer engine and content structure
 

@@ -53,7 +53,7 @@ pub fn report_schema() -> &'static str {
 const CSS: &str = include_str!("../../assets/report.css");
 
 /// The TS package's category names and order, then sitevet's own.
-const CATEGORIES: [(&str, &str); 16] = [
+const CATEGORIES: [(&str, &str); 17] = [
     ("core-seo", "Core SEO"),
     ("content", "Content"),
     ("links", "Links"),
@@ -70,6 +70,7 @@ const CATEGORIES: [(&str, &str); 16] = [
     ("accessibility", "Accessibility"),
     ("performance", "Performance"),
     ("answer-engine", "Answer engine"),
+    ("site", "Site-wide"),
 ];
 
 fn category_name(id: &str) -> String {
@@ -169,6 +170,14 @@ struct View {
     /// (reason, rule IDs), one row per reason.
     skipped: Vec<(String, String)>,
     changes: Option<ChangesView>,
+    site: Option<SiteView>,
+}
+
+struct SiteView {
+    /// Site findings that need attention, worst first.
+    issues: Vec<FindingView>,
+    passed: usize,
+    metric_groups: Vec<MetricGroup>,
 }
 
 struct ChangesView {
@@ -268,6 +277,21 @@ struct FindingView {
     message: String,
     evidence: Option<String>,
     fix: Option<String>,
+    /// The pages a site finding affects. Empty on page findings.
+    urls: Vec<String>,
+}
+
+fn finding_view(f: &Finding, urls: &[String], esc: fn(&str) -> String) -> FindingView {
+    FindingView {
+        word: status_word(f.status),
+        class: status_class(f.status),
+        rule_id: esc(&f.rule_id),
+        title: esc(&f.title),
+        message: esc(&f.message),
+        evidence: f.evidence.as_deref().map(esc),
+        fix: f.fix.as_deref().map(esc),
+        urls: urls.iter().map(|u| esc(u)).collect(),
+    }
 }
 
 struct MetricGroup {
@@ -320,6 +344,16 @@ impl View {
             pages: r.pages.iter().enumerate().map(|(i, p)| PageView::new(i, p, esc)).collect(),
             blocked: r.blocked.iter().map(|b| (esc(&b.url), esc(b.rule.as_deref().unwrap_or("")))).collect(),
             changes: r.changes.as_ref().map(|d| ChangesView::new(d, esc)),
+            site: (!r.site.findings.is_empty() || !r.site.metrics.is_empty()).then(|| {
+                let mut issues: Vec<&super::SiteFinding> =
+                    r.site.findings.iter().filter(|f| f.finding.status != Status::Pass).collect();
+                issues.sort_by_key(|f| (status_rank(f.finding.status), category_rank(&f.finding.category)));
+                SiteView {
+                    issues: issues.into_iter().map(|f| finding_view(&f.finding, &f.urls, esc)).collect(),
+                    passed: r.site.findings.iter().filter(|f| f.finding.status == Status::Pass).count(),
+                    metric_groups: metric_groups(&r.site.metrics, esc),
+                }
+            }),
             skipped: {
                 let mut by_reason: Vec<(String, Vec<&str>)> = Vec::new();
                 for s in &r.skipped_rules {
@@ -348,18 +382,7 @@ impl PageView {
                 FindingGroup {
                     name: category_name(cat),
                     passed: p.findings.iter().filter(|f| f.category == cat && f.status == Status::Pass).count(),
-                    issues: issues
-                        .into_iter()
-                        .map(|f| FindingView {
-                            word: status_word(f.status),
-                            class: status_class(f.status),
-                            rule_id: esc(&f.rule_id),
-                            title: esc(&f.title),
-                            message: esc(&f.message),
-                            evidence: f.evidence.as_deref().map(esc),
-                            fix: f.fix.as_deref().map(esc),
-                        })
-                        .collect(),
+                    issues: issues.into_iter().map(|f| finding_view(f, &[], esc)).collect(),
                 }
             })
             .collect();
