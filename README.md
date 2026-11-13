@@ -8,7 +8,7 @@ It ships two ways from one codebase:
 - A CLI. `sitevet audit https://example.com` for a quick check in the terminal, or with `--fail-under 85` as a CI step that fails when the score drops.
 
 > [!NOTE]
-> sitevet 0.3.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
+> sitevet 0.3.1 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
 
 ## Install
 
