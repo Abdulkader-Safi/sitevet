@@ -235,3 +235,28 @@ async fn gzip_bodies_decode_and_bombs_stop_at_the_cap() {
     assert!(report.pages[0].truncated);
     assert_eq!(report.pages[0].html_bytes, 10 * 1024 * 1024);
 }
+
+/// A server that answers HEAD with 404 but GET with 200 has a working link.
+#[tokio::test]
+async fn head_error_falls_back_to_get() {
+    use wiremock::matchers::{method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+    let external = MockServer::start().await;
+    Mock::given(method("HEAD")).and(path("/item")).respond_with(ResponseTemplate::new(404)).mount(&external).await;
+    Mock::given(method("GET")).and(path("/item")).respond_with(ResponseTemplate::new(200)).mount(&external).await;
+    Mock::given(path("/gone")).respond_with(ResponseTemplate::new(404)).mount(&external).await;
+    let base = external.uri();
+    let fx =
+        Fixture::start(Site::new().page("/", format!("<a href=\"{base}/item\">a</a><a href=\"{base}/gone\">b</a>")))
+            .await;
+    let mut options = Options::default();
+    options.only = vec!["links".into()];
+    let report = audit(&fx.url("/"), options).await.unwrap();
+    let broken: Vec<_> = report.pages[0]
+        .findings
+        .iter()
+        .filter(|f| f.rule_id == "links/broken-external" && f.status != sitevet::Status::Pass)
+        .map(|f| f.evidence.clone().unwrap())
+        .collect();
+    assert_eq!(broken, [format!("{base}/gone")]);
+}
