@@ -5,7 +5,7 @@ Status: signed off 2026-11-10
 For each decision: what was chosen, what else was considered, and why, traced to a requirement (Stage 3) or the mission and users (Stages 1 and 2). Versions are the latest stable on crates.io as of 2026-11-10. Pin minor versions in `Cargo.toml` and let Dependabot raise them.
 
 > **Constraints going in:** Rust only, MIT licence, open source with no budget for paid services. One developer (Safi). The first consumer is a GPUI desktop app in another repo, which runs its own executor. The TS package is the behaviour reference and is never modified. Local toolchain is rustc 1.97.1.
-> **Changes:** 2026-11-10: workspace split and the `spawn` entry point were decided here, so FR-DIST-01 and FR-API-06 in stage 3 were updated. 2026-11-13 (M6): `encoding_rs` added for page charsets, and the English stop word list settled.
+> **Changes:** 2026-11-10: workspace split and the `spawn` entry point were decided here, so FR-DIST-01 and FR-API-06 in stage 3 were updated. 2026-11-13 (M6): `encoding_rs` added for page charsets, and the English stop word list settled. 2026-11-13 (M8): near-duplicates use a 256-bit SimHash, not 64-bit.
 
 ## Overall architecture
 
@@ -86,7 +86,8 @@ For each decision: what was chosen, what else was considered, and why, traced to
 
 ## Site-wide analysis
 
-- **Choice:** in-crate code that runs after the crawl over the extracted page data. Duplicate groups by hash map. Near-duplicates with 64-bit SimHash over word 5-shingles, compared pairwise only within buckets (FR-SITE-02). Link graph with inbound counts and BFS click depth.
+- **Choice:** in-crate code that runs after the crawl over the extracted page data. Duplicate groups by hash map. Near-duplicates with 256-bit SimHash over word 5-shingles, every pair compared (FR-SITE-02). Link graph with inbound counts and BFS click depth.
+- **Landmines:** a 64-bit SimHash (the first choice here) is too noisy for FR-SITE-02. In M8, one changed paragraph in twelve moved it 15 bits, while unrelated pages sat at 33 to 38, so no threshold separated them. 256 bits (each shingle hash stretched into four words with splitmix64) put the same pair 36 bits apart and the unrelated page 134. At 256 bits the bucket trick needs too many bands to help, so every pair is compared: about 50 million XOR-and-popcounts at 10,000 pages, a fraction of a second.
 - **Considered:** MinHash with LSH (more accurate, more code, not needed at 10,000 pages).
 - **Why:** FR-SITE-01 to FR-SITE-06, NFR-05.
 
