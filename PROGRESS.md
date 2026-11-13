@@ -12,13 +12,13 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M3 reports, CLI | Done. 0.1.0 released 2026-11-10 (crates.io and GitHub). Reviews closed |
 | M4 rendered stage | Done. CI green (run 42866636468) |
 | M5 run history | Done. 0.2.0 released 2026-11-10, 0.2.1 the same day with the diff fix (PR #2), 0.2.2 on 2026-11-11 with render progress and the LinkedIn 999 fix (PR #3), 0.2.3 on 2026-11-13 with the HEAD-then-GET link fix (PR #4) |
-| M6 text engine | Built on branch `m6/text-engine`, PR #5 open, not merged |
-| M7 answer engine | Built on branch `m7/answer-engine` (stacked on M6), PR #6 open, not merged |
+| M6 text engine | Done. Merged in PR #5 on 2026-11-13, not released yet |
+| M7 answer engine | Done. Merged in PR #6 on 2026-11-13, not released yet |
 | M8 to M14      | Not started                              |
 
 ## M7: answer engine and content structure
 
-Built on the branch `m7/answer-engine`, which starts from the M6 branch because it reads the same main-content boundary. The TS package lists phase 3 in its backlog without code, so the logic and thresholds here are sitevet's own. Every measurement is a metric in a new "Answer engine" category and never moves the score. The two new rules are `structured-data/faqpage-valid` and `structured-data/howto-valid`.
+Merged in PR #6 on 2026-11-13, after #5, since it reads the same main-content boundary. The TS package lists phase 3 in its backlog without code, so the logic and thresholds here are sitevet's own. Every measurement is a metric in a new "Answer engine" category and never moves the score. The two new rules are `structured-data/faqpage-valid` and `structured-data/howto-valid`.
 
 ### Acceptance boxes
 
@@ -44,7 +44,7 @@ Built on the branch `m7/answer-engine`, which starts from the M6 branch because 
 
 ## M6: text engine
 
-Built on the branch `m6/text-engine`. Every page now gets word counts and readability in its own language, with keyword tables, and `PageResult` carries a `language` field with the declared and detected language.
+Merged in PR #5 on 2026-11-13. Every page now gets word counts and readability in its own language, with keyword tables, and `PageResult` carries a `language` field with the declared and detected language.
 
 ### Acceptance boxes
 
