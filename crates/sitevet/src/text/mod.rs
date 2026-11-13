@@ -411,6 +411,45 @@ pub(crate) fn tokenize(text: &str) -> Vec<String> {
     tokens(text).map(|(_, w)| w.replace('\u{2019}', "'")).collect()
 }
 
+/// Fewer main-content words than this give no SimHash: too little text to compare.
+pub(crate) const SIMHASH_MIN_WORDS: usize = 50;
+
+/// 256-bit SimHash over word 5-shingles (FR-SITE-02): pages that share most of their phrasing
+/// get hashes a few bits apart. Each shingle's FNV-1a hash is stretched into 4 independent
+/// 64-bit words with splitmix64, so the value is stable across Rust versions. 64 bits alone
+/// proved too noisy: one changed paragraph in twelve moved it 15 bits, half the way to unrelated.
+pub(crate) fn simhash(words: &[String]) -> Option<[u64; 4]> {
+    if words.len() < SIMHASH_MIN_WORDS {
+        return None;
+    }
+    let mut votes = [0i32; 256];
+    for shingle in words.windows(5) {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        for w in shingle {
+            for b in w.bytes().chain(*b" ") {
+                h ^= u64::from(b);
+                h = h.wrapping_mul(0x0100_0000_01b3);
+            }
+        }
+        for k in 0..4u64 {
+            let mut z = h ^ k.wrapping_mul(0x9e37_79b9_7f4a_7c15);
+            z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+            z ^= z >> 31;
+            for bit in 0..64 {
+                votes[k as usize * 64 + bit] += if z >> bit & 1 == 1 { 1 } else { -1 };
+            }
+        }
+    }
+    let mut out = [0u64; 4];
+    for (i, v) in votes.iter().enumerate() {
+        if *v > 0 {
+            out[i / 64] |= 1 << (i % 64);
+        }
+    }
+    Some(out)
+}
+
 /// English syllable estimate, good to about one syllable per long word.
 fn syllables(word: &str) -> usize {
     let w: String = word.to_lowercase().chars().filter(char::is_ascii_lowercase).collect();

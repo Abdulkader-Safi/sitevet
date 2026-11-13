@@ -61,6 +61,10 @@ pub struct AuditReport {
     pub categories: Vec<CategoryScore>,
     /// In crawl order.
     pub pages: Vec<PageResult>,
+    /// Findings and metrics across pages: duplicates, orphans, the link graph. Reports saved
+    /// before 0.4.0 have none.
+    #[serde(default)]
+    pub site: SiteResult,
     /// URLs skipped because robots.txt disallows them.
     pub blocked: Vec<BlockedUrl>,
     /// Rules that did not run, with the reason, e.g. "needs browser or psi_key".
@@ -111,6 +115,24 @@ pub struct PageResult {
     pub score: u8,
     pub findings: Vec<Finding>,
     pub metrics: Vec<Metric>,
+}
+
+/// Site-wide findings and metrics, from comparing pages after the crawl.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[non_exhaustive]
+pub struct SiteResult {
+    pub findings: Vec<SiteFinding>,
+    pub metrics: Vec<Metric>,
+}
+
+/// A finding about the site, with the pages it affects.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[non_exhaustive]
+pub struct SiteFinding {
+    #[serde(flatten)]
+    pub finding: Finding,
+    /// The pages in a duplicate group, the orphans, the redirecting links. Empty on a pass.
+    pub urls: Vec<String>,
 }
 
 /// The page language: what `<html lang>` says and what the main content reads as.

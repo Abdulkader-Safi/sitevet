@@ -151,20 +151,20 @@ tbody th { font-weight: 500; }
     
     <li class="cat fair">
       <span class="cat-name">Core SEO</span>
-      <span class="cat-score">52<span class="sr"> out of 100</span></span>
-      <span class="cat-counts">11 fail, 26 warn, 18 pass</span>
+      <span class="cat-score">53<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">11 fail, 26 warn, 20 pass</span>
     </li>
     
     <li class="cat good">
       <span class="cat-name">Content</span>
-      <span class="cat-score">91<span class="sr"> out of 100</span></span>
-      <span class="cat-counts">0 fail, 6 warn, 24 pass</span>
+      <span class="cat-score">92<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 6 warn, 26 pass</span>
     </li>
     
     <li class="cat good">
       <span class="cat-name">Links</span>
       <span class="cat-score">90<span class="sr"> out of 100</span></span>
-      <span class="cat-counts">1 fail, 0 warn, 24 pass</span>
+      <span class="cat-counts">1 fail, 0 warn, 25 pass</span>
     </li>
     
     <li class="cat good">
@@ -187,8 +187,8 @@ tbody th { font-weight: 500; }
     
     <li class="cat fair">
       <span class="cat-name">Crawlability</span>
-      <span class="cat-score">88<span class="sr"> out of 100</span></span>
-      <span class="cat-counts">0 fail, 5 warn, 25 pass</span>
+      <span class="cat-score">86<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 7 warn, 27 pass</span>
     </li>
     
     <li class="cat good">
@@ -236,6 +236,118 @@ tbody th { font-weight: 500; }
   </ul>
   
 </section>
+
+
+<section aria-labelledby="site-h">
+  <h2 id="site-h">Site-wide</h2>
+  
+  <ul class="findings">
+    
+    <li class="finding warn">
+      <span class="word">WARN</span>
+      <div class="finding-body">
+        <p class="finding-title">Orphan pages <code class="rule">crawlability/orphan-pages</code></p>
+        <p dir="auto">1 sitemap page has no internal links pointing at it</p>
+        
+        <details><summary>1 page</summary><ul class="change-list"><li dir="auto">http://fixture.test/orphan.html</li></ul></details>
+        <p class="fix"><span class="fix-label">Fix:</span> Link to each orphan page from at least one related page, or drop it from the sitemap.</p>
+      </div>
+    </li>
+    
+    <li class="finding warn">
+      <span class="word">WARN</span>
+      <div class="finding-body">
+        <p class="finding-title">Pages missing from the sitemap <code class="rule">crawlability/missing-from-sitemap</code></p>
+        <p dir="auto">1 indexable page is not in the sitemap</p>
+        
+        <details><summary>1 page</summary><ul class="change-list"><li dir="auto">http://fixture.test/contact.html</li></ul></details>
+        <p class="fix"><span class="fix-label">Fix:</span> Add every indexable page to the sitemap.</p>
+      </div>
+    </li>
+    
+  </ul>
+  <p class="ok">7 other site-wide checks passed.</p>
+  
+  
+  <details class="metrics">
+    <summary>Site measurements</summary>
+    
+    <div class="table-wrap"><table>
+      <caption>Duplicate groups</caption>
+      <thead><tr><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Pages</th><th scope="col">URLs</th></tr></thead>
+      <tbody>
+      <tr><td colspan="4">None found.</td></tr>
+      
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Near-duplicate pages</caption>
+      <thead><tr><th scope="col">Page</th><th scope="col">Similar page</th><th scope="col">Similarity %</th></tr></thead>
+      <tbody>
+      <tr><td colspan="3">None found.</td></tr>
+      
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Internal link graph</caption>
+      <thead><tr><th scope="col">URL</th><th scope="col">Linked from</th><th scope="col">Links to</th><th scope="col">Click depth</th></tr></thead>
+      <tbody>
+      
+      <tr><td dir="auto">http://fixture.test/</td><td dir="auto">2</td><td dir="auto">2</td><td dir="auto">0</td></tr><tr><td dir="auto">http://fixture.test/contact.html</td><td dir="auto">2</td><td dir="auto">2</td><td dir="auto">1</td></tr><tr><td dir="auto">http://fixture.test/about.html</td><td dir="auto">1</td><td dir="auto">2</td><td dir="auto">1</td></tr><tr><td dir="auto">http://fixture.test/missing.html</td><td dir="auto">1</td><td dir="auto">0</td><td dir="auto">2</td></tr><tr><td dir="auto">http://fixture.test/orphan.html</td><td dir="auto">0</td><td dir="auto">0</td><td dir="auto">not linked</td></tr>
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Pages by click depth</caption>
+      <thead><tr><th scope="col">Click depth</th><th scope="col">Pages</th></tr></thead>
+      <tbody>
+      
+      <tr><td dir="auto">0</td><td dir="auto">1</td></tr><tr><td dir="auto">1</td><td dir="auto">2</td></tr><tr><td dir="auto">2</td><td dir="auto">1</td></tr><tr><td dir="auto">not linked</td><td dir="auto">1</td></tr>
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Redirect map</caption>
+      <thead><tr><th scope="col">Link</th><th scope="col">Ends at</th><th scope="col">Linked from</th></tr></thead>
+      <tbody>
+      <tr><td colspan="3">None found.</td></tr>
+      
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Orphan pages</caption>
+      <thead><tr><th scope="col">URL</th></tr></thead>
+      <tbody>
+      
+      <tr><td dir="auto">http://fixture.test/orphan.html</td></tr>
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>In the sitemap, not indexable</caption>
+      <thead><tr><th scope="col">URL</th><th scope="col">Why</th></tr></thead>
+      <tbody>
+      <tr><td colspan="2">None found.</td></tr>
+      
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
+      <caption>Crawlable, not in the sitemap</caption>
+      <thead><tr><th scope="col">URL</th></tr></thead>
+      <tbody>
+      
+      <tr><td dir="auto">http://fixture.test/contact.html</td></tr>
+      </tbody>
+    </table></div>
+    
+  </details>
+  
+</section>
+
 
 <section id="pages" aria-labelledby="pages-h">
   <h2 id="pages-h">Pages</h2>

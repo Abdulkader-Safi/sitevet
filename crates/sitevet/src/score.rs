@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::report::{Finding, PageResult, Severity, Status};
+use crate::report::{Finding, PageResult, Severity, SiteFinding, Status};
 
 fn severity_weight(s: Severity) -> f64 {
     match s {
@@ -44,6 +44,12 @@ const WARN_FACTOR: f64 = 0.55;
 /// Starts at 100 and deducts for every rule that fails or warns, weighted by severity and scaled
 /// by the share of pages it affects.
 pub fn compute_overall(pages: &[PageResult]) -> u8 {
+    overall(pages, &[])
+}
+
+/// [`compute_overall`] plus site findings: each adds the TS overall weight scaled by the share of
+/// crawled pages it affects.
+pub(crate) fn overall(pages: &[PageResult], site: &[SiteFinding]) -> u8 {
     let total = pages.len().max(1) as f64;
     // rule ID -> (severity, pages failing, pages warning)
     let mut by_rule: HashMap<&str, (Severity, u32, u32)> = HashMap::new();
@@ -71,7 +77,19 @@ pub fn compute_overall(pages: &[PageResult]) -> u8 {
             w * (f64::from(*fail) / total) + w * WARN_FACTOR * (f64::from(*warn) / total)
         })
         .sum();
-    (100.0 - penalty).round().max(0.0) as u8
+    let site_penalty: f64 = site
+        .iter()
+        .map(|f| {
+            let share = (f.urls.len() as f64 / total).min(1.0);
+            let w = overall_weight(f.finding.severity);
+            match f.finding.status {
+                Status::Fail => w * share,
+                Status::Warn => w * WARN_FACTOR * share,
+                Status::Pass | Status::Info => 0.0,
+            }
+        })
+        .sum();
+    (100.0 - penalty - site_penalty).round().max(0.0) as u8
 }
 
 /// The TS package's `test/runner.test.ts` cases.
@@ -161,5 +179,20 @@ mod tests {
             many.push(x);
         }
         assert_eq!(compute_overall(&[page(many)]), 0);
+    }
+
+    #[test]
+    fn site_findings_scale_by_the_pages_they_touch() {
+        let pages: Vec<PageResult> = (0..4).map(|_| page(vec![f(Status::Pass, Severity::Error, "c")])).collect();
+        assert_eq!(overall(&pages, &[]), 100);
+        let site = |status, severity, urls: usize| SiteFinding {
+            finding: f(status, severity, "c"),
+            urls: (0..urls).map(|i| i.to_string()).collect(),
+        };
+        // Warning weight 11, warn factor 0.55, 2 of 4 pages: 100 - 11 * 0.55 * 0.5 = 97.
+        assert_eq!(overall(&pages, &[site(Status::Warn, Severity::Warning, 2)]), 97);
+        // A share is capped at the whole site.
+        assert_eq!(overall(&pages, &[site(Status::Fail, Severity::Error, 9)]), 78);
+        assert_eq!(overall(&pages, &[site(Status::Pass, Severity::Error, 0)]), 100);
     }
 }

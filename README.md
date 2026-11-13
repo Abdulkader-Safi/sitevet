@@ -48,6 +48,7 @@ The library and the `sitevet` command:
 - Word counts and readability per page, with keyword tables, in the page's language. The language comes from `<html lang>`, or is detected from the text when that is missing. Stop words and word stems cover every language the ISO stop word lists and the Snowball stemmers do (English and Arabic are tested). English pages get Flesch reading ease, Flesch-Kincaid and Gunning Fog. Other languages get average sentence and word length instead, and pages in Chinese, Japanese, Thai or Khmer get a character count.
 - Answer engine measurements per page: a definition or short answer near the top, question headings and how many get a direct answer, answer formats (lists, steps, tables, definitions, FAQ blocks), words per H2 section, internal links in the main content, AI crawler access from robots.txt, `llms.txt`, how much content is there without JavaScript, and a page-type hint. They never touch the score.
 - A structured data tree read from JSON-LD, microdata and RDFa alike, with the key properties each item lacks, plus FAQPage and HowTo checks.
+- Site-wide checks after the crawl: duplicate titles, descriptions and H1s, near-duplicate pages (a SimHash of the main content), orphan pages, click depth, internal links that hit a redirect, and the sitemap compared with the crawl in both directions. They count in the category scores and lower the overall score by the share of pages they touch. A site-wide section in the HTML and Markdown reports shows them with the link graph. On `main`, not released yet.
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
@@ -65,7 +66,6 @@ The 94 rules from the TypeScript package, covering core SEO, content, links, ima
 
 On top of that, v1 plans to ship:
 
-- Site-wide findings: duplicate titles and descriptions, near-duplicate pages, orphan pages, click depth, an internal link graph.
 - Trust signals and local SEO, such as author bylines, refund pages, and NAP consistency with LocalBusiness schema.
 - Tech stack detection for analytics vendors, ad pixels, the CMS and the CDN.
 - Deeper performance timings, mobile checks (tap targets, overflow, console errors), screenshots and an opt-in image size audit.
