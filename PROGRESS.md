@@ -15,7 +15,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M6 text engine | Done. Merged in PR #5, released in 0.3.0 on 2026-11-13 |
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
 | M8 site-wide   | Built on branch `m8/site-wide`, PR #8 open, not merged |
-| M9 trust       | Built on branch `m9/trust`, PR open, not merged |
+| M9 trust       | Built on branch `m9/trust`, PR #9 open, not merged |
 | M10 to M14     | Not started                              |
 
 ## M9: trust and compliance
