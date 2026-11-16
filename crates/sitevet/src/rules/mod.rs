@@ -14,7 +14,7 @@ mod legal;
 mod links;
 #[cfg(test)]
 mod parity;
-mod performance;
+pub(crate) mod performance;
 mod security;
 mod social_media;
 mod structured_data;
@@ -24,6 +24,11 @@ mod url_structure;
 
 pub(crate) use internationalization::HREFLANG;
 pub(crate) use links::GENERIC_ANCHOR;
+
+/// True for a script on another site than the page, whose size the link checker should read.
+pub(crate) fn performance_third_party(url: &str, page_url: &str) -> bool {
+    performance::third_party_origin(url, page_url).is_some()
+}
 pub(crate) use structured_data::JSON_LD;
 
 use std::sync::Arc;
@@ -166,6 +171,48 @@ pub struct PerfMetrics {
     pub dom_nodes: u32,
     pub requests: u32,
     pub transfer_bytes: u64,
+    /// Navigation timing (FR-PERF-01). None from PageSpeed Insights, which does not report it.
+    #[serde(default)]
+    pub timings: Option<NavTimings>,
+    /// First contentful paint, ms.
+    #[serde(default)]
+    pub fcp_ms: Option<f64>,
+    /// Interaction to Next Paint, ms. None when nothing interacted with the page, which is
+    /// every audit: INP needs a real click or key press (FR-PERF-02).
+    #[serde(default)]
+    pub inp_ms: Option<f64>,
+    /// Layout shift events without recent input. None when not measured.
+    #[serde(default)]
+    pub layout_shifts: Option<u32>,
+    #[serde(default)]
+    pub largest_shift: Option<f64>,
+    /// Requests slower than `slow_resource_ms`. None when not measured; empty when none were.
+    #[serde(default)]
+    pub slow_resources: Option<Vec<SlowResource>>,
+}
+
+/// Navigation timing, in ms. Phases (DNS, TCP, response) are durations; the DOM milestones are
+/// times since the navigation started.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct NavTimings {
+    pub dns_ms: f64,
+    pub tcp_ms: f64,
+    /// Response start to response end: the time to download the HTML, after the first byte.
+    pub response_ms: f64,
+    pub dom_interactive_ms: f64,
+    pub dom_content_loaded_ms: f64,
+    pub dom_complete_ms: f64,
+}
+
+/// One request slower than the threshold.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct SlowResource {
+    pub url: String,
+    pub ms: f64,
+    /// The resource timing `initiatorType`: img, script, css, fetch and so on.
+    pub kind: String,
 }
 
 /// What a rule or collector can read.

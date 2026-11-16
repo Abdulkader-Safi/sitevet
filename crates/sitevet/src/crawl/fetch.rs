@@ -46,6 +46,8 @@ pub(crate) struct Fetched {
     /// Each URL that answered with a redirect.
     pub(crate) redirect_chain: Vec<String>,
     pub(crate) ms: u64,
+    /// "HTTP/1.1", "HTTP/2" or "HTTP/3", as negotiated for the final response.
+    pub(crate) version: String,
 }
 
 /// What to do with the body of the final response.
@@ -106,6 +108,14 @@ impl Fetcher {
                 current = next;
                 continue;
             }
+            let version = match res.version() {
+                reqwest::Version::HTTP_2 => "HTTP/2",
+                reqwest::Version::HTTP_3 => "HTTP/3",
+                reqwest::Version::HTTP_10 => "HTTP/1.0",
+                reqwest::Version::HTTP_09 => "HTTP/0.9",
+                _ => "HTTP/1.1",
+            }
+            .to_string();
             let headers = header_pairs(res.headers());
             let content_type = res.headers().get(CONTENT_TYPE).and_then(|v| v.to_str().ok()).map(str::to_string);
             let cap = match body {
@@ -123,6 +133,7 @@ impl Fetcher {
                 truncated,
                 redirect_chain: chain,
                 ms: started.elapsed().as_millis() as u64,
+                version,
             });
         }
     }

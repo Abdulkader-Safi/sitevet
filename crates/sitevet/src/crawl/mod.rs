@@ -255,6 +255,7 @@ impl Crawl<'_> {
                 page.final_url = f.final_url.into();
                 page.status = f.status;
                 page.redirect_chain = f.redirect_chain;
+                page.http_version = Some(f.version);
                 page.response_ms = f.ms;
                 page.headers = f.headers;
                 page.html_bytes = f.body.len() as u64;

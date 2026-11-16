@@ -18,7 +18,7 @@ use serde_json::Value;
 
 use super::{Rendered, collect_reporting};
 use crate::engine::Events;
-use crate::rules::{AxePass, AxeViolation, PerfMetrics, RenderedData};
+use crate::rules::{AxePass, AxeViolation, NavTimings, PerfMetrics, RenderedData, SlowResource};
 use crate::{Error, Options, Result};
 
 /// Bundled unmodified (MPL-2.0); see THIRD_PARTY.md.
@@ -27,15 +27,22 @@ const TABS: usize = 2;
 const PAGE_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Waits for the largest contentful paint, then 1 s more for layout shifts, 5 s at most.
-/// Observers with `buffered: true` also see entries from before they were created.
+/// Observers with `buffered: true` also see entries from before they were created. INP stays
+/// null: Event Timing only reports interactions, and nothing clicks or types in an audit.
 const VITALS_JS: &str = r#"new Promise(function (resolve) {
-  var lcp = 0, cls = 0, t0 = performance.now(), done = false;
-  function finish() { if (!done) { done = true; resolve({ lcp: lcp, cls: cls }); } }
+  var lcp = 0, cls = 0, shifts = 0, largest = 0, inp = null, t0 = performance.now(), done = false;
+  function finish() {
+    if (!done) { done = true; resolve({ lcp: lcp, cls: cls, shifts: shifts, largest: largest, inp: inp }); }
+  }
   try {
     new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { lcp = e.startTime; }); })
       .observe({ type: 'largest-contentful-paint', buffered: true });
-    new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { if (!e.hadRecentInput) cls += e.value; }); })
-      .observe({ type: 'layout-shift', buffered: true });
+    new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) {
+      if (!e.hadRecentInput) { cls += e.value; shifts += 1; if (e.value > largest) largest = e.value; }
+    }); }).observe({ type: 'layout-shift', buffered: true });
+    new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) {
+      if (e.interactionId) inp = Math.max(inp || 0, e.duration);
+    }); }).observe({ type: 'event', durationThreshold: 16, buffered: true });
   } catch (e) {}
   (function poll() {
     var waited = performance.now() - t0;
@@ -43,17 +50,30 @@ const VITALS_JS: &str = r#"new Promise(function (resolve) {
   })();
 })"#;
 
-/// Navigation and resource timing, as the TS package's Playwright provider read them.
+/// Navigation, paint and resource timing. `__SLOW__` is replaced with `slow_resource_ms`.
 const STATS_JS: &str = r#"(function () {
   var nav = performance.getEntriesByType('navigation')[0];
   var res = performance.getEntriesByType('resource');
+  var fcp = performance.getEntriesByName('first-contentful-paint')[0];
   var transfer = res.reduce(function (s, r) { return s + (r.transferSize || 0); }, 0) + ((nav && nav.transferSize) || 0);
+  function r(n) { return Math.max(0, Math.round(n)); }
   return {
     ttfb: nav ? Math.round(nav.responseStart) : 0,
     load: nav ? Math.round(nav.duration) : 0,
     dom: document.querySelectorAll('*').length,
     requests: res.length + 1,
-    transfer: transfer
+    transfer: transfer,
+    timings: nav ? {
+      dns: r(nav.domainLookupEnd - nav.domainLookupStart),
+      tcp: r(nav.connectEnd - nav.connectStart),
+      response: r(nav.responseEnd - nav.responseStart),
+      interactive: r(nav.domInteractive),
+      dcl: r(nav.domContentLoadedEventEnd),
+      complete: r(nav.domComplete)
+    } : null,
+    fcp: fcp ? r(fcp.startTime) : null,
+    slow: res.filter(function (e) { return e.duration >= __SLOW__; })
+      .map(function (e) { return { url: e.name, ms: r(e.duration), kind: e.initiatorType }; })
   };
 })()"#;
 
@@ -89,13 +109,21 @@ pub(crate) struct Renderer {
     /// Same policy as the fetcher: refuse private addresses when the start URL is public.
     block_private: bool,
     restarted: bool,
+    /// Requests slower than this are listed (FR-PERF-03).
+    slow_ms: u64,
 }
 
 impl Renderer {
     pub(crate) async fn launch(options: &Options, block_private: bool) -> Result<Self> {
         let executable = find_chrome(options)?;
-        let mut r =
-            Self { running: None, executable, user_agent: options.user_agent(), block_private, restarted: false };
+        let mut r = Self {
+            running: None,
+            executable,
+            user_agent: options.user_agent(),
+            block_private,
+            restarted: false,
+            slow_ms: options.slow_resource_ms,
+        };
         r.start().await?;
         Ok(r)
     }
@@ -133,7 +161,8 @@ impl Renderer {
             let Some(running) = &self.running else { break };
             let (browser, ua, guard) = (&running.browser, self.user_agent.as_str(), self.block_private);
             // Futures built up front: a closure inside the stream trips a compiler limit on Send.
-            let jobs: Vec<_> = queue.iter().map(|url| render_owned(browser, (*url).clone(), ua, guard)).collect();
+            let slow = self.slow_ms;
+            let jobs: Vec<_> = queue.iter().map(|url| render_owned(browser, (*url).clone(), ua, guard, slow)).collect();
             let batch = collect_reporting(
                 futures::stream::iter(jobs).buffer_unordered(TABS),
                 &mut count,
@@ -244,15 +273,27 @@ async fn request_allowed(raw: &str) -> bool {
     }
 }
 
-async fn render_owned(browser: &Browser, url: String, user_agent: &str, guard: bool) -> (String, RenderedData) {
-    let data = render_page(browser, &url, user_agent, guard).await;
+async fn render_owned(
+    browser: &Browser,
+    url: String,
+    user_agent: &str,
+    guard: bool,
+    slow_ms: u64,
+) -> (String, RenderedData) {
+    let data = render_page(browser, &url, user_agent, guard, slow_ms).await;
     (url, data)
 }
 
-async fn render_page(browser: &Browser, url: &str, user_agent: &str, block_private: bool) -> RenderedData {
+async fn render_page(
+    browser: &Browser,
+    url: &str,
+    user_agent: &str,
+    block_private: bool,
+    slow_ms: u64,
+) -> RenderedData {
     let work = async {
         let (page, guard) = open(browser, url, user_agent, block_private).await.map_err(|e| e.to_string())?;
-        let result = measure(&page).await;
+        let result = measure(&page, slow_ms).await;
         let _ = page.close().await;
         drop(guard);
         result
@@ -268,10 +309,11 @@ async fn render_page(browser: &Browser, url: &str, user_agent: &str, block_priva
     }
 }
 
-async fn measure(page: &Page) -> std::result::Result<RenderedData, String> {
+async fn measure(page: &Page, slow_ms: u64) -> std::result::Result<RenderedData, String> {
     let vitals = eval(page, VITALS_JS).await.map_err(|e| e.to_string())?;
-    let stats = eval(page, STATS_JS).await.map_err(|e| e.to_string())?;
+    let stats = eval(page, &STATS_JS.replace("__SLOW__", &slow_ms.to_string())).await.map_err(|e| e.to_string())?;
     let n = |v: &Value| v.as_f64().unwrap_or(0.0);
+    let t = &stats["timings"];
     let metrics = PerfMetrics {
         ttfb_ms: n(&stats["ttfb"]),
         load_ms: n(&stats["load"]),
@@ -280,6 +322,32 @@ async fn measure(page: &Page) -> std::result::Result<RenderedData, String> {
         dom_nodes: n(&stats["dom"]) as u32,
         requests: n(&stats["requests"]) as u32,
         transfer_bytes: n(&stats["transfer"]) as u64,
+        timings: t.is_object().then(|| NavTimings {
+            dns_ms: n(&t["dns"]),
+            tcp_ms: n(&t["tcp"]),
+            response_ms: n(&t["response"]),
+            dom_interactive_ms: n(&t["interactive"]),
+            dom_content_loaded_ms: n(&t["dcl"]),
+            dom_complete_ms: n(&t["complete"]),
+        }),
+        fcp_ms: stats["fcp"].as_f64(),
+        inp_ms: vitals["inp"].as_f64(),
+        layout_shifts: Some(n(&vitals["shifts"]) as u32),
+        largest_shift: Some((n(&vitals["largest"]) * 1000.0).round() / 1000.0),
+        slow_resources: Some(
+            stats["slow"]
+                .as_array()
+                .map(|a| {
+                    a.iter()
+                        .map(|e| SlowResource {
+                            url: e["url"].as_str().unwrap_or("").to_string(),
+                            ms: n(&e["ms"]),
+                            kind: e["kind"].as_str().unwrap_or("").to_string(),
+                        })
+                        .collect()
+                })
+                .unwrap_or_default(),
+        ),
     };
     // axe can fail on unusual pages; the metrics still count.
     let (axe, axe_passes) = run_axe(page).await.unwrap_or_default();

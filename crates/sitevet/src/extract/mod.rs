@@ -40,6 +40,8 @@ pub struct PageData {
     pub schema: Vec<crate::SchemaItem>,
     /// True when the DOM came from Chrome after scripts ran (`render_crawl`), not from the raw HTML.
     pub js_rendered: bool,
+    /// "HTTP/1.1", "HTTP/2" or "HTTP/3" for the page response. None when the fetch failed.
+    pub http_version: Option<String>,
     /// 256-bit SimHash of the main content's word 5-shingles. None under 50 words.
     pub simhash: Option<[u64; 4]>,
 }

@@ -23,8 +23,175 @@ pub(super) fn rules() -> Vec<Arc<dyn Rule>> {
         Arc::new(DomSize),
         Arc::new(PageWeight),
         Arc::new(RequestCount),
+        Arc::new(FontDisplay),
+        Arc::new(HttpVersion),
+        Arc::new(ResourceHints),
+        Arc::new(ThirdPartyScripts),
     ]
 }
+
+/// The site a host belongs to: its last two labels, so `cdn.example.com` is `example.com`.
+// ponytail: two labels, so `shop.example.co.uk` and `blog.other.co.uk` look like one site. A
+// public suffix list fixes that if it ever matters.
+fn site_of(host: &str) -> String {
+    let labels: Vec<&str> = host.trim_start_matches("www.").split('.').collect();
+    labels[labels.len().saturating_sub(2)..].join(".")
+}
+
+/// The origin of an absolute URL on another site than the page, or None.
+pub(crate) fn third_party_origin(url: &str, page_url: &str) -> Option<String> {
+    let u = url::Url::parse(url).ok().filter(|u| matches!(u.scheme(), "http" | "https"))?;
+    let page_host = url::Url::parse(page_url).ok()?.host_str()?.to_string();
+    (site_of(u.host_str()?) != site_of(&page_host)).then(|| u.origin().ascii_serialization())
+}
+
+static FONT_FACE: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| re(r"(?is)@font-face\s*\{[^}]*\}"));
+static FONT_FILE: std::sync::LazyLock<regex::Regex> =
+    std::sync::LazyLock::new(|| re(r#"(?i)url\(\s*['"]?([^'")]+\.(?:woff2?|ttf|otf|eot))"#));
+const GOOGLE_FONTS: &str = r#"link[href*="fonts.googleapis.com/css"]"#;
+
+/// (web fonts declared, ones without font-display) in inline `@font-face` rules and Google Fonts links.
+pub(crate) fn font_display(dom: &scraper::Html) -> (usize, usize) {
+    let css: String = all(dom, "style").into_iter().map(text).collect();
+    let faces: Vec<&str> = FONT_FACE.find_iter(&css).map(|m| m.as_str()).collect();
+    let google: Vec<String> =
+        all(dom, GOOGLE_FONTS).into_iter().filter_map(|l| l.value().attr("href").map(str::to_string)).collect();
+    let missing = faces.iter().filter(|f| !f.contains("font-display")).count()
+        + google.iter().filter(|h| !h.contains("display=")).count();
+    (faces.len() + google.len(), missing)
+}
+
+/// (font files referenced in inline CSS, font files preloaded).
+pub(crate) fn font_files(dom: &scraper::Html) -> (usize, usize) {
+    let css: String = all(dom, "style").into_iter().map(text).collect();
+    let mut files: Vec<String> = FONT_FILE.captures_iter(&css).map(|c| c[1].to_string()).collect();
+    files.sort();
+    files.dedup();
+    (files.len(), count(dom, r#"link[rel~="preload"][as="font"]"#))
+}
+
+dom_rule!(
+    FontDisplay,
+    "performance/font-display",
+    "Font loading",
+    Info,
+    "Set font-display: swap (or optional) on every @font-face, and add &display=swap to Google Fonts links, so text shows while fonts load.",
+    |cx, dom, html| {
+        match font_display(dom) {
+            (0, _) => vec![R::info("No web fonts declared in the HTML (external stylesheets are not read)")],
+            (n, 0) => vec![R::pass(format!("font-display set on {n} web font declaration(s)"))],
+            (n, missing) => vec![R::warn(format!("{missing} of {n} web font declaration(s) without font-display"))],
+        }
+    }
+);
+
+dom_rule!(
+    HttpVersion,
+    "performance/http-version",
+    "HTTP/2 or HTTP/3",
+    Warning,
+    "Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.",
+    |cx, dom, html| {
+        let h3 = header(cx.page, "alt-svc").is_some_and(|v| v.contains("h3"));
+        match cx.page.http_version.as_deref() {
+            None => vec![R::info("No response to read the HTTP version from")],
+            Some(v @ ("HTTP/2" | "HTTP/3")) => vec![R::pass(format!("Served over {v}"))],
+            Some(v) if h3 => vec![R::pass(format!("Served over {v}, and HTTP/3 is offered"))],
+            Some(v) => vec![R::warn(format!("Served over {v}"))],
+        }
+    }
+);
+
+dom_rule!(
+    ResourceHints,
+    "performance/resource-hints",
+    "Resource hints for third-party origins",
+    Info,
+    "Add <link rel=\"preconnect\"> (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.",
+    |cx, dom, html| {
+        let page = &cx.page.final_url;
+        let mut needed: Vec<String> = cx
+            .page
+            .scripts
+            .iter()
+            .filter_map(|s| s.src.as_deref())
+            .chain(cx.page.stylesheets.iter().map(String::as_str))
+            .filter_map(|u| third_party_origin(u, page))
+            .collect();
+        if count(dom, GOOGLE_FONTS) > 0 {
+            needed.push("https://fonts.gstatic.com".into());
+        }
+        needed.sort();
+        needed.dedup();
+        let hinted: Vec<String> = all(dom, r#"link[rel~="preconnect"][href], link[rel~="dns-prefetch"][href]"#)
+            .into_iter()
+            .filter_map(|l| l.value().attr("href"))
+            .filter_map(|h| url::Url::parse(page).ok()?.join(h).ok())
+            .map(|u| u.origin().ascii_serialization())
+            .collect();
+        let missing: Vec<&String> = needed.iter().filter(|o| !hinted.contains(o)).collect();
+        if needed.is_empty() {
+            vec![R::info("No third-party origins for scripts, styles or fonts")]
+        } else if missing.is_empty() {
+            vec![R::pass(format!("All {} third-party origin(s) have a preconnect or dns-prefetch", needed.len()))]
+        } else {
+            let list: Vec<&str> = missing.iter().map(|s| s.as_str()).collect();
+            vec![
+                R::warn(format!("{} third-party origin(s) without preconnect or dns-prefetch", missing.len()))
+                    .with_evidence(list.join(", ")),
+            ]
+        }
+    }
+);
+
+/// More third-party scripts than this, or more bytes, warns.
+const THIRD_PARTY_MAX: usize = 10;
+const THIRD_PARTY_MAX_BYTES: u64 = 500 * 1024;
+
+/// Third-party script URLs on the page, with their size when the server sent one.
+pub(crate) fn third_party_scripts(cx: &crate::RuleCx<'_>) -> Vec<(String, Option<u64>)> {
+    let mut out: Vec<(String, Option<u64>)> = cx
+        .page
+        .scripts
+        .iter()
+        .filter_map(|s| s.src.clone())
+        .filter(|u| third_party_origin(u, &cx.page.final_url).is_some())
+        .map(|u| {
+            let bytes = cx.links.get(&u).and_then(|l| l.bytes);
+            (u, bytes)
+        })
+        .collect();
+    out.dedup_by(|a, b| a.0 == b.0);
+    out
+}
+
+rule!(
+    ThirdPartyScripts,
+    "performance/third-party-scripts",
+    "Third-party scripts",
+    Info,
+    Enriched,
+    "Drop third-party scripts you do not need, and load the rest with async or defer.",
+    |cx| {
+        let scripts = third_party_scripts(cx);
+        if scripts.is_empty() {
+            return vec![R::info("No third-party scripts")];
+        }
+        let known: u64 = scripts.iter().filter_map(|(_, b)| *b).sum();
+        let unknown = scripts.iter().filter(|(_, b)| b.is_none()).count();
+        let size = match (unknown, known) {
+            (0, _) => format!("{} KB", known.div_ceil(1024)),
+            (_, 0) => "size unknown (the server sent no Content-Length)".to_string(),
+            _ => format!("{} KB plus {unknown} of unknown size", known.div_ceil(1024)),
+        };
+        let msg = format!("{} third-party script(s), {size}", scripts.len());
+        if scripts.len() > THIRD_PARTY_MAX || known > THIRD_PARTY_MAX_BYTES {
+            vec![R::warn(msg)]
+        } else {
+            vec![R::pass(msg)]
+        }
+    }
+);
 
 dom_rule!(
     RenderBlockingScripts,
@@ -277,7 +444,7 @@ rule!(
 
 #[cfg(test)]
 mod tests {
-    use crate::Status::{Fail, Info, Pass, Warn};
+    use crate::Status::{self, Fail, Info, Pass, Warn};
     use crate::rules::testkit::page;
     use crate::rules::{PerfMetrics, RenderedData};
 
@@ -355,5 +522,72 @@ mod tests {
         let mut unmeasured = page("<p>x</p>");
         unmeasured.rendered = Some(RenderedData { ok: true, ..Default::default() });
         assert_eq!(unmeasured.message("performance/ttfb"), "Not measured (no performance provider)");
+    }
+
+    #[test]
+    fn font_display() {
+        let none = page("<p>x</p>");
+        assert_eq!(
+            none.message("performance/font-display"),
+            "No web fonts declared in the HTML (external stylesheets are not read)"
+        );
+        let good = page(
+            r#"<style>@font-face { font-family: A; src: url(/a.woff2); font-display: swap; }</style>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">"#,
+        );
+        assert_eq!(good.message("performance/font-display"), "font-display set on 2 web font declaration(s)");
+        let bad = page(
+            r#"<style>@font-face { font-family: A; src: url(/a.woff2); }</style>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">"#,
+        );
+        assert_eq!(bad.message("performance/font-display"), "2 of 2 web font declaration(s) without font-display");
+    }
+
+    #[test]
+    fn http_version() {
+        assert_eq!(page("<p>x</p>").message("performance/http-version"), "Served over HTTP/2");
+        let mut old = page("<p>x</p>");
+        old.http_version = Some("HTTP/1.1".into());
+        assert_eq!(old.status("performance/http-version"), Status::Warn);
+        let offered = old.header("alt-svc", r#"h3=":443"; ma=86400"#);
+        assert_eq!(offered.message("performance/http-version"), "Served over HTTP/1.1, and HTTP/3 is offered");
+    }
+
+    #[test]
+    fn resource_hints() {
+        assert_eq!(page(r#"<script src="/app.js"></script>"#).status("performance/resource-hints"), Status::Info);
+        let bare = page(r#"<script src="https://cdn.other.net/lib.js"></script>"#);
+        let r = bare.results("performance/resource-hints").remove(0);
+        assert_eq!((r.status, r.evidence.as_deref()), (Status::Warn, Some("https://cdn.other.net")));
+        let hinted = page(
+            r#"<link rel="preconnect" href="https://cdn.other.net"><script src="https://cdn.other.net/lib.js"></script>"#,
+        );
+        assert_eq!(hinted.status("performance/resource-hints"), Status::Pass);
+        // Subdomains of the page's own site are not third parties.
+        assert_eq!(
+            page(r#"<script src="https://cdn.example.com/a.js"></script>"#).status("performance/resource-hints"),
+            Status::Info
+        );
+    }
+
+    #[test]
+    fn third_party_scripts() {
+        assert_eq!(page("<p>x</p>").status("performance/third-party-scripts"), Status::Info);
+        let mut small =
+            page(r#"<script src="https://cdn.other.net/a.js"></script><script src="https://x.io/b.js"></script>"#);
+        small.link_bytes = vec![("https://cdn.other.net/a.js".into(), 30_000)];
+        assert_eq!(
+            small.message("performance/third-party-scripts"),
+            "2 third-party script(s), 30 KB plus 1 of unknown size"
+        );
+        assert_eq!(small.status("performance/third-party-scripts"), Status::Pass);
+        let mut heavy = page(r#"<script src="https://cdn.other.net/a.js"></script>"#);
+        heavy.link_bytes = vec![("https://cdn.other.net/a.js".into(), 800_000)];
+        assert_eq!(heavy.status("performance/third-party-scripts"), Status::Warn);
+        let unknown = page(r#"<script src="https://x.io/b.js"></script>"#);
+        assert_eq!(
+            unknown.message("performance/third-party-scripts"),
+            "1 third-party script(s), size unknown (the server sent no Content-Length)"
+        );
     }
 }

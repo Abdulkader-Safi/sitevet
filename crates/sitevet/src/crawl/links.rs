@@ -28,6 +28,9 @@ pub struct LinkStatus {
     /// Number of redirects followed.
     pub chain: u32,
     pub error: Option<String>,
+    /// The `Content-Length` of the final response, when the server sent one.
+    #[serde(default)]
+    pub bytes: Option<u64>,
 }
 
 /// Link URL, as written in [`crate::Link::url`], to its status.
@@ -42,8 +45,9 @@ impl LinkStatus {
                 redirected: !f.redirect_chain.is_empty(),
                 chain: f.redirect_chain.len() as u32,
                 error: None,
+                bytes: f.headers.iter().find(|(k, _)| k == "content-length").and_then(|(_, v)| v.trim().parse().ok()),
             },
-            Err(e) => Self { ok: false, status: 0, redirected: false, chain: 0, error: Some(e.clone()) },
+            Err(e) => Self { ok: false, status: 0, redirected: false, chain: 0, error: Some(e.clone()), bytes: None },
         }
     }
 }
@@ -84,6 +88,7 @@ impl LinkChecker {
                             redirected: false,
                             chain: 0,
                             error: Some(ROBOTS_BLOCKED.into()),
+                            bytes: None,
                         };
                     }
                     // HEAD first, GET when HEAD answers with an error: some servers (the VS Code

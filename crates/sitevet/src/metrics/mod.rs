@@ -8,6 +8,7 @@ mod links;
 mod markup;
 mod meta;
 mod page;
+mod performance;
 mod schema_tree;
 mod text;
 mod trust;
@@ -30,6 +31,7 @@ pub(crate) fn all() -> Vec<Arc<dyn Collector>> {
         answer::collectors(),
         schema_tree::collectors(),
         trust::collectors(),
+        performance::collectors(),
     ]
     .concat()
 }

@@ -23,7 +23,7 @@ Overall score: **0/100** (Poor). 5 pages audited on 2026-01-01T00:00:00Z in 1.0 
 | Legal | 32 | 0 | 5 | 2 |
 | Analytics | 63 | 0 | 5 | 5 |
 | E-E-A-T | 38 | 0 | 5 | 1 |
-| Performance | 69 | 0 | 10 | 20 |
+| Performance | 58 | 0 | 15 | 20 |
 
 ## Site-wide
 
@@ -84,7 +84,7 @@ None found.
 
 ## Pages
 
-### http://fixture.test/ (score 77/100)
+### http://fixture.test/ (score 76/100)
 
 #### Core SEO
 
@@ -211,6 +211,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | WARN | performance/text-compression | HTML response is not compressed |  |
 | WARN | performance/cache-control | No Cache-Control header |  |
+| WARN | performance/http-version | Served over HTTP/1.1 |  |
+| INFO | performance/font-display | No web fonts declared in the HTML (external stylesheets are not read) |  |
+| INFO | performance/resource-hints | No third-party origins for scripts, styles or fonts |  |
+| INFO | performance/third-party-scripts | No third-party scripts |  |
 
 4 other checks passed.
 
@@ -388,6 +392,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+| Web font declarations | 0 | - | 0 without font-display. Inline @font-face and Google Fonts links only |
+| Font files | 0 | - | Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet |
+| Preloaded fonts | 0 | - |  |
+| HTTP version | HTTP/1.1 | warn |  |
 
 ##### Answer engine
 
@@ -431,7 +439,7 @@ All 8 checks passed.
 | CCBot | allowed |
 | Google-Extended | allowed |
 
-### http://fixture.test/about.html (score 73/100)
+### http://fixture.test/about.html (score 72/100)
 
 #### Core SEO
 
@@ -558,6 +566,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | WARN | performance/text-compression | HTML response is not compressed |  |
 | WARN | performance/cache-control | No Cache-Control header |  |
+| WARN | performance/http-version | Served over HTTP/1.1 |  |
+| INFO | performance/font-display | No web fonts declared in the HTML (external stylesheets are not read) |  |
+| INFO | performance/resource-hints | No third-party origins for scripts, styles or fonts |  |
+| INFO | performance/third-party-scripts | No third-party scripts |  |
 
 4 other checks passed.
 
@@ -733,6 +745,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+| Web font declarations | 0 | - | 0 without font-display. Inline @font-face and Google Fonts links only |
+| Font files | 0 | - | Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet |
+| Preloaded fonts | 0 | - |  |
+| HTTP version | HTTP/1.1 | warn |  |
 
 ##### Answer engine
 
@@ -776,7 +792,7 @@ All 8 checks passed.
 | CCBot | allowed |
 | Google-Extended | allowed |
 
-### http://fixture.test/orphan.html (score 73/100)
+### http://fixture.test/orphan.html (score 72/100)
 
 #### Core SEO
 
@@ -902,6 +918,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | WARN | performance/text-compression | HTML response is not compressed |  |
 | WARN | performance/cache-control | No Cache-Control header |  |
+| WARN | performance/http-version | Served over HTTP/1.1 |  |
+| INFO | performance/font-display | No web fonts declared in the HTML (external stylesheets are not read) |  |
+| INFO | performance/resource-hints | No third-party origins for scripts, styles or fonts |  |
+| INFO | performance/third-party-scripts | No third-party scripts |  |
 
 4 other checks passed.
 
@@ -1071,6 +1091,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+| Web font declarations | 0 | - | 0 without font-display. Inline @font-face and Google Fonts links only |
+| Font files | 0 | - | Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet |
+| Preloaded fonts | 0 | - |  |
+| HTTP version | HTTP/1.1 | warn |  |
 
 ##### Answer engine
 
@@ -1245,6 +1269,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | WARN | performance/text-compression | HTML response is not compressed |  |
 | WARN | performance/cache-control | No Cache-Control header |  |
+| WARN | performance/http-version | Served over HTTP/1.1 |  |
+| INFO | performance/font-display | No web fonts declared in the HTML (external stylesheets are not read) |  |
+| INFO | performance/resource-hints | No third-party origins for scripts, styles or fonts |  |
+| INFO | performance/third-party-scripts | No third-party scripts |  |
 
 4 other checks passed.
 
@@ -1439,6 +1467,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+| Web font declarations | 0 | - | 0 without font-display. Inline @font-face and Google Fonts links only |
+| Font files | 0 | - | Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet |
+| Preloaded fonts | 0 | - |  |
+| HTTP version | HTTP/1.1 | warn |  |
 
 ##### Answer engine
 
@@ -1482,7 +1514,7 @@ All 8 checks passed.
 | CCBot | allowed |
 | Google-Extended | allowed |
 
-### http://fixture.test/missing.html (score 66/100)
+### http://fixture.test/missing.html (score 65/100)
 
 HTTP status 404.
 
@@ -1613,6 +1645,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | WARN | performance/text-compression | HTML response is not compressed |  |
 | WARN | performance/cache-control | No Cache-Control header |  |
+| WARN | performance/http-version | Served over HTTP/1.1 |  |
+| INFO | performance/font-display | No web fonts declared in the HTML (external stylesheets are not read) |  |
+| INFO | performance/resource-hints | No third-party origins for scripts, styles or fonts |  |
+| INFO | performance/third-party-scripts | No third-party scripts |  |
 
 4 other checks passed.
 
@@ -1780,6 +1816,10 @@ All 8 checks passed.
 | --- | --- | --- | --- |
 | HTML size | 0 KB | ok | Raw document, before assets |
 | Script tags | 0 | ok | 0 external, 0 inline |
+| Web font declarations | 0 | - | 0 without font-display. Inline @font-face and Google Fonts links only |
+| Font files | 0 | - | Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet |
+| Preloaded fonts | 0 | - |  |
+| HTTP version | HTTP/1.1 | warn |  |
 
 ##### Answer engine
 
