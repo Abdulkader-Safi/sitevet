@@ -195,7 +195,13 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
             async move {
                 let page_started = Instant::now();
                 let link_map = if need_links {
-                    links.check_all(page.links.iter().filter_map(|l| l.url.as_deref())).await
+                    // Third-party scripts too, for their size (performance/third-party-scripts).
+                    let scripts = page
+                        .scripts
+                        .iter()
+                        .filter_map(|s| s.src.as_deref())
+                        .filter(|u| rules::performance_third_party(u, &page.final_url));
+                    links.check_all(page.links.iter().filter_map(|l| l.url.as_deref()).chain(scripts)).await
                 } else {
                     LinkStatusMap::new()
                 };

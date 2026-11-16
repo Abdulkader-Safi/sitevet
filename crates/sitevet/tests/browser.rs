@@ -102,3 +102,46 @@ async fn render_crawl_finds_script_links() {
         rendered.pages.iter().map(|p| &p.url).collect::<Vec<_>>()
     );
 }
+
+/// FR-PERF-01 to FR-PERF-03 in a real Chrome: every timing present and not negative, INP in its
+/// "not measurable" state, and an image the server holds for 600 ms listed as slow.
+#[tokio::test]
+async fn performance_timings_inp_and_slow_requests() {
+    if !chrome_tests() {
+        return;
+    }
+    let site = Site::new()
+        .page("/", r#"<!doctype html><html lang="en"><head><title>Slow image</title></head><body><main><h1>Hello</h1><img src="/slow.png" alt="slow" width="10" height="10"></main></body></html>"#)
+        .route("/slow.png", Route::html("png").content_type("image/png").delay(Duration::from_millis(600)));
+    let fx = Fixture::start(site).await;
+    let report = audit(&fx.url("/"), browser_options()).await.unwrap();
+    let metric = |id: &str| report.pages[0].metrics.iter().find(|m| m.id == id).unwrap_or_else(|| panic!("no {id}"));
+    let number = |id: &str| match &metric(id).body {
+        sitevet::MetricBody::Value { value: Some(sitevet::MetricCell::Number(n)), .. } => *n,
+        other => panic!("{id}: {other:?}"),
+    };
+    for id in [
+        "performance/load-time",
+        "performance/dns-time",
+        "performance/tcp-time",
+        "performance/response-time",
+        "performance/dom-interactive",
+        "performance/dom-content-loaded",
+        "performance/dom-complete",
+        "performance/fcp",
+    ] {
+        assert!(number(id) >= 0.0, "{id}");
+    }
+    assert!(number("performance/load-time") >= 600.0, "the load waits for the slow image");
+    match &metric("performance/inp").body {
+        sitevet::MetricBody::Value { value: Some(sitevet::MetricCell::Text(t)), .. } => {
+            assert_eq!(t, "not measurable without interaction");
+        }
+        other => panic!("inp: {other:?}"),
+    }
+    let slow = match &metric("performance/slow-resource-list").body {
+        sitevet::MetricBody::Table { rows, .. } => rows.clone(),
+        other => panic!("{other:?}"),
+    };
+    assert!(slow.iter().any(|r| matches!(&r[0], sitevet::MetricCell::Text(u) if u.ends_with("/slow.png"))), "{slow:?}");
+}

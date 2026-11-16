@@ -102,6 +102,9 @@ pub(crate) fn from_response(v: &Value) -> RenderedData {
         dom_nodes: num("dom-size").round() as u32,
         requests: num("network-requests").round() as u32,
         transfer_bytes: num("total-byte-weight").round() as u64,
+        // Lighthouse's lab FCP. It reports no navigation phases, layout shift events or INP.
+        fcp_ms: audits["first-contentful-paint"]["numericValue"].as_f64().map(f64::round),
+        ..Default::default()
     };
     let mut axe = Vec::new();
     let mut axe_passes = Vec::new();

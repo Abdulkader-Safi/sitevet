@@ -52,8 +52,8 @@ pub use report::{
     SkippedRule, Status, ValueStatus, diff, render, render_with, report_schema,
 };
 pub use rules::{
-    AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, PerfMetrics, ROW_CAP, RenderedData, Rule, RuleCx,
-    RuleMeta, RuleResult, Stage, all_collectors, all_rules, select_rules,
+    AxePass, AxeViolation, Collector, CollectorMeta, MetricInput, NavTimings, PerfMetrics, ROW_CAP, RenderedData, Rule,
+    RuleCx, RuleMeta, RuleResult, SlowResource, Stage, all_collectors, all_rules, select_rules,
 };
 pub use schema::{SchemaItem, SchemaNode, SchemaProperty, SchemaSource, SchemaValue};
 pub use score::{compute_overall, score_findings};

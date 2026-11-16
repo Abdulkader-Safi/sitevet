@@ -229,8 +229,8 @@ tbody th { font-weight: 500; }
     
     <li class="cat fair">
       <span class="cat-name">Performance</span>
-      <span class="cat-score">69<span class="sr"> out of 100</span></span>
-      <span class="cat-counts">0 fail, 10 warn, 20 pass</span>
+      <span class="cat-score">58<span class="sr"> out of 100</span></span>
+      <span class="cat-counts">0 fail, 15 warn, 20 pass</span>
     </li>
     
   </ul>
@@ -354,9 +354,9 @@ tbody th { font-weight: 500; }
   
   <details class="page" id="page-1" open>
     <summary>
-      <span class="pill fair">77</span>
+      <span class="pill fair">76</span>
       <span class="page-url" dir="auto">http://fixture.test/</span>
-      <span class="page-count">23 issues</span>
+      <span class="page-count">24 issues</span>
     </summary>
     <div class="page-body">
       
@@ -851,6 +851,46 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTTP/2 or HTTP/3 <code class="rule">performance/http-version</code></p>
+            <p dir="auto">Served over HTTP/1.1</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Font loading <code class="rule">performance/font-display</code></p>
+            <p dir="auto">No web fonts declared in the HTML (external stylesheets are not read)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set font-display: swap (or optional) on every @font-face, and add &#38;display=swap to Google Fonts links, so text shows while fonts load.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Resource hints for third-party origins <code class="rule">performance/resource-hints</code></p>
+            <p dir="auto">No third-party origins for scripts, styles or fonts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;preconnect&#34;&#62; (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Third-party scripts <code class="rule">performance/third-party-scripts</code></p>
+            <p dir="auto">No third-party scripts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Drop third-party scripts you do not need, and load the rest with async or defer.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">4 other checks passed.</p>
       
@@ -1139,6 +1179,14 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
           
+          <tr><th scope="row">Web font declarations</th><td dir="auto">0</td><td>-</td><td dir="auto">0 without font-display. Inline @font-face and Google Fonts links only</td></tr>
+          
+          <tr><th scope="row">Font files</th><td dir="auto">0</td><td>-</td><td dir="auto">Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet</td></tr>
+          
+          <tr><th scope="row">Preloaded fonts</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">HTTP version</th><td dir="auto">HTTP/1.1</td><td><span class="vs warn">warn</span></td><td dir="auto"></td></tr>
+          
           </tbody>
         </table></div>
         
@@ -1214,9 +1262,9 @@ tbody th { font-weight: 500; }
   
   <details class="page" id="page-2">
     <summary>
-      <span class="pill fair">73</span>
+      <span class="pill fair">72</span>
       <span class="page-url" dir="auto">http://fixture.test/about.html</span>
-      <span class="page-count">24 issues</span>
+      <span class="page-count">25 issues</span>
     </summary>
     <div class="page-body">
       
@@ -1731,6 +1779,46 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTTP/2 or HTTP/3 <code class="rule">performance/http-version</code></p>
+            <p dir="auto">Served over HTTP/1.1</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Font loading <code class="rule">performance/font-display</code></p>
+            <p dir="auto">No web fonts declared in the HTML (external stylesheets are not read)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set font-display: swap (or optional) on every @font-face, and add &#38;display=swap to Google Fonts links, so text shows while fonts load.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Resource hints for third-party origins <code class="rule">performance/resource-hints</code></p>
+            <p dir="auto">No third-party origins for scripts, styles or fonts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;preconnect&#34;&#62; (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Third-party scripts <code class="rule">performance/third-party-scripts</code></p>
+            <p dir="auto">No third-party scripts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Drop third-party scripts you do not need, and load the rest with async or defer.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">4 other checks passed.</p>
       
@@ -2019,6 +2107,14 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
           
+          <tr><th scope="row">Web font declarations</th><td dir="auto">0</td><td>-</td><td dir="auto">0 without font-display. Inline @font-face and Google Fonts links only</td></tr>
+          
+          <tr><th scope="row">Font files</th><td dir="auto">0</td><td>-</td><td dir="auto">Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet</td></tr>
+          
+          <tr><th scope="row">Preloaded fonts</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">HTTP version</th><td dir="auto">HTTP/1.1</td><td><span class="vs warn">warn</span></td><td dir="auto"></td></tr>
+          
           </tbody>
         </table></div>
         
@@ -2094,9 +2190,9 @@ tbody th { font-weight: 500; }
   
   <details class="page" id="page-3">
     <summary>
-      <span class="pill fair">73</span>
+      <span class="pill fair">72</span>
       <span class="page-url" dir="auto">http://fixture.test/orphan.html</span>
-      <span class="page-count">24 issues</span>
+      <span class="page-count">25 issues</span>
     </summary>
     <div class="page-body">
       
@@ -2621,6 +2717,46 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTTP/2 or HTTP/3 <code class="rule">performance/http-version</code></p>
+            <p dir="auto">Served over HTTP/1.1</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Font loading <code class="rule">performance/font-display</code></p>
+            <p dir="auto">No web fonts declared in the HTML (external stylesheets are not read)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set font-display: swap (or optional) on every @font-face, and add &#38;display=swap to Google Fonts links, so text shows while fonts load.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Resource hints for third-party origins <code class="rule">performance/resource-hints</code></p>
+            <p dir="auto">No third-party origins for scripts, styles or fonts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;preconnect&#34;&#62; (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Third-party scripts <code class="rule">performance/third-party-scripts</code></p>
+            <p dir="auto">No third-party scripts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Drop third-party scripts you do not need, and load the rest with async or defer.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">4 other checks passed.</p>
       
@@ -2900,6 +3036,14 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
           
+          <tr><th scope="row">Web font declarations</th><td dir="auto">0</td><td>-</td><td dir="auto">0 without font-display. Inline @font-face and Google Fonts links only</td></tr>
+          
+          <tr><th scope="row">Font files</th><td dir="auto">0</td><td>-</td><td dir="auto">Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet</td></tr>
+          
+          <tr><th scope="row">Preloaded fonts</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">HTTP version</th><td dir="auto">HTTP/1.1</td><td><span class="vs warn">warn</span></td><td dir="auto"></td></tr>
+          
           </tbody>
         </table></div>
         
@@ -2977,7 +3121,7 @@ tbody th { font-weight: 500; }
     <summary>
       <span class="pill fair">64</span>
       <span class="page-url" dir="auto">http://fixture.test/contact.html</span>
-      <span class="page-count">26 issues</span>
+      <span class="page-count">27 issues</span>
     </summary>
     <div class="page-body">
       
@@ -3525,6 +3669,46 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTTP/2 or HTTP/3 <code class="rule">performance/http-version</code></p>
+            <p dir="auto">Served over HTTP/1.1</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Font loading <code class="rule">performance/font-display</code></p>
+            <p dir="auto">No web fonts declared in the HTML (external stylesheets are not read)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set font-display: swap (or optional) on every @font-face, and add &#38;display=swap to Google Fonts links, so text shows while fonts load.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Resource hints for third-party origins <code class="rule">performance/resource-hints</code></p>
+            <p dir="auto">No third-party origins for scripts, styles or fonts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;preconnect&#34;&#62; (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Third-party scripts <code class="rule">performance/third-party-scripts</code></p>
+            <p dir="auto">No third-party scripts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Drop third-party scripts you do not need, and load the rest with async or defer.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">4 other checks passed.</p>
       
@@ -3840,6 +4024,14 @@ tbody th { font-weight: 500; }
           
           <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
           
+          <tr><th scope="row">Web font declarations</th><td dir="auto">0</td><td>-</td><td dir="auto">0 without font-display. Inline @font-face and Google Fonts links only</td></tr>
+          
+          <tr><th scope="row">Font files</th><td dir="auto">0</td><td>-</td><td dir="auto">Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet</td></tr>
+          
+          <tr><th scope="row">Preloaded fonts</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">HTTP version</th><td dir="auto">HTTP/1.1</td><td><span class="vs warn">warn</span></td><td dir="auto"></td></tr>
+          
           </tbody>
         </table></div>
         
@@ -3915,9 +4107,9 @@ tbody th { font-weight: 500; }
   
   <details class="page" id="page-5">
     <summary>
-      <span class="pill fair">66</span>
+      <span class="pill fair">65</span>
       <span class="page-url" dir="auto">http://fixture.test/missing.html</span>
-      <span class="page-count">27 issues</span>
+      <span class="page-count">28 issues</span>
     </summary>
     <div class="page-body">
       
@@ -4474,6 +4666,46 @@ tbody th { font-weight: 500; }
           </div>
         </li>
         
+        <li class="finding warn">
+          <span class="word">WARN</span>
+          <div class="finding-body">
+            <p class="finding-title">HTTP/2 or HTTP/3 <code class="rule">performance/http-version</code></p>
+            <p dir="auto">Served over HTTP/1.1</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Serve the site over HTTP/2 or HTTP/3. Most hosts and CDNs turn it on with one setting.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Font loading <code class="rule">performance/font-display</code></p>
+            <p dir="auto">No web fonts declared in the HTML (external stylesheets are not read)</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Set font-display: swap (or optional) on every @font-face, and add &#38;display=swap to Google Fonts links, so text shows while fonts load.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Resource hints for third-party origins <code class="rule">performance/resource-hints</code></p>
+            <p dir="auto">No third-party origins for scripts, styles or fonts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Add &#60;link rel=&#34;preconnect&#34;&#62; (or dns-prefetch) for each third-party origin the page loads scripts, styles or fonts from.</p>
+          </div>
+        </li>
+        
+        <li class="finding info">
+          <span class="word">INFO</span>
+          <div class="finding-body">
+            <p class="finding-title">Third-party scripts <code class="rule">performance/third-party-scripts</code></p>
+            <p dir="auto">No third-party scripts</p>
+            
+            <p class="fix"><span class="fix-label">Fix:</span> Drop third-party scripts you do not need, and load the rest with async or defer.</p>
+          </div>
+        </li>
+        
       </ul>
       <p class="ok">4 other checks passed.</p>
       
@@ -4752,6 +4984,14 @@ tbody th { font-weight: 500; }
           <tr><th scope="row">HTML size</th><td dir="auto">0 KB</td><td><span class="vs ok">ok</span></td><td dir="auto">Raw document, before assets</td></tr>
           
           <tr><th scope="row">Script tags</th><td dir="auto">0</td><td><span class="vs ok">ok</span></td><td dir="auto">0 external, 0 inline</td></tr>
+          
+          <tr><th scope="row">Web font declarations</th><td dir="auto">0</td><td>-</td><td dir="auto">0 without font-display. Inline @font-face and Google Fonts links only</td></tr>
+          
+          <tr><th scope="row">Font files</th><td dir="auto">0</td><td>-</td><td dir="auto">Referenced from inline CSS. The rendered stage lists slow font requests from any stylesheet</td></tr>
+          
+          <tr><th scope="row">Preloaded fonts</th><td dir="auto">0</td><td>-</td><td dir="auto"></td></tr>
+          
+          <tr><th scope="row">HTTP version</th><td dir="auto">HTTP/1.1</td><td><span class="vs warn">warn</span></td><td dir="auto"></td></tr>
           
           </tbody>
         </table></div>

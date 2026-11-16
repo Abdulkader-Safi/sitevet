@@ -5,12 +5,12 @@ expression: text
 sitevet <version>  http://fixture.test
 up to 100 pages, depth 5
 crawling...
-crawled 5 pages, running 470 checks
-1/5  http://fixture.test/  77/100  WARN
-2/5  http://fixture.test/about.html  73/100  WARN
-3/5  http://fixture.test/orphan.html  73/100  WARN
+crawled 5 pages, running 490 checks
+1/5  http://fixture.test/  76/100  WARN
+2/5  http://fixture.test/about.html  72/100  WARN
+3/5  http://fixture.test/orphan.html  72/100  WARN
 4/5  http://fixture.test/contact.html  64/100  WARN
-5/5  http://fixture.test/missing.html  66/100  WARN
+5/5  http://fixture.test/missing.html  65/100  WARN
 
 Score  0/100  FAIL
   analytics              63  WARN  0 fail, 5 warn
@@ -22,7 +22,7 @@ Score  0/100  FAIL
   internationalization  100  PASS  0 fail, 0 warn
   legal                  32  FAIL  0 fail, 5 warn
   links                  90  PASS  1 fail, 0 warn
-  performance            69  WARN  0 fail, 10 warn
+  performance            58  WARN  0 fail, 15 warn
   security               47  FAIL  5 fail, 25 warn
   social-media           38  FAIL  0 fail, 10 warn
   structured-data        80  WARN  0 fail, 10 warn

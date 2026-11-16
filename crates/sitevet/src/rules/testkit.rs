@@ -18,6 +18,9 @@ pub(crate) struct Page {
     /// Status for every link not listed in `link_status`.
     pub links_ok: bool,
     pub link_status: Vec<(String, u16)>,
+    /// `Content-Length` for checked links and scripts.
+    pub link_bytes: Vec<(String, u64)>,
+    pub http_version: Option<String>,
     pub rendered: Option<RenderedData>,
 }
 
@@ -43,6 +46,8 @@ pub(crate) fn page(html: &str) -> Page {
         },
         links_ok: true,
         link_status: Vec::new(),
+        link_bytes: Vec::new(),
+        http_version: Some("HTTP/2".into()),
         rendered: None,
     }
 }
@@ -74,6 +79,7 @@ impl Page {
             redirect_chain: vec!["https://example.com/hop".into(); self.redirects],
             html_bytes: self.html.len() as u64,
             response_ms: 12,
+            http_version: self.http_version.clone(),
             ..Default::default()
         };
         let origin = url::Url::parse(&self.site.origin)
@@ -81,15 +87,24 @@ impl Page {
             .unwrap_or_else(|_| url::Url::parse("https://example.com").unwrap().origin());
         crate::extract::extract(&dom, &mut data, &origin);
         let mut links = LinkStatusMap::new();
-        for l in data.links.iter().filter_map(|l| l.url.clone()) {
+        let scripts = data.scripts.iter().filter_map(|s| s.src.clone());
+        for l in data.links.iter().filter_map(|l| l.url.clone()).chain(scripts) {
             let status = self.link_status.iter().find(|(u, _)| *u == l).map(|(_, s)| *s).unwrap_or(if self.links_ok {
                 200
             } else {
                 404
             });
+            let bytes = self.link_bytes.iter().find(|(u, _)| *u == l).map(|(_, b)| *b);
             links.insert(
                 l,
-                LinkStatus { ok: (200..300).contains(&status), status, redirected: false, chain: 0, error: None },
+                LinkStatus {
+                    ok: (200..300).contains(&status),
+                    status,
+                    redirected: false,
+                    chain: 0,
+                    error: None,
+                    bytes,
+                },
             );
         }
         let cx = RuleCx {

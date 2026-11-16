@@ -16,7 +16,30 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
 | M8 site-wide   | Done. Merged in PR #8, released in 0.4.0 on 2026-11-13. Report section in review |
 | M9 trust       | Done. Merged in PR #9, released in 0.4.0 on 2026-11-13 |
-| M10 to M14     | Not started                              |
+| M10 performance | Built on branch `m10/performance`, PR #10 open, not merged |
+| M11 to M14     | Not started                              |
+
+## M10: performance depth
+
+Built on the branch `m10/performance`. The TS package lists phase 6 in its backlog without code beyond the M4 vitals, so this is new. The browser stage already read the navigation timing entry; it now keeps the rest of it.
+
+### Acceptance boxes
+
+- [x] FR-PERF-01: in a real Chrome (`tests/browser.rs`, `SITEVET_TEST_CHROME=1`), total load, DNS, TCP, response time, DOM interactive, DOM content loaded, DOM complete and FCP are all present and not negative.
+- [x] FR-PERF-02: the same audit shows INP as "not measurable without interaction", never 0 or empty.
+- [x] FR-PERF-03: an image the fixture server holds for 600 ms is in the slow request list. Layout shift count and the largest single shift are reported; with no slow request the metric says "None exceeded the threshold".
+- [x] FR-PERF-04: `performance/font-display`, `performance/http-version`, `performance/resource-hints` and `performance/third-party-scripts` each pass and fail on matching test pages.
+
+### Decisions made in M10
+
+- `PerfMetrics` gets `timings` (DNS, TCP, response and the three DOM milestones), `fcp_ms`, `inp_ms`, `layout_shifts`, `largest_shift` and `slow_resources`, all `#[serde(default)]`. PageSpeed Insights fills only FCP; the other values say "Not reported by PageSpeed Insights".
+- INP is observed through Event Timing, so it would show a value if an interaction ever happened, but an audit never clicks or types, so it shows the explicit state.
+- The four static checks are rules. `http-version` is a warning; the other three are info severity, so a missing web font setting or hint never costs much. Registry: 105 rules.
+- `font-display` reads inline `@font-face` and Google Fonts links only. External stylesheets are not fetched, and the message says so. On abdulkadersafi.com the fonts sit in built CSS files, so the static check sees none, while the rendered stage lists the five `.woff2` files among the slow requests.
+- Third-party means another site than the page, judged by the last two host labels (so `cdn.example.com` is first party on `example.com`). This misjudges `.co.uk`-style suffixes; a public suffix list would fix it if it matters.
+- Script weight comes from `Content-Length`, read by the shared link checker, which now also checks third-party script URLs, each once per audit. Servers that send no length (Google Tag Manager on HEAD) show "size unknown". `LinkStatus` gets `bytes`.
+- `PageData` and each fetch record the negotiated HTTP version. A response that offers HTTP/3 through `Alt-Svc` passes.
+- On abdulkadersafi.com one of two pages rendered side by side recorded no FCP paint entry. The metric then shows as missing, not 0.
 
 ## M9: trust and compliance
 

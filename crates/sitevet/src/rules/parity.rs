@@ -32,10 +32,11 @@ fn findings(p: &Page, only: &[&str]) -> Vec<crate::Finding> {
 fn registry_has_the_94_ts_rules_plus_new_ones() {
     // 94 from the TS package, then structured-data/faqpage-valid and howto-valid (M7), then
     // legal/refund-policy, legal/ad-disclosure, eeat/contact-details, eeat/editorial-policy and
-    // eeat/nap-consistency (M9).
+    // eeat/nap-consistency (M9), then performance/font-display, http-version, resource-hints and
+    // third-party-scripts (M10).
     let rules = super::all_rules();
-    assert_eq!(rules.len(), 101);
-    assert_eq!(rules.iter().map(|r| r.meta().id).collect::<HashSet<_>>().len(), 101);
+    assert_eq!(rules.len(), 105);
+    assert_eq!(rules.iter().map(|r| r.meta().id).collect::<HashSet<_>>().len(), 105);
     // Every rule ID sits under its own category.
     assert!(rules.iter().all(|r| r.meta().id.starts_with(&format!("{}/", r.meta().category))));
 }
