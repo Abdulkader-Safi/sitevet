@@ -16,12 +16,12 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M7 answer engine | Done. Merged in PR #6, released in 0.3.0 on 2026-11-13, 0.3.1 the same day with the page-type fix (PR #7) |
 | M8 site-wide   | Done. Merged in PR #8, released in 0.4.0 on 2026-11-13. Report section in review |
 | M9 trust       | Done. Merged in PR #9, released in 0.4.0 on 2026-11-13 |
-| M10 performance | Built on branch `m10/performance`, PR #10 open, not merged |
+| M10 performance | Done. Merged in PR #10, released in 0.5.0 on 2026-11-16 |
 | M11 to M14     | Not started                              |
 
 ## M10: performance depth
 
-Built on the branch `m10/performance`. The TS package lists phase 6 in its backlog without code beyond the M4 vitals, so this is new. The browser stage already read the navigation timing entry; it now keeps the rest of it.
+Merged in PR #10 and released in 0.5.0 on 2026-11-16. The TS package lists phase 6 in its backlog without code beyond the M4 vitals, so this is new. The browser stage already read the navigation timing entry; it now keeps the rest of it.
 
 ### Acceptance boxes
 
