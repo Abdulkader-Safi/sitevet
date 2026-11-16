@@ -1,6 +1,6 @@
 # sitevet
 
-A website audit engine in Rust. Point it at a URL and it crawls the site, checks every page against 94+ rules for SEO, security, accessibility and performance. You get back a scored report as HTML, Markdown or JSON.
+A website audit engine in Rust. Point it at a URL and it crawls the site, checks every page against 105 rules for SEO, security, accessibility and performance. You get back a scored report as HTML, Markdown or JSON.
 
 It ships two ways from one codebase:
 
@@ -9,6 +9,14 @@ It ships two ways from one codebase:
 
 > [!NOTE]
 > sitevet 0.5.0 is out. More features are on the way, and build progress is in [`PROGRESS.md`](./PROGRESS.md).
+
+## Documentation
+
+The [wiki](https://github.com/Abdulkader-Safi/sitevet/wiki) has the full guides:
+
+- CLI: [quick start](https://github.com/Abdulkader-Safi/sitevet/wiki/CLI-quick-start), [every flag and `sitevet.toml` key](https://github.com/Abdulkader-Safi/sitevet/wiki/CLI-configuration), [history and baselines](https://github.com/Abdulkader-Safi/sitevet/wiki/CLI-history-and-baselines), [use in CI](https://github.com/Abdulkader-Safi/sitevet/wiki/CLI-in-CI).
+- Library: [quick start](https://github.com/Abdulkader-Safi/sitevet/wiki/Library-quick-start), [progress events and `spawn`](https://github.com/Abdulkader-Safi/sitevet/wiki/Library-events-and-spawn), [custom rules and collectors](https://github.com/Abdulkader-Safi/sitevet/wiki/Library-custom-rules-and-collectors), [reading the report and history](https://github.com/Abdulkader-Safi/sitevet/wiki/Library-report-and-history).
+- [Checks and scoring](https://github.com/Abdulkader-Safi/sitevet/wiki/Checks-and-scoring): what each category covers, rendered checks, and how scores are worked out.
 
 ## Install
 
@@ -96,7 +104,7 @@ sitevet init
 
 The report goes to stdout, or to `--out` (the format follows its extension unless `--format` says otherwise). Progress goes to stderr. The exit code is 0 when the audit ran and passed, 1 when `--fail-under` or `--fail-on` tripped, and 2 when it could not run.
 
-Settings can live in a `sitevet.toml` in the current folder (`sitevet init` writes one with every default). Its keys match the library options one to one, and command-line flags override it. The full rule list is in [`docs/rules.md`](./docs/rules.md). History lives in `history.db` under `SITEVET_HOME`, or the OS data folder (`~/Library/Application Support/sitevet`, `~/.local/share/sitevet`, `%APPDATA%\sitevet`).
+Settings can live in a `sitevet.toml` in the current folder (`sitevet init` writes one with every default). Its keys match the library options one to one, and command-line flags override it. The full rule list is in [`docs/rules.md`](./docs/rules.md). History lives in `history.db` under `SITEVET_HOME`, or the OS data folder (`~/Library/Application Support/sitevet`, `~/.local/share/sitevet`, `%APPDATA%\sitevet`). More on all of this in the [CLI](https://github.com/Abdulkader-Safi/sitevet/wiki/CLI-quick-start) and [library](https://github.com/Abdulkader-Safi/sitevet/wiki/Library-quick-start) guides.
 
 ## License
 
