@@ -2,7 +2,7 @@
 
 Status: signed off 2026-11-10
 
-> Changes: 2026-11-10, after sign-off, from stage 4 decisions. FR-DIST-01: the CLI installs as `cargo install sitevet-cli` (workspace split, library crate stays `sitevet`). FR-API-06: names the `spawn` entry point for non-tokio apps. FR-TEXT-05: readability formulas are English only in v1, other languages use the neutral fallback.
+> Changes: 2026-11-10, after sign-off, from stage 4 decisions. FR-DIST-01: the CLI installs as `cargo install sitevet-cli` (workspace split, library crate stays `sitevet`). FR-API-06: names the `spawn` entry point for non-tokio apps. FR-TEXT-05: readability formulas are English only in v1, other languages use the neutral fallback. 2026-11-23, for 0.7.0: FR-CLI-08 and FR-CLI-09 add an optional update check and `sitevet update`, and NFR-03 now allows one request a day to the GitHub releases API for it.
 
 Requirements say what the product must do, not how. Tech choices are in Stage 4. Each traces to the product (Stage 1) and the journeys or core loop (Stage 2).
 
@@ -230,6 +230,10 @@ Requirements say what the product must do, not how. Tech choices are in Stage 4.
   _Acceptance:_ the list has the same count as the registry.
 - **FR-CLI-07 [Should]** `sitevet init` writes a commented `sitevet.toml` with every key at its default.
   _Acceptance:_ the written file parses back into default `Options`.
+- **FR-CLI-08 [Should]** CLI only. Before an audit, `sitevet audit` checks whether a newer release is out, at most once a day. When one is, it asks `Update now? [y/N]`. Yes installs the new version and reruns the same audit with it. No, or any failure in the check, runs the audit with the current version. The check is skipped when stdin or stderr is not a terminal, under `--quiet`, when `SITEVET_NO_UPDATE_CHECK` is set, or with `update_check = false` in the `[cli]` table.
+  _Acceptance:_ a test with the release API served locally shows no request and no prompt when stdin is not a terminal, and the cached answer stops a second request within 24 hours.
+- **FR-CLI-09 [Should]** CLI only. `sitevet update` installs the latest release, or says the installed version is current. It installs the same way sitevet was installed: the release installer when its receipt points at the running binary, `cargo install sitevet-cli` when the binary is in Cargo's bin folder, and otherwise it prints the command to run.
+  _Acceptance:_ against a local release API that reports the running version, `sitevet update` exits 0 and says it is up to date.
 
 ### Run history
 
@@ -313,7 +317,7 @@ No accounts. sitevet audits public URLs only in v1. No basic auth, no custom hea
 
 - NFR-01 Performance: a 100-page static audit (no browser) of a typical site finishes in under 60 s on a 16 GB M1 over a 100 Mbit connection, with the site's response time as the main cost. Rule and collector CPU time is under 50 ms per page on average.
 - NFR-02 Memory: a 1,000-page static audit stays under 500 MB resident memory.
-- NFR-03 Privacy: no telemetry, no update pings, no network requests except to the audited site, the external links it checks, and PSI when a key is set. History stays on the local disk.
+- NFR-03 Privacy: no telemetry, no network requests except to the audited site, the external links it checks, PSI when a key is set, and the update check (FR-CLI-08, FR-CLI-09): at most one request a day to the GitHub releases API, sending only the sitevet version in the user agent. History stays on the local disk.
 - NFR-04 Politeness: at most `concurrency` requests in flight per host (default 5), and an optional per-host delay. The default user agent names sitevet and links to the repo.
 - NFR-05 Scale: up to 10,000 pages per audit, HTML pages up to 10 MB each (larger pages are truncated and flagged), report tables capped.
 - NFR-06 Platforms: library builds on stable Rust for all three desktop OSes (MSRV set in stage 4). CLI binaries for the five targets in FR-DIST-02.

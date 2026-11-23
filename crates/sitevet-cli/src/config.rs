@@ -16,9 +16,11 @@ pub struct CliTable {
     pub fail_on: Option<FailOn>,
     pub baseline: Option<String>,
     pub save: Option<bool>,
+    /// Ask about new releases before an audit. Default true.
+    pub update_check: Option<bool>,
 }
 
-const CLI_KEYS: &[&str] = &["format", "out", "fail_under", "fail_on", "baseline", "save"];
+const CLI_KEYS: &[&str] = &["format", "out", "fail_under", "fail_on", "baseline", "save", "update_check"];
 
 /// The file at `--config`, or `./sitevet.toml` when it exists, or defaults.
 pub fn load(path: Option<&Path>) -> anyhow::Result<(sitevet::Options, CliTable)> {

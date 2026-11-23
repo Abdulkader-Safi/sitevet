@@ -31,6 +31,8 @@ pub enum Command {
     Show(ShowArgs),
     /// Compare two saved runs.
     Diff(DiffArgs),
+    /// Install the latest sitevet release.
+    Update,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, serde::Deserialize)]
