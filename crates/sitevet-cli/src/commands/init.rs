@@ -62,6 +62,8 @@ runtime_threads = 2
 # baseline = "last"
 # Save each run to history (sitevet history lists them).
 # save = true
+# Before an audit at a terminal, ask about a new release at most once a day. SITEVET_NO_UPDATE_CHECK also turns it off.
+# update_check = true
 "#;
 
 pub fn run(args: &InitArgs) -> anyhow::Result<ExitCode> {

@@ -5,6 +5,7 @@ mod args;
 mod commands;
 mod config;
 mod output;
+mod update;
 
 use std::process::ExitCode;
 
@@ -22,6 +23,7 @@ fn main() -> ExitCode {
         Command::History(h) => commands::history::run(&h),
         Command::Show(s) => commands::history::show(&s),
         Command::Diff(d) => commands::history::diff(&d),
+        Command::Update => update::run(),
     };
     match result {
         Ok(code) => code,

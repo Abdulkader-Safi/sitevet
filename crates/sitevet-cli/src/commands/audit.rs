@@ -14,6 +14,9 @@ use crate::output::{BOLD, DIM, RED, score_word};
 
 pub fn run(args: AuditArgs) -> anyhow::Result<ExitCode> {
     let (mut options, cli) = config::load(args.config.as_deref())?;
+    if let Some(code) = crate::update::before_audit(cli.update_check.unwrap_or(true), args.quiet) {
+        return Ok(code);
+    }
     args.apply(&mut options);
     options.validate()?;
 

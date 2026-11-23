@@ -78,7 +78,7 @@ Conventions:
 | rules                 | Option<Vec<Arc<dyn Rule>>>      | library only, replaces the registry; skipped by serde                               |
 | collectors            | Option<Vec<Arc<dyn Collector>>> | library only; skipped by serde                                                      |
 
-`sitevet.toml` keys are the serde names of these fields, except the two library-only ones. CLI-only settings (`format`, `out`, `fail_under`, `fail_on`, `baseline`, `save`) live in a `[cli]` table in the same file.
+`sitevet.toml` keys are the serde names of these fields, except the two library-only ones. CLI-only settings (`format`, `out`, `fail_under`, `fail_on`, `baseline`, `save`, `update_check`) live in a `[cli]` table in the same file.
 
 ### AuditReport
 
@@ -279,6 +279,7 @@ pub trait SiteCollector: Send + Sync { /* same, over SiteCx */ }
 - `sitevet diff <id-a> <id-b> [--format]` (FR-HIST-04).
 - `sitevet rules [--category c] [--format table|md|json]` (FR-CLI-06).
 - `sitevet init [--force]` (FR-CLI-07). Refuses to overwrite without `--force`.
+- `sitevet update` (FR-CLI-09). Exit 0 when up to date or updated, 2 when the check or the install fails.
 - `sitevet --version`, **`sitevet help`**.
 
 ## Permissions
@@ -343,6 +344,7 @@ sitevet has two visible surfaces: CLI terminal output and the HTML report.
 - **Secrets:** `psi_key` comes from the option or `SITEVET_PSI_KEY`. It is never written into reports, history, events, logs or error messages, and the PSI request URL is redacted in logs.
 - **Paths:** `--out` and `screenshot_dir` are written as given. Screenshot file names are derived from a hash of the page URL, never from the URL text, so a page cannot write outside the folder.
 - **Dependencies:** `cargo deny` in CI for licences and RustSec advisories.
+- **Updates (FR-CLI-08, FR-CLI-09):** the CLI asks `https://api.github.com/repos/Abdulkader-Safi/sitevet/releases/latest` for the latest tag, with a 3 s timeout and the user agent `sitevet/<version>`. The answer and the time are cached in `update-check.json` next to `history.db`, and a cached answer younger than 24 hours is used instead of a request. Installing picks the method from where the running binary lives. When a cargo-dist receipt (`sitevet-cli-receipt.json` in `$XDG_CONFIG_HOME` or `~/.config`, `%LOCALAPPDATA%` on Windows) has an install folder that holds the binary, the update downloads that release's installer from GitHub over HTTPS and runs it with `SITEVET_CLI_INSTALL_DIR` set to that folder and `SITEVET_CLI_NO_MODIFY_PATH=1`. When the binary is in Cargo's bin folder, it runs `cargo install sitevet-cli --locked --version <v>`. Otherwise it prints the install command and changes nothing. On Windows the running binary is renamed to `sitevet.exe.old` first, since a running file cannot be overwritten, and renamed back if the install fails. After an update during an audit, the CLI runs the new binary with the same arguments and `SITEVET_NO_UPDATE_CHECK=1`, and exits with its exit code.
 - **Politeness and abuse:** the default user agent identifies sitevet with the repo URL, robots.txt is obeyed by default, and concurrency per host is capped.
 
 ## Logging and observability
@@ -350,7 +352,7 @@ sitevet has two visible surfaces: CLI terminal output and the HTML report.
 - The library logs with `tracing` at debug level for each request (method, URL with query string removed, status, ms) and at warn level for retries and skipped stages. It never installs a subscriber.
 - The CLI installs a subscriber at `--verbose` (debug) or with `SITEVET_LOG=<filter>`. Logs go to stderr.
 - Never logged: `psi_key`, cookie values, `Authorization` headers, full query strings.
-- No telemetry, no crash reporting (NFR-03).
+- No telemetry, no crash reporting (NFR-03). The update check is not telemetry: it fetches the latest release and sends nothing but the user agent.
 
 ## Testing strategy
 
@@ -362,7 +364,7 @@ sitevet has two visible surfaces: CLI terminal output and the HTML report.
 - **PSI tests:** recorded responses replayed by the fixture server. No live calls in CI.
 - **Snapshot tests (insta):** Markdown and HTML for a fixed fixture report, CLI stderr for `audit`, `history`, `diff`, `rules`.
 - **Schema test:** every report produced in the test suite validates against `schema/report.schema.json`, and the committed schema equals the generated one.
-- **CLI tests** in `crates/sitevet-cli/tests/` with `assert_cmd`: exit codes, `NO_COLOR`, TOML errors, `--no-save`.
+- **CLI tests** in `crates/sitevet-cli/tests/` with `assert_cmd`: exit codes, `NO_COLOR`, TOML errors, `--no-save`, and the update check against a local release API (`SITEVET_UPDATE_URL`), never GitHub.
 - **Performance check:** an ignored-by-default benchmark test runs a 100-page fixture site and a 1,000-page memory check for NFR-01 and NFR-02. Run before each release.
 - **Run:** `cargo test --workspace`, `cargo test --workspace --all-features` with Chrome available, `cargo test -p sitevet <name>` for one test.
 
@@ -374,6 +376,8 @@ sitevet has two visible surfaces: CLI terminal output and the HTML report.
 - `SITEVET_LOG` : tracing filter for the CLI, e.g. `sitevet=debug`. Default off.
 - `NO_COLOR` : disables colour (FR-CLI-05).
 - `SITEVET_TEST_CHROME` : `1` enables browser tests. Test only.
+- `SITEVET_NO_UPDATE_CHECK` : any value turns off the update check before audits (FR-CLI-08). Default unset.
+- `SITEVET_UPDATE_URL` : the release API URL the update check asks. Default the GitHub URL above. Test only.
 
 No secrets in the repo. `sitevet.toml` may hold `psi_key`, so `sitevet init` writes it commented out with a note to prefer the environment variable.
 

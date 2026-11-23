@@ -63,6 +63,7 @@ The library and the `sitevet` command:
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file: a three-pane view of categories, pages and findings, with page search and a light and dark theme switch.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
+- Updates: before an audit at a terminal, sitevet checks GitHub for a new release at most once a day and asks whether to update. Say yes and it installs the new version and reruns the same audit. Say no and it audits on the current one. `sitevet update` updates at any time. CI and piped runs never check, and `SITEVET_NO_UPDATE_CHECK=1` or `update_check = false` under `[cli]` turns it off.
 - Run history: every CLI audit is saved locally. `sitevet history` lists runs, `sitevet show <id>` renders one again, `sitevet diff <a> <b>` compares two, and `--baseline last` adds a "changes since" section to the report. `--no-save` skips saving.
 
 Planned: everything listed below.
@@ -100,6 +101,7 @@ sitevet rules --category security
 sitevet history                                   # saved runs, newest first
 sitevet audit https://example.com --baseline last --out report.html
 sitevet init
+sitevet update                                    # install the latest release
 ```
 
 The report goes to stdout, or to `--out` (the format follows its extension unless `--format` says otherwise). Progress goes to stderr. The exit code is 0 when the audit ran and passed, 1 when `--fail-under` or `--fail-on` tripped, and 2 when it could not run.
