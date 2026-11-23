@@ -116,6 +116,7 @@ mod tests {
         PageResult {
             url: "u".into(),
             final_url: "u".into(),
+            title: None,
             status: 200,
             error: None,
             depth: 0,

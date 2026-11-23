@@ -67,11 +67,13 @@ async fn every_fixture_report_validates() {
 /// The report with run-specific values (port, time, durations) replaced, for snapshots.
 fn stable(text: &str, origin: &str) -> String {
     let time = regex::Regex::new(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z").unwrap();
-    let duration = regex::Regex::new(r"in \d+\.\d s").unwrap();
+    let short_time = regex::Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}").unwrap();
+    let duration = regex::Regex::new(r"\b\d+\.\d s\b").unwrap();
     let ms = regex::Regex::new(r"\b\d+ ms\b").unwrap();
     let text = text.replace(origin, "http://fixture.test").replace(env!("CARGO_PKG_VERSION"), "<version>");
     let text = time.replace_all(&text, "2026-01-01T00:00:00Z");
-    let text = duration.replace_all(&text, "in 1.0 s");
+    let text = short_time.replace_all(&text, "2026-01-01 00:00");
+    let text = duration.replace_all(&text, "1.0 s");
     ms.replace_all(&text, "1 ms").into_owned()
 }
 
@@ -94,8 +96,8 @@ async fn markdown_snapshot() {
 async fn html_snapshot_and_offline() {
     let (report, origin) = basic_report().await;
     let html = render(&report, Format::Html);
-    // FR-REPORT-03: nothing in the file loads from anywhere.
-    for needle in ["src=", "<link", "<script", "url(", "@import", "<iframe", "<img"] {
+    // FR-REPORT-03: nothing in the file loads from anywhere. The one inline script loads nothing.
+    for needle in ["src=", "<link", "<script src", "url(", "@import", "<iframe", "<img"] {
         assert!(!html.contains(needle), "the report contains {needle}");
     }
     assert!(html.contains("prefers-color-scheme: dark"));
@@ -121,7 +123,7 @@ async fn hostile_page_text_is_escaped() {
     let report = audit(&fx.url("/"), Options::default()).await.unwrap();
     let html = render(&report, Format::Html);
     // The parser takes the <script> apart; its text is quoted, escaped, as evidence.
-    assert!(!html.contains("<script>"));
+    assert!(!html.contains("<script>alert"));
     assert!(html.contains("a | b alert(1)"));
     let md = render(&report, Format::Markdown);
     assert!(!md.contains("a | b"), "pipes in page text are escaped");

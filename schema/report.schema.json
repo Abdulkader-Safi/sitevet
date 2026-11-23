@@ -721,6 +721,14 @@
           "maximum": 65535,
           "minimum": 0
         },
+        "title": {
+          "description": "The `<title>` text, whitespace collapsed. Reports saved before 0.6.0 have none.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
         "truncated": {
           "description": "True when the HTML went over 10 MB and was cut.",
           "type": "boolean"
@@ -733,6 +741,7 @@
       "required": [
         "url",
         "final_url",
+        "title",
         "status",
         "error",
         "depth",
