@@ -19,6 +19,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M10 performance | Done. Merged in PR #10, released in 0.5.0 on 2026-11-16 |
 | M11 tech stack | Done. Merged in PR #13, released in 0.6.0 on 2026-11-23 |
 | HTML report redesign (option C) | Merged in PR #14, released in 0.6.0 on 2026-11-23. Fix for the page link scrolling the whole report merged in PR #15, released in 0.6.1. Page detail built from inline JSON (about 70 times fewer elements) and a clearer empty category filter merged in PR #16, released in 0.6.2 |
+| Update check and `sitevet update` (FR-CLI-08, FR-CLI-09) | Merged in PR #17, released in 0.7.0 on 2026-11-23 |
 | M12 to M14     | Not started                              |
 
 ## M11: tech stack fingerprinting
