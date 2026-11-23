@@ -143,7 +143,7 @@ body:has(#v-changes:focus-visible) label[for="v-changes"] { outline: 2px solid v
 
 /* Three panes */
 .view-pages { grid-template-columns: 280px 420px minmax(0, 1fr); }
-.pane { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.pane { position: relative; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .cats-pane { background: var(--bg-sunken); border-right: 1px solid var(--border); }
 .pages-pane { border-right: 1px solid var(--border); }
 .pane-label { font: 500 11px/14px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
