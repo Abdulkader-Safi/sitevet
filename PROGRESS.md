@@ -17,7 +17,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M8 site-wide   | Done. Merged in PR #8, released in 0.4.0 on 2026-11-13. Report section in review |
 | M9 trust       | Done. Merged in PR #9, released in 0.4.0 on 2026-11-13 |
 | M10 performance | Done. Merged in PR #10, released in 0.5.0 on 2026-11-16 |
-| M11 tech stack | Built on branch `m11/fingerprints`, PR open, not merged |
+| M11 tech stack | Built on branch `m11/fingerprints`, PR #13 open, not merged |
 | M12 to M14     | Not started                              |
 
 ## M11: tech stack fingerprinting
