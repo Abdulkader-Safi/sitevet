@@ -35,7 +35,22 @@ pub fn render_with(report: &AuditReport, format: Format, _options: &RenderOption
         // ponytail: serialising plain structs cannot fail; an empty string would only mean a serde bug.
         Format::Json => serde_json::to_string_pretty(report).unwrap_or_default(),
         Format::Markdown => MarkdownReport { v: View::new(report, md_escape) }.render().unwrap_or_default(),
-        Format::Html => HtmlReport { v: View::new(report, str::to_string), css: CSS }.render().unwrap_or_default(),
+        Format::Html => {
+            let mut v = View::new(report, str::to_string);
+            // The page list opens on the worst page.
+            v.pages.sort_by_key(|p| p.score);
+            HtmlReport {
+                v,
+                css: CSS,
+                js: JS,
+                wordmark: include_str!("../../assets/report/wordmark.svg"),
+                icon_sun: include_str!("../../assets/report/icon-sun.svg"),
+                icon_moon: include_str!("../../assets/report/icon-moon.svg"),
+                icon_search: include_str!("../../assets/report/icon-search.svg"),
+            }
+            .render()
+            .unwrap_or_default()
+        }
     }
 }
 
@@ -51,6 +66,8 @@ pub fn report_schema() -> &'static str {
 }
 
 const CSS: &str = include_str!("../../assets/report.css");
+/// Theme switch, search, category filter and sort. The report reads fine without it.
+const JS: &str = include_str!("../../assets/report.js");
 
 /// The TS package's category names and order, then sitevet's own.
 const CATEGORIES: [(&str, &str); 17] = [
@@ -164,6 +181,13 @@ struct View {
     pages_count: usize,
     version: String,
     schema_version: u32,
+    /// "2026-11-13 14:39"
+    generated_short: String,
+    /// The status badge colour of the overall band: pass, warn or fail.
+    band_status: &'static str,
+    fail_total: u32,
+    warn_total: u32,
+    pass_total: u32,
     categories: Vec<CategoryView>,
     pages: Vec<PageView>,
     blocked: Vec<(String, String)>,
@@ -183,6 +207,8 @@ struct SiteView {
 struct ChangesView {
     /// "run 12 (2026-11-10T09:30:00Z)" or "report.json (2026-...)".
     baseline: String,
+    /// "run 12" or the file name.
+    name: String,
     /// "+3", "-2" or "0".
     score_change: String,
     score_band: &'static str,
@@ -213,6 +239,7 @@ impl ChangesView {
             |v: &[super::FindingRef]| v.iter().map(|f| (esc(&f.rule_id), esc(&f.url), esc(&f.message))).collect();
         Self {
             baseline: esc(&format!("{name} ({})", b.generated_at)),
+            name: esc(&name),
             score_change: signed(d.score_change),
             score_band: match d.score_change {
                 1.. => "good",
@@ -242,6 +269,7 @@ impl ChangesView {
 }
 
 struct CategoryView {
+    id: String,
     name: String,
     score: u8,
     band: &'static str,
@@ -253,12 +281,26 @@ struct CategoryView {
 struct PageView {
     anchor: String,
     url: String,
+    /// The path on the audited site, or the full URL on another host.
+    path: String,
+    depth: u32,
+    response_ms: u64,
+    kb: u64,
+    fail_count: usize,
+    /// Fail and warn findings: what the page list calls issues.
+    open_issues: usize,
+    /// Every finding that is not a pass, worst first.
+    issues: Vec<FindingView>,
+    /// (title, rule ID) of each passed check.
+    passed: Vec<(String, String)>,
+    metric_count: usize,
+    /// Space-separated category IDs with an open issue, for the category filter.
+    cats: String,
     final_url: Option<String>,
     status: u16,
     error: Option<String>,
     score: u8,
     band: &'static str,
-    open_issues: usize,
     groups: Vec<FindingGroup>,
     metric_groups: Vec<MetricGroup>,
 }
@@ -270,6 +312,8 @@ struct FindingGroup {
 }
 
 struct FindingView {
+    /// Category ID, for the category filter.
+    cat: String,
     word: &'static str,
     class: &'static str,
     rule_id: String,
@@ -283,6 +327,7 @@ struct FindingView {
 
 fn finding_view(f: &Finding, urls: &[String], esc: fn(&str) -> String) -> FindingView {
     FindingView {
+        cat: f.category.clone(),
         word: status_word(f.status),
         class: status_class(f.status),
         rule_id: esc(&f.rule_id),
@@ -330,9 +375,19 @@ impl View {
             pages_count: r.pages.len(),
             version: r.sitevet_version.clone(),
             schema_version: r.schema_version,
+            generated_short: r.generated_at.replace('T', " ").chars().take(16).collect(),
+            band_status: match overall_band {
+                "good" => "pass",
+                "fair" => "warn",
+                _ => "fail",
+            },
+            fail_total: r.categories.iter().map(|c| c.fail).sum(),
+            warn_total: r.categories.iter().map(|c| c.warn).sum(),
+            pass_total: r.categories.iter().map(|c| c.pass).sum(),
             categories: categories
                 .into_iter()
                 .map(|c| CategoryView {
+                    id: c.category.clone(),
                     name: category_name(&c.category),
                     score: c.score,
                     band: band(c.score).0,
@@ -341,7 +396,10 @@ impl View {
                     warn: c.warn,
                 })
                 .collect(),
-            pages: r.pages.iter().enumerate().map(|(i, p)| PageView::new(i, p, esc)).collect(),
+            pages: {
+                let host = url::Url::parse(&r.start_url).ok().and_then(|u| u.host_str().map(str::to_string));
+                r.pages.iter().enumerate().map(|(i, p)| PageView::new(i, p, host.as_deref(), esc)).collect()
+            },
             blocked: r.blocked.iter().map(|b| (esc(&b.url), esc(b.rule.as_deref().unwrap_or("")))).collect(),
             changes: r.changes.as_ref().map(|d| ChangesView::new(d, esc)),
             site: (!r.site.findings.is_empty() || !r.site.metrics.is_empty()).then(|| {
@@ -369,7 +427,7 @@ impl View {
 }
 
 impl PageView {
-    fn new(i: usize, p: &PageResult, esc: fn(&str) -> String) -> Self {
+    fn new(i: usize, p: &PageResult, host: Option<&str>, esc: fn(&str) -> String) -> Self {
         let mut cats: Vec<&str> = p.findings.iter().map(|f| f.category.as_str()).collect();
         cats.sort_by_key(|c| category_rank(c));
         cats.dedup();
@@ -386,18 +444,41 @@ impl PageView {
                 }
             })
             .collect();
+        let path = match url::Url::parse(&p.url) {
+            Ok(u) if u.host_str() == host => match u.query() {
+                Some(q) => format!("{}?{q}", u.path()),
+                None => u.path().to_string(),
+            },
+            _ => p.url.clone(),
+        };
+        let mut issues: Vec<&Finding> = p.findings.iter().filter(|f| f.status != Status::Pass).collect();
+        issues.sort_by_key(|f| (status_rank(f.status), category_rank(&f.category)));
+        let mut cats: Vec<&str> = issues.iter().map(|f| f.category.as_str()).collect();
+        cats.sort_unstable();
+        cats.dedup();
         Self {
             anchor: format!("page-{}", i + 1),
             url: esc(&p.url),
+            path: esc(&path),
+            depth: p.depth,
+            response_ms: p.response_ms,
+            kb: p.html_bytes.div_ceil(1024),
+            fail_count: issues.iter().filter(|f| f.status == Status::Fail).count(),
+            open_issues: issues.iter().filter(|f| matches!(f.status, Status::Fail | Status::Warn)).count(),
+            cats: cats.join(" "),
+            issues: issues.into_iter().map(|f| finding_view(f, &[], esc)).collect(),
+            passed: p
+                .findings
+                .iter()
+                .filter(|f| f.status == Status::Pass)
+                .map(|f| (esc(&f.title), esc(&f.rule_id)))
+                .collect(),
+            metric_count: p.metrics.len(),
             final_url: (p.final_url != p.url).then(|| esc(&p.final_url)),
             status: p.status,
             error: p.error.as_deref().map(esc),
             score: p.score,
             band: band(p.score).0,
-            open_issues: groups
-                .iter()
-                .map(|g| g.issues.iter().filter(|f| f.word == "FAIL" || f.word == "WARN").count())
-                .sum(),
             groups,
             metric_groups: metric_groups(&p.metrics, esc),
         }
@@ -457,6 +538,11 @@ struct MarkdownReport {
 struct HtmlReport {
     v: View,
     css: &'static str,
+    js: &'static str,
+    wordmark: &'static str,
+    icon_sun: &'static str,
+    icon_moon: &'static str,
+    icon_search: &'static str,
 }
 
 #[cfg(test)]
