@@ -167,3 +167,22 @@ async fn only_filters_site_checks() {
     assert!(r.site.findings.iter().all(|f| f.finding.category == "crawlability"));
     assert!(!r.site.findings.is_empty());
 }
+
+/// FR-TECH-02: recorded responses from WordPress behind Cloudflare detect both, and the
+/// site-wide table counts them.
+#[tokio::test]
+async fn wordpress_on_cloudflare_is_detected() {
+    let fx = Fixture::start(Site::from_dir("wordpress-cloudflare")).await;
+    let r = audit(&fx.url("/"), Options::default()).await.unwrap();
+    let page = &r.pages[0];
+    let page_rows = match &page.metrics.iter().find(|m| m.id == "analytics/tech-stack").unwrap().body {
+        MetricBody::Table { rows, .. } => rows.clone(),
+        _ => panic!("not a table"),
+    };
+    let names: Vec<String> = page_rows.iter().map(|r| text(&r[0])).collect();
+    assert_eq!(names, ["WordPress", "Cloudflare"]);
+    assert_eq!(text(&page_rows[0][2]), "header link");
+    assert_eq!(text(&page_rows[1][2]), "header cf-ray");
+    let site: Vec<Vec<String>> = table(&r, "site/tech-stack").iter().map(|r| r.iter().map(text).collect()).collect();
+    assert_eq!(site, [["Cloudflare", "CDN or host", "1"], ["WordPress", "CMS", "1"]]);
+}

@@ -121,6 +121,7 @@ async fn audit(url: String, options: Options, events: &Events) -> Result<AuditRe
                     };
                     let dom = Html::parse_document(&html);
                     extract::extract(&dom, &mut page, &origin);
+                    page.tech = crate::fingerprint::BUILTIN.detect(&page, &html);
                     let no_links = LinkStatusMap::new();
                     let cx = RuleCx {
                         page: &page,

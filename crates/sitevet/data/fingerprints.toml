@@ -1,0 +1,226 @@
+# Tech stack signatures (FR-TECH-01 to FR-TECH-03), written for sitevet. No Wappalyzer data.
+#
+# One [[vendor]] per product. A vendor is detected when any of its patterns match:
+#   script  regexes for <script src> URLs
+#   html    regexes for the raw HTML
+#   headers response header name (lowercase) = regex for its value; "" means the header is present
+#   cookies regexes for cookie names set by the response
+#   meta    meta tag name (lowercase) = regex for its content
+# category is one of: analytics, ads, cms, framework, cdn.
+# Adding a vendor is one entry here; the engine needs no change.
+
+# Analytics
+
+[[vendor]]
+name = "Google Analytics"
+category = "analytics"
+script = ['googletagmanager\.com/gtag/js\?id=G-', 'google-analytics\.com/(analytics|ga)\.js']
+html = ['gtag\(\s*.config.\s*,\s*.(G|UA)-[A-Z0-9-]+']
+
+[[vendor]]
+name = "Google Tag Manager"
+category = "analytics"
+script = ['googletagmanager\.com/gtm\.js']
+html = ['googletagmanager\.com/ns\.html\?id=GTM-', '\bGTM-[A-Z0-9]{4,}\b']
+
+[[vendor]]
+name = "Hotjar"
+category = "analytics"
+script = ['static\.hotjar\.com']
+html = ['static\.hotjar\.com/c/hotjar-', '\bhjid\s*:']
+
+[[vendor]]
+name = "Microsoft Clarity"
+category = "analytics"
+script = ['clarity\.ms/tag/']
+html = ['clarity\.ms/tag/']
+
+[[vendor]]
+name = "Matomo"
+category = "analytics"
+script = ['/(matomo|piwik)\.js']
+html = ['_paq\.push\(']
+
+[[vendor]]
+name = "Plausible"
+category = "analytics"
+script = ['plausible\.io/js/']
+
+[[vendor]]
+name = "Fathom"
+category = "analytics"
+script = ['cdn\.usefathom\.com']
+
+# Ad pixels
+
+[[vendor]]
+name = "Google Ads"
+category = "ads"
+script = ['googletagmanager\.com/gtag/js\?id=AW-', 'googleadservices\.com/pagead/conversion']
+html = ['gtag\(\s*.config.\s*,\s*.AW-\d+']
+
+[[vendor]]
+name = "Meta Pixel"
+category = "ads"
+script = ['connect\.facebook\.net/[^/]+/fbevents\.js']
+html = ['fbq\(\s*.init.', 'connect\.facebook\.net/[^/]+/fbevents\.js']
+
+[[vendor]]
+name = "TikTok Pixel"
+category = "ads"
+script = ['analytics\.tiktok\.com']
+html = ['ttq\.load\(', 'analytics\.tiktok\.com/i18n/pixel']
+
+[[vendor]]
+name = "LinkedIn Insight Tag"
+category = "ads"
+script = ['snap\.licdn\.com/li\.lms-analytics']
+html = ['_linkedin_partner_id', 'snap\.licdn\.com/li\.lms-analytics']
+
+[[vendor]]
+name = "X Pixel"
+category = "ads"
+script = ['static\.ads-twitter\.com/uwt\.js']
+html = ['twq\(\s*.(init|config).', 'static\.ads-twitter\.com/uwt\.js']
+
+[[vendor]]
+name = "Pinterest Tag"
+category = "ads"
+script = ['s\.pinimg\.com/ct/core\.js']
+html = ['pintrk\(\s*.load.', 's\.pinimg\.com/ct/core\.js']
+
+[[vendor]]
+name = "Snap Pixel"
+category = "ads"
+script = ['sc-static\.net/scevent\.min\.js']
+html = ['snaptr\(\s*.init.', 'sc-static\.net/scevent\.min\.js']
+
+# CMS
+
+[[vendor]]
+name = "WordPress"
+category = "cms"
+html = ['/wp-content/(themes|plugins|uploads)/', '/wp-includes/']
+headers = { link = 'api\.w\.org' }
+meta = { generator = '^WordPress' }
+
+[[vendor]]
+name = "Shopify"
+category = "cms"
+script = ['cdn\.shopify\.com']
+html = ['cdn\.shopify\.com/s/', 'Shopify\.theme']
+headers = { x-shopid = "", x-shopify-stage = "" }
+
+[[vendor]]
+name = "Webflow"
+category = "cms"
+html = ['data-wf-page=', 'data-wf-site=']
+meta = { generator = '^Webflow' }
+
+[[vendor]]
+name = "Wix"
+category = "cms"
+html = ['static\.wixstatic\.com', 'static\.parastorage\.com']
+headers = { x-wix-request-id = "" }
+meta = { generator = '^Wix' }
+
+[[vendor]]
+name = "Drupal"
+category = "cms"
+html = ['/sites/default/files/', 'drupal-settings-json', 'Drupal\.settings']
+headers = { x-drupal-cache = "", x-generator = '^Drupal' }
+meta = { generator = '^Drupal' }
+
+[[vendor]]
+name = "Joomla"
+category = "cms"
+html = ['/media/jui/', '/components/com_[a-z]+/']
+meta = { generator = '^Joomla' }
+
+[[vendor]]
+name = "Squarespace"
+category = "cms"
+html = ['static1\.squarespace\.com', 'Static\.SQUARESPACE_CONTEXT']
+
+[[vendor]]
+name = "Ghost"
+category = "cms"
+html = ['ghost-(portal|sodo-search)', '/ghost/api/']
+meta = { generator = '^Ghost' }
+
+# Frameworks and libraries
+
+[[vendor]]
+name = "React"
+category = "framework"
+script = ['react(-dom)?(\.production)?(\.min)?\.js']
+html = ['data-reactroot', 'id="__next"', '__REACT_QUERY']
+
+[[vendor]]
+name = "Next.js"
+category = "framework"
+html = ['id="__NEXT_DATA__"', '/_next/static/']
+headers = { x-powered-by = 'Next\.js' }
+
+[[vendor]]
+name = "Vue"
+category = "framework"
+script = ['vue(\.runtime)?(\.global)?(\.prod)?(\.min)?\.js']
+html = ['\sdata-v-[0-9a-f]{8}[\s=>]', 'data-v-app']
+
+[[vendor]]
+name = "Nuxt"
+category = "framework"
+html = ['window\.__NUXT__', '/_nuxt/', 'id="__nuxt"']
+
+[[vendor]]
+name = "Angular"
+category = "framework"
+html = ['\sng-version="', '\sng-app[\s=>]']
+
+[[vendor]]
+name = "Svelte"
+category = "framework"
+html = ['class="[^"]*\bsvelte-[a-z0-9]{6,}', '__sveltekit']
+
+[[vendor]]
+name = "jQuery"
+category = "framework"
+script = ['jquery(-\d[\d.]*)?(\.slim)?(\.min)?\.js', 'code\.jquery\.com']
+
+[[vendor]]
+name = "Laravel"
+category = "framework"
+cookies = ['^laravel_session$']
+
+# CDN and hosting
+
+[[vendor]]
+name = "Cloudflare"
+category = "cdn"
+headers = { cf-ray = "", server = '(?i)^cloudflare' }
+
+[[vendor]]
+name = "Fastly"
+category = "cdn"
+headers = { x-fastly-request-id = "", x-served-by = '^cache-' }
+
+[[vendor]]
+name = "Akamai"
+category = "cdn"
+headers = { x-akamai-transformed = "", server = '(?i)^AkamaiGHost' }
+
+[[vendor]]
+name = "Amazon CloudFront"
+category = "cdn"
+headers = { x-amz-cf-id = "", via = '(?i)cloudfront' }
+
+[[vendor]]
+name = "Vercel"
+category = "cdn"
+headers = { x-vercel-id = "", server = '(?i)^Vercel' }
+
+[[vendor]]
+name = "Netlify"
+category = "cdn"
+headers = { x-nf-request-id = "", server = '(?i)^Netlify' }

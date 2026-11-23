@@ -318,6 +318,15 @@ tbody th { font-weight: 500; }
     </table></div>
     
     <div class="table-wrap"><table>
+      <caption>Tech stack</caption>
+      <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Pages</th></tr></thead>
+      <tbody>
+      <tr><td colspan="3">None found.</td></tr>
+      
+      </tbody>
+    </table></div>
+    
+    <div class="table-wrap"><table>
       <caption>Orphan pages</caption>
       <thead><tr><th scope="col">URL</th></tr></thead>
       <tbody>
@@ -1131,6 +1140,19 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Analytics</h4>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Tech stack</caption>
+          <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Found by</th></tr></thead>
+          <tbody>
+          <tr><td colspan="3">None found.</td></tr>
+          
+          </tbody>
+        </table></div>
         
         
         <h4>E-E-A-T</h4>
@@ -2061,6 +2083,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Analytics</h4>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Tech stack</caption>
+          <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Found by</th></tr></thead>
+          <tbody>
+          <tr><td colspan="3">None found.</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
         <h4>E-E-A-T</h4>
         
         <div class="table-wrap"><table>
@@ -2988,6 +3023,19 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Analytics</h4>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Tech stack</caption>
+          <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Found by</th></tr></thead>
+          <tbody>
+          <tr><td colspan="3">None found.</td></tr>
+          
+          </tbody>
+        </table></div>
         
         
         <h4>E-E-A-T</h4>
@@ -3978,6 +4026,19 @@ tbody th { font-weight: 500; }
         
         
         
+        <h4>Analytics</h4>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Tech stack</caption>
+          <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Found by</th></tr></thead>
+          <tbody>
+          <tr><td colspan="3">None found.</td></tr>
+          
+          </tbody>
+        </table></div>
+        
+        
         <h4>E-E-A-T</h4>
         
         <div class="table-wrap"><table>
@@ -4937,6 +4998,19 @@ tbody th { font-weight: 500; }
           </tbody>
         </table></div>
         
+        
+        
+        <h4>Analytics</h4>
+        
+        
+        <div class="table-wrap"><table>
+          <caption>Tech stack</caption>
+          <thead><tr><th scope="col">Vendor</th><th scope="col">Type</th><th scope="col">Found by</th></tr></thead>
+          <tbody>
+          <tr><td colspan="3">None found.</td></tr>
+          
+          </tbody>
+        </table></div>
         
         
         <h4>E-E-A-T</h4>

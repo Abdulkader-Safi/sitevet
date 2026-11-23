@@ -22,6 +22,7 @@ mod crawl;
 mod engine;
 mod error;
 mod extract;
+mod fingerprint;
 #[cfg(feature = "history")]
 mod history;
 mod metrics;
@@ -41,6 +42,7 @@ pub use engine::{
 };
 pub use error::{Error, Result};
 pub use extract::{Heading, Image, Link, MetaTag, PageData, Script};
+pub use fingerprint::TechHit;
 #[cfg(feature = "history")]
 pub use history::{History, RunId, RunSummary};
 pub use options::Options;

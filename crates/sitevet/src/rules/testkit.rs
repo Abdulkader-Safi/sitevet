@@ -86,6 +86,7 @@ impl Page {
             .map(|u| u.origin())
             .unwrap_or_else(|_| url::Url::parse("https://example.com").unwrap().origin());
         crate::extract::extract(&dom, &mut data, &origin);
+        data.tech = crate::fingerprint::BUILTIN.detect(&data, &self.html);
         let mut links = LinkStatusMap::new();
         let scripts = data.scripts.iter().filter_map(|s| s.src.clone());
         for l in data.links.iter().filter_map(|l| l.url.clone()).chain(scripts) {

@@ -1,0 +1,3 @@
+# Headers as Cloudflare in front of WordPress sends them.
+[routes."/"]
+headers = { server = "cloudflare", cf-ray = "8c1f2d3e4a5b6c7d-FRA", cf-cache-status = "DYNAMIC", link = '<https://garden.example/wp-json/>; rel="https://api.w.org/"' }
