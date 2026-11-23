@@ -18,7 +18,7 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M9 trust       | Done. Merged in PR #9, released in 0.4.0 on 2026-11-13 |
 | M10 performance | Done. Merged in PR #10, released in 0.5.0 on 2026-11-16 |
 | M11 tech stack | Done. Merged in PR #13, released in 0.6.0 on 2026-11-23 |
-| HTML report redesign (option C) | Merged in PR #14, released in 0.6.0 on 2026-11-23 |
+| HTML report redesign (option C) | Merged in PR #14, released in 0.6.0 on 2026-11-23. Fix for the page link scrolling the whole report merged in PR #15, released in 0.6.1 |
 | M12 to M14     | Not started                              |
 
 ## M11: tech stack fingerprinting
