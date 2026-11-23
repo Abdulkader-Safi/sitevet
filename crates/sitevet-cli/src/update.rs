@@ -6,7 +6,7 @@
 
 use std::io::{BufRead, IsTerminal, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Command, ExitCode};
+use std::process::{Command, ExitCode, Stdio};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use anstream::eprintln;
@@ -188,15 +188,30 @@ fn installer(version: &str, prefix: &Path) -> anyhow::Result<()> {
             .text()
             .await
     })?;
-    let path = std::env::temp_dir().join(format!("sitevet-{}-{name}", std::process::id()));
-    std::fs::write(&path, script).with_context(|| format!("could not write {}", path.display()))?;
-    let status = Command::new(program)
-        .args(args)
-        .arg(&path)
-        .env("SITEVET_CLI_INSTALL_DIR", prefix)
-        .env("SITEVET_CLI_NO_MODIFY_PATH", "1")
-        .status();
-    let _ = std::fs::remove_file(&path);
+    let mut cmd = Command::new(program);
+    cmd.args(args).env("SITEVET_CLI_INSTALL_DIR", prefix).env("SITEVET_CLI_NO_MODIFY_PATH", "1");
+    let status = if cfg!(windows) {
+        // PowerShell needs a file. %TEMP% is private to the user, and create_new refuses a file
+        // someone put there first.
+        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map_or(0, |d| d.subsec_nanos());
+        let path = std::env::temp_dir().join(format!("sitevet-{}-{nanos}-{name}", std::process::id()));
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+            .with_context(|| format!("could not create {}", path.display()))?;
+        file.write_all(script.as_bytes())?;
+        drop(file);
+        let status = cmd.arg(&path).status();
+        let _ = std::fs::remove_file(&path);
+        status
+    } else {
+        // `sh -s` reads the script from stdin, as `curl | sh` does, so nothing touches the disk.
+        let mut child =
+            cmd.arg("-s").stdin(Stdio::piped()).spawn().with_context(|| format!("could not run {program}"))?;
+        child.stdin.take().context("no stdin for the installer")?.write_all(script.as_bytes())?;
+        child.wait()
+    };
     if !status.with_context(|| format!("could not run {program}"))?.success() {
         bail!("the installer failed");
     }
