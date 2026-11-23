@@ -30,6 +30,8 @@ pub(crate) struct SitePage {
     simhash: Option<[u64; 4]>,
     /// No noindex, and no canonical pointing at another URL.
     indexable: bool,
+    /// (vendor, category) found by the fingerprints.
+    tech: Vec<(String, String)>,
 }
 
 fn norm(u: &str) -> String {
@@ -68,6 +70,7 @@ impl SitePage {
                 .collect(),
             simhash: p.simhash,
             indexable: !noindex && !canonical_elsewhere,
+            tech: p.tech.iter().map(|t| (t.name.clone(), t.category.clone())).collect(),
         }
     }
 }
@@ -434,6 +437,29 @@ pub(crate) fn analyze(input: &Input) -> SiteResult {
         &["Link", "Ends at", "Linked from"],
         hops.iter().map(|(from, to, n)| vec![cell(*from), cell(*to), num(*n as f64)]).collect(),
     ));
+
+    // FR-TECH-01 and FR-TECH-02 across the site: each vendor and how many pages it is on.
+    let mut stack: BTreeMap<(&String, &String), usize> = BTreeMap::new();
+    for p in pages {
+        for (name, category) in &p.tech {
+            *stack.entry((category, name)).or_default() += 1;
+        }
+    }
+    let mut rows: Vec<((&String, &String), usize)> = stack.into_iter().collect();
+    rows.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    metrics.push(
+        table(
+            "site/tech-stack",
+            "Tech stack",
+            &["Vendor", "Type", "Pages"],
+            rows.iter()
+                .map(|((category, name), n)| {
+                    vec![cell(*name), cell(crate::metrics::tech_kind(category)), num(*n as f64)]
+                })
+                .collect(),
+        )
+        .with_note(format!("Across {} crawled pages", pages.len())),
+    );
 
     // FR-SITE-03 and FR-SITE-06 need a sitemap.
     let sitemap = &input.site.sitemap;

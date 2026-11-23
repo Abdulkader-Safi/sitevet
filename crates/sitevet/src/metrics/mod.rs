@@ -10,6 +10,8 @@ mod meta;
 mod page;
 mod performance;
 mod schema_tree;
+mod tech;
+pub(crate) use tech::kind as tech_kind;
 mod text;
 mod trust;
 
@@ -32,6 +34,7 @@ pub(crate) fn all() -> Vec<Arc<dyn Collector>> {
         schema_tree::collectors(),
         trust::collectors(),
         performance::collectors(),
+        tech::collectors(),
     ]
     .concat()
 }
