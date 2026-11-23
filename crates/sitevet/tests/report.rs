@@ -104,13 +104,26 @@ async fn html_snapshot_and_offline() {
     insta::assert_snapshot!("basic_html", stable(&html, &origin));
 }
 
+/// The page details the report script builds from, joined: the HTML of every page's detail pane.
+fn page_details(html: &str) -> String {
+    let start = html.find(r#"<script type="application/json" id="pages-data">"#).expect("page data script") + 48;
+    let json = &html[start..start + html[start..].find("</script>").unwrap()];
+    assert!(!json.contains("</") && !json.contains("<!--"), "the data cannot close its script element");
+    let pages: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+    pages.values().filter_map(|v| v.as_str()).collect::<Vec<_>>().join("\n")
+}
+
 /// FR-REPORT-04: text quoted from a right-to-left page sits in a `dir="auto"` element.
 #[tokio::test]
 async fn arabic_title_is_marked_for_its_own_direction() {
     let fx = Fixture::start(Site::from_dir("arabic")).await;
     let report = audit(&fx.url("/"), Options::default()).await.unwrap();
     let html = render(&report, Format::Html);
-    assert!(html.contains(r#"<pre dir="auto"><code>مرحبا بكم</code></pre>"#), "the short title is quoted as evidence");
+    let detail = page_details(&html);
+    assert!(
+        detail.contains(r#"<pre dir="auto"><code>مرحبا بكم</code></pre>"#),
+        "the short title is quoted as evidence"
+    );
     let md = render(&report, Format::Markdown);
     assert!(md.contains("مرحبا بكم"));
 }
@@ -123,8 +136,9 @@ async fn hostile_page_text_is_escaped() {
     let report = audit(&fx.url("/"), Options::default()).await.unwrap();
     let html = render(&report, Format::Html);
     // The parser takes the <script> apart; its text is quoted, escaped, as evidence.
-    assert!(!html.contains("<script>alert"));
-    assert!(html.contains("a | b alert(1)"));
+    let detail = page_details(&html);
+    assert!(!html.contains("<script>alert") && !detail.contains("<script>alert"));
+    assert!(detail.contains("a | b alert(1)"));
     let md = render(&report, Format::Markdown);
     assert!(!md.contains("a | b"), "pipes in page text are escaped");
 }

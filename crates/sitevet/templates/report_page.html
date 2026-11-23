@@ -1,0 +1,74 @@
+{%- import "report_macros.html" as m -%}
+        <article class="detail-page" id="{{ p.anchor }}">
+          <div class="d-head">
+            <span class="chip-score {{ p.band }}"
+              >{{ p.score }}<span class="sr"> out of 100</span></span
+            >
+            <h2 class="d-path" dir="auto">{{ p.path }}</h2>
+            <p class="d-meta">
+              {% if p.error.is_some() %}not fetched{% else %}{{ p.status }} ·
+              depth {{ p.depth }} · {{ p.response_ms }} ms · {{ p.kb }} KB{%
+              endif %}
+            </p>
+          </div>
+          {% if let Some(f) = p.final_url %}
+          <p class="d-note">Final URL: <span dir="auto">{{ f }}</span></p>
+          {% endif %} {% if let Some(e) = p.error %}
+          <p class="error">Could not fetch this page: {{ e }}</p>
+          {% else if p.status >= 400 %}
+          <p class="error">HTTP status {{ p.status }}</p>
+          {% endif %}
+          <div class="d-tabs" role="radiogroup" aria-label="Page sections">
+            <input
+              type="radio"
+              class="sr tf"
+              name="{{ p.anchor }}-tab"
+              id="{{ p.anchor }}-f"
+              checked
+            /><label class="lf" for="{{ p.anchor }}-f"
+              >Findings {{ p.issues.len() }}</label
+            >
+            <input
+              type="radio"
+              class="sr tm"
+              name="{{ p.anchor }}-tab"
+              id="{{ p.anchor }}-m"
+            /><label class="lm" for="{{ p.anchor }}-m"
+              >Measurements {{ p.metric_count }}</label
+            >
+            <input
+              type="radio"
+              class="sr tp"
+              name="{{ p.anchor }}-tab"
+              id="{{ p.anchor }}-p"
+            /><label class="lp" for="{{ p.anchor }}-p"
+              >Passed {{ p.passed.len() }}</label
+            >
+          </div>
+          <div class="panel pf">
+            {% if p.issues.is_empty() %}
+            <p class="empty">No issues on this page.</p>
+            {% endif %}
+            <ul class="findings">
+              {% for f in p.issues %}{% call m::finding(f) %}{% endcall %}{% endfor %}
+            </ul>
+          </div>
+          <div class="panel pm">
+            {% if p.metric_groups.is_empty() %}
+            <p class="empty">No measurements.</p>
+            {% endif %} {% call m::tables(p.metric_groups) %}{% endcall %}
+          </div>
+          <div class="panel pp">
+            {% if p.passed.is_empty() %}
+            <p class="empty">No checks passed.</p>
+            {% endif %}
+            <ul class="passed">
+              {% for (title, rule) in p.passed %}
+              <li>
+                <span class="badge pass"><span class="mark"></span>PASS</span>
+                <span>{{ title }}</span> <code class="f-rule">{{ rule }}</code>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </article>

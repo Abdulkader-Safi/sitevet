@@ -14,26 +14,61 @@
     store(root.dataset.theme);
   });
 
-  // The selected page row follows the URL hash.
+  // Page details live as HTML strings in #pages-data. Only the open page is in the document,
+  // which keeps a 100-page report at a few thousand elements.
+  const pages = JSON.parse(d.getElementById("pages-data").textContent);
   const list = d.querySelector(".page-list");
   const rows = all(".page-row");
-  const first = d.querySelector(".detail-page");
-  const select = () => {
-    const id = location.hash.slice(1) || (first && first.id);
+  const detail = d.querySelector(".detail");
+  const detailEmpty = d.getElementById("detail-empty");
+  const pagesEmpty = d.getElementById("pages-empty");
+  const pageSearch = d.getElementById("page-search");
+  let cat = "";
+  let open = null;
+
+  const filterFindings = () => all(".detail .finding").forEach((f) => { f.hidden = cat !== "" && f.dataset.cat !== cat; });
+  const show = (id) => {
+    if (id === open) return;
+    open = id;
+    const old = detail.querySelector(".detail-page");
+    if (old) old.remove();
+    if (id && pages[id]) detail.insertAdjacentHTML("beforeend", pages[id]);
     rows.forEach((a) => (a.hash.slice(1) === id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
+    filterFindings();
+  };
+  // The open page follows the URL hash, and falls back to the first row.
+  const select = () => {
+    const id = location.hash.slice(1);
+    show(pages[id] ? id : rows.length ? rows[0].hash.slice(1) : null);
   };
   addEventListener("hashchange", select);
   select();
 
   // Page search and the category filter combine.
-  let cat = "";
-  const pageSearch = d.getElementById("page-search");
   const apply = () => {
     const term = pageSearch.value.trim().toLowerCase();
     rows.forEach((a) => {
       a.parentElement.hidden = !a.dataset.search.includes(term) || (cat !== "" && !a.dataset.cats.split(" ").includes(cat));
     });
-    all(".detail .finding").forEach((f) => { f.hidden = cat !== "" && f.dataset.cat !== cat; });
+    filterFindings();
+
+    // Keep the detail on a page the list still shows, or say why the list is empty.
+    const shown = rows.filter((a) => !a.parentElement.hidden);
+    if (shown.length && !shown.some((a) => a.hash.slice(1) === open)) location.replace(shown[0].hash);
+    if (!shown.length) show(null);
+    else if (open === null) select();
+    detailEmpty.hidden = pagesEmpty.hidden = shown.length > 0;
+    if (shown.length) return;
+    const name = cat && d.querySelector(`.cat[data-cat="${cat}"] .cat-name`).textContent;
+    const site = cat ? all(`.view-site .finding[data-cat="${cat}"]`).length : 0;
+    pagesEmpty.textContent = term ? "No page matches this search." : `No page has ${name} issues.`;
+    if (!term && site) {
+      const link = d.createElement("label");
+      link.htmlFor = "v-site";
+      link.className = "link";
+      link.textContent = `${site} site-wide ${site === 1 ? "finding" : "findings"}`;
+      pagesEmpty.append(" See the ", link, ".");
+    }
   };
   pageSearch.addEventListener("input", apply);
   all(".cat").forEach((b) => b.addEventListener("click", () => {

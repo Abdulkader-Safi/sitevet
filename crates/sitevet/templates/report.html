@@ -1,93 +1,4 @@
-{%- macro finding(f) -%}
-<li class="finding" data-cat="{{ f.cat }}">
-  <div class="f-head">
-    <span class="badge {{ f.class }}"
-      ><span class="mark"></span>{{ f.word }}</span
-    >
-    <p class="f-title">{{ f.title }}</p>
-    <code class="f-rule">{{ f.rule_id }}</code>
-  </div>
-  <p class="f-msg" dir="auto">{{ f.message }}</p>
-  {% if let Some(e) = f.evidence %}
-  <pre dir="auto"><code>{{ e }}</code></pre>
-  {% endif %} {% if !f.urls.is_empty() %}
-  <details class="f-urls">
-    <summary>
-      {{ f.urls.len() }} {% if f.urls.len() == 1 %}page{% else %}pages{% endif
-      %}
-    </summary>
-    <ul>
-      {% for u in f.urls %}
-      <li dir="auto">{{ u }}</li>
-      {% endfor %}
-    </ul>
-  </details>
-  {% endif %} {% if let Some(fix) = f.fix %}
-  <p class="f-fix">
-    <span class="f-fix-label">Fix</span> <span>{{ fix }}</span>
-  </p>
-  {% endif %}
-</li>
-{%- endmacro -%} {%- macro tables(groups) -%} {% for g in groups.iter() %}
-<h3 class="m-group">{{ g.name }}</h3>
-{% if !g.values.is_empty() %}
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Metric</th>
-        <th scope="col">Value</th>
-        <th scope="col">Status</th>
-        <th scope="col">Note</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in g.values %}
-      <tr>
-        <th scope="row">{{ m.label }}</th>
-        <td dir="auto">{{ m.value }}</td>
-        <td>
-          {% if m.status.is_empty() %}-{% else %}<span class="vs {{ m.status }}"
-            >{{ m.status }}</span
-          >{% endif %}
-        </td>
-        <td dir="auto">{{ m.note }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endif %} {% for t in g.tables %}
-<div class="table-wrap">
-  <table>
-    <caption>
-      {{ t.label }}{% if !t.caption.is_empty() %}
-      <span class="showing">({{ t.caption }})</span
-      >{% endif %}
-    </caption>
-    <thead>
-      <tr>
-        {% for c in t.columns %}
-        <th scope="col">{{ c }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% if t.rows.is_empty() %}
-      <tr>
-        <td colspan="{{ t.columns.len() }}">None found.</td>
-      </tr>
-      {% endif %} {% for r in t.rows %}
-      <tr>
-        {% for cell in r %}
-        <td dir="auto">{{ cell }}</td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endfor %} {% endfor %} {%- endmacro -%}
+{%- import "report_macros.html" as m -%}
 <!doctype html>
 <html lang="en">
   <head>
@@ -261,6 +172,7 @@
             /><kbd>/</kbd></label
           >
         </div>
+        <p class="empty pages-empty" id="pages-empty" hidden></p>
         <ul class="page-list">
           {% for p in v.pages %}
           <li>
@@ -297,81 +209,8 @@
       </section>
 
       <section class="pane detail" aria-label="Page detail">
-        {% for p in v.pages %}
-        <article class="detail-page" id="{{ p.anchor }}">
-          <div class="d-head">
-            <span class="chip-score {{ p.band }}"
-              >{{ p.score }}<span class="sr"> out of 100</span></span
-            >
-            <h2 class="d-path" dir="auto">{{ p.path }}</h2>
-            <p class="d-meta">
-              {% if p.error.is_some() %}not fetched{% else %}{{ p.status }} ·
-              depth {{ p.depth }} · {{ p.response_ms }} ms · {{ p.kb }} KB{%
-              endif %}
-            </p>
-          </div>
-          {% if let Some(f) = p.final_url %}
-          <p class="d-note">Final URL: <span dir="auto">{{ f }}</span></p>
-          {% endif %} {% if let Some(e) = p.error %}
-          <p class="error">Could not fetch this page: {{ e }}</p>
-          {% else if p.status >= 400 %}
-          <p class="error">HTTP status {{ p.status }}</p>
-          {% endif %}
-          <div class="d-tabs" role="radiogroup" aria-label="Page sections">
-            <input
-              type="radio"
-              class="sr tf"
-              name="{{ p.anchor }}-tab"
-              id="{{ p.anchor }}-f"
-              checked
-            /><label class="lf" for="{{ p.anchor }}-f"
-              >Findings {{ p.issues.len() }}</label
-            >
-            <input
-              type="radio"
-              class="sr tm"
-              name="{{ p.anchor }}-tab"
-              id="{{ p.anchor }}-m"
-            /><label class="lm" for="{{ p.anchor }}-m"
-              >Measurements {{ p.metric_count }}</label
-            >
-            <input
-              type="radio"
-              class="sr tp"
-              name="{{ p.anchor }}-tab"
-              id="{{ p.anchor }}-p"
-            /><label class="lp" for="{{ p.anchor }}-p"
-              >Passed {{ p.passed.len() }}</label
-            >
-          </div>
-          <div class="panel pf">
-            {% if p.issues.is_empty() %}
-            <p class="empty">No issues on this page.</p>
-            {% endif %}
-            <ul class="findings">
-              {% for f in p.issues %}{% call finding(f) %}{% endcall %}{% endfor %}
-            </ul>
-          </div>
-          <div class="panel pm">
-            {% if p.metric_groups.is_empty() %}
-            <p class="empty">No measurements.</p>
-            {% endif %} {% call tables(p.metric_groups) %}{% endcall %}
-          </div>
-          <div class="panel pp">
-            {% if p.passed.is_empty() %}
-            <p class="empty">No checks passed.</p>
-            {% endif %}
-            <ul class="passed">
-              {% for (title, rule) in p.passed %}
-              <li>
-                <span class="badge pass"><span class="mark"></span>PASS</span>
-                <span>{{ title }}</span> <code class="f-rule">{{ rule }}</code>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </article>
-        {% endfor %}
+        <p class="empty" id="detail-empty" hidden>No page matches the filter.</p>
+        <noscript><p class="empty">Page details need JavaScript. The Overview and Site-wide views work without it.</p></noscript>
       </section>
     </main>
 
@@ -381,14 +220,14 @@
       <p class="empty">All {{ site.passed }} site-wide checks passed.</p>
       {% else %}
       <ul class="findings">
-        {% for f in site.issues %}{% call finding(f) %}{% endcall %}{% endfor %}
+        {% for f in site.issues %}{% call m::finding(f) %}{% endcall %}{% endfor %}
       </ul>
       {% if site.passed > 0 %}
       <p class="empty">
         {{ site.passed }} other site-wide {% if site.passed == 1 %}check{% else
         %}checks{% endif %} passed.
       </p>
-      {% endif %} {% endif %} {% call tables(site.metric_groups) %}{% endcall %} {% else %}
+      {% endif %} {% endif %} {% call m::tables(site.metric_groups) %}{% endcall %} {% else %}
       <p class="empty">No site-wide checks ran.</p>
       {% endif %}
     </section>
@@ -545,6 +384,7 @@
       {% endif %}
     </section>
     {% endif %}
+    <script type="application/json" id="pages-data">{{ pages_json|safe }}</script>
     <script>{{ js|safe }}</script>
   </body>
 </html>
