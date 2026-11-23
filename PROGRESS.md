@@ -17,7 +17,26 @@ Build log for sitevet, kept per section 13 of `docs/spec/06-build-spec.md`.
 | M8 site-wide   | Done. Merged in PR #8, released in 0.4.0 on 2026-11-13. Report section in review |
 | M9 trust       | Done. Merged in PR #9, released in 0.4.0 on 2026-11-13 |
 | M10 performance | Done. Merged in PR #10, released in 0.5.0 on 2026-11-16 |
-| M11 to M14     | Not started                              |
+| M11 tech stack | Built on branch `m11/fingerprints`, PR open, not merged |
+| M12 to M14     | Not started                              |
+
+## M11: tech stack fingerprinting
+
+Built on the branch `m11/fingerprints`. The TS package's phase 7 is backlog only, so the signatures are written from scratch, with no Wappalyzer data (stage 4).
+
+### Acceptance boxes
+
+- [x] FR-TECH-01: `tracking.html` with GA4 and the Meta pixel lists exactly Google Analytics and Meta Pixel. Every other fixture page lists nothing.
+- [x] FR-TECH-02: the `wordpress-cloudflare` fixture site, with WordPress markup and Cloudflare's headers recorded in `site.toml`, detects WordPress (from the `Link: api.w.org` header) and Cloudflare (from `cf-ray`).
+- [x] FR-TECH-03: a test parses a signature written in test data and detects it on a page, with no engine change.
+
+### Decisions made in M11
+
+- `data/fingerprints.toml` has 36 vendors: the 7 analytics tools, 7 ad pixels, 8 CMSs, 8 frameworks and 6 CDNs FR-TECH-01 and FR-TECH-02 name. Each can match script URLs, the raw HTML, headers, cookies and meta tags. The file is checked at test time: bad regexes, unknown keys and unknown categories are errors.
+- Matching uses `regex` sets only. Stage 4 lists `aho-corasick` too; it is already in the build through `regex`, which uses it inside, so sitevet adds no direct dependency on it.
+- The per-page table is `analytics/tech-stack`; `analytics/tag-present` stays as the rule, as the build spec says. The site-wide section gets `site/tech-stack` with the number of pages per vendor.
+- Cookie patterns match `name=value`, so a renamed Laravel session cookie is still found by its encrypted value (base64 JSON starting `{"iv":`). Only the cookie name goes into the report, never the value. abdulkadersafi.com caught this: its session cookie is `abdulkader-safi-session`, and the first version missed Laravel.
+- `PageData` gets `tech`. Detection runs once per page on the raw HTML, in the same blocking step as extraction.
 
 ## M10: performance depth
 

@@ -59,6 +59,7 @@ The library and the `sitevet` command:
 - Trust signals: the author byline (name, page link, bio) and the publish and updated dates as values, which of Article, BlogPosting, Organization, author, datePublished and dateModified the schema has, and the share of outbound citations to government, education, standards and reference sites. Rules check for a refund or returns page, a phone number and address, an ads or affiliate disclosure where the page has affiliate links or ads, and an editorial policy. On pages with LocalBusiness schema: whether it has an address, geo coordinates, opening hours and a phone, whether the page text shows the same name, street and phone (NAP), and a Google Business Profile link.
 - Site-wide checks after the crawl: duplicate titles, descriptions and H1s, near-duplicate pages (a SimHash of the main content), orphan pages, click depth, internal links that hit a redirect, and the sitemap compared with the crawl in both directions. They count in the category scores and lower the overall score by the share of pages they touch. A site-wide section in the HTML and Markdown reports shows them with the link graph.
 - Performance depth. With `--browser`: total load time, DNS, TCP, response time, the three DOM milestones and first contentful paint, layout shift count and the largest single shift, every request slower than `slow_resource_ms` (300 ms by default), and INP, shown as "not measurable without interaction" because an audit never clicks. Without a browser, rules check `font-display` on web fonts in the HTML, HTTP/2 or HTTP/3, preconnect or dns-prefetch for third-party origins, and the count and size of third-party scripts.
+- Tech stack detection: 7 analytics tools, 7 ad pixels, 8 CMSs, 8 frameworks and libraries and 6 CDNs, from script URLs, markup, response headers, cookies and meta tags. Each page gets a vendor table, and the site-wide section counts the pages each vendor is on. The signatures live in [`data/fingerprints.toml`](./crates/sitevet/data/fingerprints.toml), so adding a vendor is one entry. On `main`, not released yet.
 - Your own rules through the `Rule` trait. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and `examples/custom-rule.rs`.
 - Reports as JSON (with a [JSON Schema](./schema/report.schema.json)), Markdown, or one self-contained HTML file with light and dark themes.
 - The `sitevet` CLI: `audit` with a flag for every option, `sitevet.toml`, progress on stderr, `--fail-under` and `--fail-on` for CI, plus `rules` and `init`.
@@ -76,7 +77,6 @@ The 94 rules from the TypeScript package, covering core SEO, content, links, ima
 
 On top of that, v1 plans to ship:
 
-- Tech stack detection for analytics vendors, ad pixels, the CMS and the CDN.
 - Mobile checks (tap targets, overflow, console errors), screenshots and an opt-in image size audit.
 
 Every page gets two kinds of output. Findings are verdicts (pass, fail, warn) with the offending markup as evidence, and they move the score. Measurements are numbers and tables, like title length or the full heading outline, and they never touch the score.
