@@ -40,6 +40,7 @@ pub fn render_with(report: &AuditReport, format: Format, _options: &RenderOption
             // The page list opens on the worst page.
             v.pages.sort_by_key(|p| p.score);
             HtmlReport {
+                pages_json: pages_json(&v.pages),
                 v,
                 css: CSS,
                 js: JS,
@@ -543,12 +544,28 @@ struct MarkdownReport {
 #[template(path = "report.html")]
 struct HtmlReport {
     v: View,
+    /// Each page's detail as HTML, keyed by anchor. The script builds only the open page,
+    /// so a large report stays a few thousand elements instead of hundreds of thousands.
+    pages_json: String,
     css: &'static str,
     js: &'static str,
     wordmark: &'static str,
     icon_sun: &'static str,
     icon_moon: &'static str,
     icon_search: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "report_page.html")]
+struct PageDetail<'a> {
+    p: &'a PageView,
+}
+
+/// A JSON object of anchor to detail HTML, safe inside a `<script>` element.
+fn pages_json(pages: &[PageView]) -> String {
+    let map: serde_json::Map<String, serde_json::Value> =
+        pages.iter().map(|p| (p.anchor.clone(), PageDetail { p }.render().unwrap_or_default().into())).collect();
+    serde_json::Value::Object(map).to_string().replace("</", r"<\/").replace("<!--", r"<\u0021--")
 }
 
 #[cfg(test)]

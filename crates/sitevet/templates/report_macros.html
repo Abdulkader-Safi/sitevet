@@ -1,0 +1,90 @@
+{%- macro finding(f) -%}
+<li class="finding" data-cat="{{ f.cat }}">
+  <div class="f-head">
+    <span class="badge {{ f.class }}"
+      ><span class="mark"></span>{{ f.word }}</span
+    >
+    <p class="f-title">{{ f.title }}</p>
+    <code class="f-rule">{{ f.rule_id }}</code>
+  </div>
+  <p class="f-msg" dir="auto">{{ f.message }}</p>
+  {% if let Some(e) = f.evidence %}
+  <pre dir="auto"><code>{{ e }}</code></pre>
+  {% endif %} {% if !f.urls.is_empty() %}
+  <details class="f-urls">
+    <summary>
+      {{ f.urls.len() }} {% if f.urls.len() == 1 %}page{% else %}pages{% endif
+      %}
+    </summary>
+    <ul>
+      {% for u in f.urls %}
+      <li dir="auto">{{ u }}</li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %} {% if let Some(fix) = f.fix %}
+  <p class="f-fix">
+    <span class="f-fix-label">Fix</span> <span>{{ fix }}</span>
+  </p>
+  {% endif %}
+</li>
+{%- endmacro -%} {%- macro tables(groups) -%} {% for g in groups.iter() %}
+<h3 class="m-group">{{ g.name }}</h3>
+{% if !g.values.is_empty() %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Metric</th>
+        <th scope="col">Value</th>
+        <th scope="col">Status</th>
+        <th scope="col">Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in g.values %}
+      <tr>
+        <th scope="row">{{ m.label }}</th>
+        <td dir="auto">{{ m.value }}</td>
+        <td>
+          {% if m.status.is_empty() %}-{% else %}<span class="vs {{ m.status }}"
+            >{{ m.status }}</span
+          >{% endif %}
+        </td>
+        <td dir="auto">{{ m.note }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %} {% for t in g.tables %}
+<div class="table-wrap">
+  <table>
+    <caption>
+      {{ t.label }}{% if !t.caption.is_empty() %}
+      <span class="showing">({{ t.caption }})</span
+      >{% endif %}
+    </caption>
+    <thead>
+      <tr>
+        {% for c in t.columns %}
+        <th scope="col">{{ c }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% if t.rows.is_empty() %}
+      <tr>
+        <td colspan="{{ t.columns.len() }}">None found.</td>
+      </tr>
+      {% endif %} {% for r in t.rows %}
+      <tr>
+        {% for cell in r %}
+        <td dir="auto">{{ cell }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endfor %} {% endfor %} {%- endmacro -%}

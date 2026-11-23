@@ -189,8 +189,7 @@ body:has(#v-changes:focus-visible) label[for="v-changes"] { outline: 2px solid v
 
 /* Detail pane: the targeted page, or the first one. */
 .detail { padding: 20px 24px 24px; }
-.detail-page { display: none; flex: 1; min-height: 0; flex-direction: column; gap: 12px; }
-.detail-page:target, .detail:not(:has(.detail-page:target)) .detail-page:first-child { display: flex; }
+.detail-page { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 12px; }
 .d-head { display: flex; align-items: center; gap: 10px; }
 .d-path { flex: 1; min-width: 0; font: 400 13px/20px var(--mono); }
 .d-meta { font: 10px/14px var(--mono); text-transform: uppercase; color: var(--muted); white-space: nowrap; }
@@ -224,6 +223,8 @@ pre { margin: 0; padding: 8px 12px; background: var(--bg-app); border: 1px solid
 .passed li { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .passed .f-rule { margin-left: auto; }
 .empty { color: var(--muted); }
+.pages-empty { padding: 16px; font-size: 12px; line-height: 18px; }
+.link { color: var(--accent-text); text-decoration: underline; cursor: pointer; }
 
 /* Tables (measurements, overview, site-wide) */
 .m-group,

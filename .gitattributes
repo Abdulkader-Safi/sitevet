@@ -1,0 +1,2 @@
+# Templates render into the HTML report byte for byte, including inside its JSON, so keep LF on every OS.
+crates/sitevet/templates/* text eol=lf
