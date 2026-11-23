@@ -31,7 +31,7 @@
   const apply = () => {
     const term = pageSearch.value.trim().toLowerCase();
     rows.forEach((a) => {
-      a.parentElement.hidden = !a.dataset.path.includes(term) || (cat !== "" && !a.dataset.cats.split(" ").includes(cat));
+      a.parentElement.hidden = !a.dataset.search.includes(term) || (cat !== "" && !a.dataset.cats.split(" ").includes(cat));
     });
     all(".detail .finding").forEach((f) => { f.hidden = cat !== "" && f.dataset.cat !== cat; });
   };

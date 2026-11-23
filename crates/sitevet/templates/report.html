@@ -268,6 +268,7 @@
               class="page-row"
               href="#{{ p.anchor }}"
               data-path="{{ p.path|lower }}"
+              data-search="{{ p.search }}"
               data-score="{{ p.score }}"
               data-cats="{{ p.cats }}"
               {%
@@ -280,8 +281,7 @@
               %}
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">{{ p.path }}</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">{{ p.path }}</span>{% if !p.title.is_empty() %}<span class="row-title" dir="auto">{{ p.title }}</span>{% endif %}<span class="row-meta"
                   >{% if p.error.is_some() %}not fetched{% else %}{{ p.open_issues }} {% if p.open_issues == 1 %}issue{% else
                   %}issues{% endif %}{% if p.fail_count > 0 %} · {{ p.fail_count
                   }} fail{% endif %}{% endif %}</span

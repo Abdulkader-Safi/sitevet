@@ -283,6 +283,10 @@ struct PageView {
     url: String,
     /// The path on the audited site, or the full URL on another host.
     path: String,
+    /// The page title, empty when the page has none.
+    title: String,
+    /// Path and title in lowercase, for the page search.
+    search: String,
     depth: u32,
     response_ms: u64,
     kb: u64,
@@ -459,6 +463,8 @@ impl PageView {
         Self {
             anchor: format!("page-{}", i + 1),
             url: esc(&p.url),
+            title: esc(p.title.as_deref().unwrap_or("")),
+            search: esc(&format!("{path} {}", p.title.as_deref().unwrap_or("")).to_lowercase()),
             path: esc(&path),
             depth: p.depth,
             response_ms: p.response_ms,

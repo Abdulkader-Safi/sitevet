@@ -98,6 +98,9 @@ pub struct PageResult {
     /// Normalised, without the fragment.
     pub url: String,
     pub final_url: String,
+    /// The `<title>` text, whitespace collapsed. Reports saved before 0.6.0 have none.
+    #[serde(default)]
+    pub title: Option<String>,
     /// 0 when the fetch failed.
     pub status: u16,
     pub error: Option<String>,

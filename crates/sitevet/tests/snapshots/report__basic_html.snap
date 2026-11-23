@@ -182,6 +182,13 @@ body:has(#v-changes:focus-visible) label[for="v-changes"] { outline: 2px solid v
 .page-row[aria-current] { background: var(--bg-raised); box-shadow: inset 2px 0 var(--accent-bg); }
 .row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); }
 .row-path { font-size: 11px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-title {
+  font: 12px/18px var(--sans);
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .row-meta { font-size: 10px; line-height: 14px; text-transform: uppercase; color: var(--muted); }
 
 .search { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; background: var(--bg-input); border: 1px solid var(--border); color: var(--muted); }
@@ -716,6 +723,7 @@ tbody th { font-weight: 500; }
               class="page-row"
               href="#page-4"
               data-path="/contact.html"
+              data-search="/contact.html "
               data-score="64"
               data-cats="analytics content core-seo crawlability eeat internationalization legal links performance security social-media structured-data"
               
@@ -723,8 +731,7 @@ tbody th { font-weight: 500; }
               
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">/contact.html</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">/contact.html</span><span class="row-meta"
                   >27 issues · 5 fail</span
                 ></span
               >
@@ -739,13 +746,13 @@ tbody th { font-weight: 500; }
               class="page-row"
               href="#page-5"
               data-path="/missing.html"
+              data-search="/missing.html "
               data-score="65"
               data-cats="analytics content core-seo crawlability eeat internationalization legal performance security social-media structured-data"
               
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">/missing.html</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">/missing.html</span><span class="row-meta"
                   >28 issues · 4 fail</span
                 ></span
               >
@@ -760,13 +767,13 @@ tbody th { font-weight: 500; }
               class="page-row"
               href="#page-2"
               data-path="/about.html"
+              data-search="/about.html about"
               data-score="72"
               data-cats="analytics content core-seo crawlability eeat internationalization legal performance security social-media structured-data"
               
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">/about.html</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">/about.html</span><span class="row-title" dir="auto">About</span><span class="row-meta"
                   >25 issues · 3 fail</span
                 ></span
               >
@@ -781,13 +788,13 @@ tbody th { font-weight: 500; }
               class="page-row"
               href="#page-3"
               data-path="/orphan.html"
+              data-search="/orphan.html orphan"
               data-score="72"
               data-cats="analytics content core-seo crawlability eeat internationalization legal performance security social-media structured-data"
               
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">/orphan.html</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">/orphan.html</span><span class="row-title" dir="auto">Orphan</span><span class="row-meta"
                   >25 issues · 3 fail</span
                 ></span
               >
@@ -802,13 +809,13 @@ tbody th { font-weight: 500; }
               class="page-row"
               href="#page-1"
               data-path="/"
+              data-search="/ home"
               data-score="76"
               data-cats="analytics content core-seo crawlability eeat internationalization legal performance security social-media structured-data"
               
             >
               <span class="row-text"
-                ><span class="row-path" dir="auto">/</span
-                ><span class="row-meta"
+                ><span class="row-path" dir="auto">/</span><span class="row-title" dir="auto">Home</span><span class="row-meta"
                   >24 issues · 2 fail</span
                 ></span
               >
@@ -14184,7 +14191,7 @@ tbody th { font-weight: 500; }
   const apply = () => {
     const term = pageSearch.value.trim().toLowerCase();
     rows.forEach((a) => {
-      a.parentElement.hidden = !a.dataset.path.includes(term) || (cat !== "" && !a.dataset.cats.split(" ").includes(cat));
+      a.parentElement.hidden = !a.dataset.search.includes(term) || (cat !== "" && !a.dataset.cats.split(" ").includes(cat));
     });
     all(".detail .finding").forEach((f) => { f.hidden = cat !== "" && f.dataset.cat !== cat; });
   };

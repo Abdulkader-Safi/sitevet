@@ -396,6 +396,7 @@ fn page_result(page: PageData, findings: Vec<Finding>, metrics: Vec<Metric>) -> 
         score: score::score_findings(&findings),
         url: page.url,
         final_url: page.final_url,
+        title: page.title,
         status: page.status,
         error: page.error,
         depth: page.depth,
