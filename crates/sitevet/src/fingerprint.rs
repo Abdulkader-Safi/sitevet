@@ -104,7 +104,8 @@ impl Matcher {
             .headers
             .iter()
             .filter(|(k, _)| k == "set-cookie")
-            .filter_map(|(_, v)| v.split('=').next())
+            // "name=value", without the attributes after the first ";".
+            .filter_map(|(_, v)| v.split(';').next())
             .map(str::trim)
             .collect();
         self.vendors
@@ -132,7 +133,9 @@ impl Matcher {
                         .or_else(|| {
                             v.cookies
                                 .as_ref()
-                                .and_then(|s| cookies.iter().find(|c| s.is_match(c)).map(|c| format!("cookie {c}")))
+                                // The value can be a session secret: only the name is reported.
+                                .and_then(|s| cookies.iter().find(|c| s.is_match(c)))
+                                .map(|c| format!("cookie {}", c.split('=').next().unwrap_or(c)))
                         })
                         .or_else(|| v.html.as_ref().filter(|s| s.is_match(html)).map(|_| "page markup".to_string()))?;
                 Some(TechHit { name: v.name.clone(), category: v.category.clone(), evidence })

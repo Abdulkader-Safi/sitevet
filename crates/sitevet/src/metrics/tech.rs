@@ -85,5 +85,14 @@ mod tests {
         let found = rows(&laravel.metric("analytics/tech-stack"));
         assert_eq!(found.len(), 1);
         assert_eq!(found[0][2], crate::MetricCell::Text("cookie laravel_session".into()));
+        // A renamed session cookie with Laravel's encrypted value. The value never reaches the report.
+        let mut renamed = page("<p>x</p>");
+        renamed.headers.push(("set-cookie".into(), "my-app-session=eyJpdiI6IkdC; path=/; secure".into()));
+        let found = rows(&renamed.metric("analytics/tech-stack"));
+        assert_eq!(found[0][2], crate::MetricCell::Text("cookie my-app-session".into()));
+        // Another framework's session cookie is not Laravel.
+        let mut other = page("<p>x</p>");
+        other.headers.push(("set-cookie".into(), "shop_session=abc123; path=/".into()));
+        assert!(rows(&other.metric("analytics/tech-stack")).is_empty());
     }
 }

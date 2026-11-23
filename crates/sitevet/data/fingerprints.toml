@@ -4,7 +4,7 @@
 #   script  regexes for <script src> URLs
 #   html    regexes for the raw HTML
 #   headers response header name (lowercase) = regex for its value; "" means the header is present
-#   cookies regexes for cookie names set by the response
+#   cookies regexes for "name=value" of cookies the response sets (only the name is reported)
 #   meta    meta tag name (lowercase) = regex for its content
 # category is one of: analytics, ads, cms, framework, cdn.
 # Adding a vendor is one entry here; the engine needs no change.
@@ -191,7 +191,9 @@ script = ['jquery(-\d[\d.]*)?(\.slim)?(\.min)?\.js', 'code\.jquery\.com']
 [[vendor]]
 name = "Laravel"
 category = "framework"
-cookies = ['^laravel_session$']
+# The default cookie name, or a session or XSRF cookie holding Laravel's encrypted value:
+# base64 JSON that starts {"iv":, which is eyJpdiI6.
+cookies = ['^laravel_session=', '^[A-Za-z0-9_-]+[_-]session=eyJpdiI6', '^XSRF-TOKEN=eyJpdiI6']
 
 # CDN and hosting
 
