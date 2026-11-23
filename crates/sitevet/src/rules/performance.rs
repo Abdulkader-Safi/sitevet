@@ -590,4 +590,15 @@ mod tests {
             "1 third-party script(s), size unknown (the server sent no Content-Length)"
         );
     }
+
+    /// RUSTSEC-2026-0592: `Url::origin()` on 10,000 nested `blob:` prefixes overflowed the stack
+    /// in url 2.5.8, which aborts the process. A page can put that in a preconnect href.
+    #[test]
+    fn nested_blob_urls_do_not_overflow() {
+        let href = format!("{}https://example.com/", "blob:".repeat(10_000));
+        let p = page(&format!(
+            r#"<link rel="preconnect" href="{href}"><script src="https://cdn.other.net/a.js"></script>"#
+        ));
+        assert_eq!(p.status("performance/resource-hints"), Status::Warn);
+    }
 }
